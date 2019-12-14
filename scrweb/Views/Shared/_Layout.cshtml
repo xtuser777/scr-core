@@ -1,0 +1,172 @@
+﻿@using Microsoft.AspNetCore.Http;
+
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" type="image/png" href="/images/logo.png">
+
+    <title>@ViewData["Title"] - Sistema de Controle de Representações</title>
+
+    <link rel="stylesheet" type="text/css" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="~/lib/fancybox/jquery.fancybox.min.css"/>
+    <link rel="stylesheet" type="text/css" href="~/css/style.css" />
+</head>
+
+<body>
+    <header>
+        <!-- Barra de ferramentas -->
+        <nav class="navbar navbar-fixed-top navbar-default navbar-scr">
+
+            <div class="container-fluid">
+
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+
+                    <a style="color: #fff; font-weight: bold;" class="navbar-brand" href="/inicio/index">SCR</a>
+
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+
+                    <!-- Botoes -->
+                    <ul class="nav navbar-nav">
+
+                        <!-- Botao inicio -->
+                        <li>
+                            <a style="color: #fff;" class="font-navbar" href="/inicio/index">Início</a>
+                        </li>
+                        <!-- Fim botao inicio -->
+                        <!-- Botao gerenciar -->
+                        <li class="dropdown">
+                            <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Gerenciar <span class="caret"></span></a>
+                            <!-- Popup botao gerenciar -->
+                            <ul class="dropdown-menu">
+                                @if (Context.Session.GetString("nivel") == "1") {<li><a href="/gerenciar/funcionario/index">Funcionários</a></li>}
+                                <li><a href="/gerenciar/cliente/index">Clientes</a></li>
+                                <li><a href="/gerenciar/motorista/index">Motoristas</a></li>
+                                <li><a href="/gerenciar/caminhao/index">Caminhões</a></li>
+                                <li><a href="/gerenciar/representacao/index">Representações</a></li>
+                                <li><a href="/gerenciar/produto/index">Produtos</a></li>
+                                <li><a href="/gerenciar/tipo-caminhao/index">Tipos de Caminhão</a></li>
+                            </ul>
+                            <!-- Fim popup botao gerenciar -->
+                        </li>
+                        <!-- Fim botao gerenciar-->
+                        <!-- Botao orcamento -->
+                        <li class="dropdown">
+                            <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Orçamento <span class="caret"></span></a>
+                            <!-- Popup botao orcamento -->
+                            <ul class="dropdown-menu">
+                                <li><a href="/orcamento/venda/index">Venda</a></li>
+                                <li><a href="/orcamento/frete/index">Frete</a></li>
+                            </ul>
+                            <!-- Fim popup botao orcamento -->
+                        </li>
+                        <!-- Fim botao orcamento -->
+                        <!-- Botao pedido -->
+                        <li class="dropdown">
+                            <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Pedido <span class="caret"></span></a>
+                            <!-- Popup botao pedido -->
+                            <ul class="dropdown-menu">
+                                <li><a href="/pedido/venda/index">Venda</a></li>
+                                <li><a href="/pedido/frete/index">Frete</a></li>
+                                <li><a href="/pedido/status/index">Alterar status</a></li>
+                                @if (Context.Session.GetString("nivel") == "1") {<li><a href="/pedido/autorizar/index">Autorizar Carregamento</a></li>}
+                            </ul>
+                            <!-- Fim popup botao pedido -->
+                        </li>
+                        <!-- Fim botao pedido -->
+                        <!-- Botao controlar -->
+                        @if (Context.Session.GetString("nivel") == "1" || Context.Session.GetString("nivel") == "2") {<li class="dropdown">
+                            <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Controlar <span class="caret"></span></a>
+                            <!-- Popup botao controlar -->
+                            <ul class="dropdown-menu">
+                                <li><a href="/controlar/contas/pagar/index">Contas a Pagar</a></li>
+                                <li><a href="/controlar/contas/receber/index">Contas a Receber</a></li>
+                                <li><a href="/controlar/lancar/despezas/index">Lançar Despesas</a></li>
+                                @if(Context.Session.GetString("nivel") == "1"){<li><a href="/controlar/comissao/index">Comissões</a></li>}
+                            </ul>
+                            <!-- Fim popup botao controlar -->
+                        </li>}
+                        <!-- Fim botao controlar -->
+                        <!-- Botao relatorio -->
+                        @if (Context.Session.GetString("nivel") == "1") {<li class="dropdown">
+                            <a href="#" style="color: #fff;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Relatório <span class="caret"></span></a>
+                            <!-- Popup botao relatorio -->
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Clientes</a></li>
+                                <li><a href="#">Pedido de Venda</a></li>
+                                <li><a href="#">Pedido de Frete</a></li>
+                                <li><a href="#">Orçamento de Venda</a></li>
+                                <li><a href="#">Orçamento de Frete</a></li>
+                                <li ><a href="#">Contas a Pagar</a></li>
+                                <li><a href="#">Contas a Receber</a></li>
+                                <li><a href="#">Comissões</a></li>
+                                <li><a href="#">Motoristas/Caminhões</a></li>
+                                <li><a href="#">Produtos</a></li>
+                            </ul>
+                            <!-- Fim popup botao relatorio -->
+                        </li>}
+                        <!-- Fim botao relatorio -->
+                    </ul>
+                    <!-- Fim botoes -->
+                    <!-- Ferramentas do sistema -->
+                    <ul class="nav navbar-nav navbar-right">
+                        <!-- Botao sobre -->
+                        <li>
+                            <a style="color: #fff;" href="/inicio/sobre">Sobre</a>
+                        </li>
+                        <!-- Fim botao sobre -->
+                        <!-- Botao de usuario -->
+                        <li class="dropdown">
+                            <a href="#" style="color: #fff; font-weight: bold;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@Context.Session.GetString("login") <span class="caret"></span></a>
+                            <!-- Popup usuario -->
+                            <ul class="dropdown-menu">
+                                @if (Context.Session.GetString("nivel") == "1") {<li><a href="#">Configurações</a></li>}
+                                <li><a href="#">Meus Dados</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="/login/logout">Sair</a></li>
+                            </ul>
+                            <!-- Fim popup usuario -->
+                        </li>
+                        <!-- Fim botao de usuario -->
+                    </ul>
+                    <!-- Fim ferramentas do sistema -->
+
+                </div><!-- /.navbar-collapse -->
+
+            </div><!-- /.container-fluid -->
+
+        </nav>
+        <!-- Fim barra de ferramentas -->
+    </header>
+
+    <!-- Conteudo da pagina -->
+    <div class="container">
+        @RenderBody()
+    </div>
+    <!-- Fim conteudo da pagina -->
+
+    <footer>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

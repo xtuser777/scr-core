@@ -1,0 +1,86 @@
+﻿@{
+    ViewData["Title"] = "Gerenciar Funcionarios";
+}
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/gerenciar/funcionario/index.js"></script>
+}
+
+<!-- Card titulo pagina -->
+<div class="card-title">
+    <div class="card-title-container" style="text-align: center;">
+        <h4>
+            <b>SCR - Gerenciar Funcionários</b>
+        </h4>
+    </div>
+</div>
+<!-- Fim card titulo pagina -->
+
+<div class="fieldset-card">
+    <div class="fieldset-card-legend" style="width: 200px;">Filtragem de Funcionários</div>
+
+    <div class="fieldset-card-container">
+        <div class="row">
+            <div class="col-sm-8">
+                <label for="txFiltro">Filtro:</label>
+                <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Digite algo para filtrar..." />
+            </div>
+
+            <div class="col-sm-2">
+                <label for="dtFiltroAdmissao">Filtro Admissão:</label>
+                <input type="date" id="dtFiltroAdmissao" class="form-control input-sm" style="width: 100%;" />
+            </div>
+
+            <div class="col-sm-2">
+                <label for="btFiltrar">&nbsp;</label>
+                <button id="btFiltrar" class="btn btn-primary btn-sm" style="width: 100%;">FILTRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fieldset-card">
+    <div class="fieldset-card-legend" style="width: 200px;">Funcionários Cadastrados</div>
+
+    <div class="fieldset-card-container">
+        <div class="table-container">
+            <table id="tbFuncionarios" class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">NOME</th>
+                        <th style="width: 10%;">USUÁRIO</th>
+                        <th style="width: 15%;">CPF</th>
+                        <th style="width: 10%;">ADMISSÃO</th>
+                        <th style="width: 10%;">TIPO</th>
+                        <th>EMAIL</th>
+                    </tr>
+                </thead>
+
+                <tbody id="tbFuncionariosBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-2" style="margin-right: 4.5%;">
+        <button id="btVoltar" class="btn btn-default" style="width: 100%;">VOLTAR</button>
+    </div>
+
+    <div class="col-sm-2" style="margin-right: 4%;">
+        <button id="btDesativar" class="btn btn-danger" style="width: 100%;">DESATIVAR</button>
+    </div>
+
+    <div class="col-sm-2" style="margin-right: 4%;">
+        <button id="btReativar" class="btn btn-primary" style="width: 100%;">REATIVAR</button>
+    </div>
+
+    <div class="col-sm-2" style="margin-right: 4%;">
+        <button id="btDetalhes" class="btn btn-info" style="width: 100%;">DETALHES</button>
+    </div>
+
+    <div class="col-sm-2">
+        <button id="btNovo" class="btn btn-success" style="width: 100%;">NOVO</button>
+    </div>
+</div>
