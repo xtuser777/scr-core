@@ -4,13 +4,68 @@
 }
 
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
-    <title>title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <title>Autenticação de Usuário - Sistema de Controle de Representações</title>
+
+    <link rel="stylesheet" type="text/css" href="/lib/bootstrap/dist/css/bootstrap.css">
+
+    <style type="text/css">
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            background: rgb(0,120,212);
+        }
+
+        .box {
+            border-radius: 10px;
+            width: 700px;
+            padding: 50px 10px 20px 10px;
+            background: white;
+        }
+
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        .btn-login {
+            width: 100%;
+        }
+
+        .logo {
+            background-image: url("../images/logo.png");
+            background-size: cover;
+            background-position: center;
+            height: 150px;
+            width: 150px;
+            margin: auto;
+            padding: 0px;
+            border-radius: 0px;
+        }
+    </style>
 </head>
+
 <body>
-<div>
-      
-</div>
+    <div class="container">
+        <div class="box">
+            <div class="logo "></div><br /><br />
+            <h3>Acesso Negado.</h3>
+            <h4>O seu nível de acesso não é permitido para essa função.</h4>
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
+    <script type="text/javascript" src="~/js/login/index.js"></script>
 </body>
 </html>
