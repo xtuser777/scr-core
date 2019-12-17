@@ -19,15 +19,22 @@ namespace scrweb.Filters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            //var nomeController = (string)context.RouteData.Values["controller"];
-            //var nomeAction = (string)context.RouteData.Values["action"];
+            var id = context.HttpContext.Session.GetString("id");
+            var nivel = context.HttpContext.Session.GetString("nivel");
+            var controller = (string)context.RouteData.Values["controller"];
+            var action = (string)context.RouteData.Values["action"];
             //var ipCliente = context.HttpContext.Connection.RemoteIpAddress;
             //var browser = context.HttpContext.Request.Headers["User-Agent"].ToString();
             //var urlReferrer = context.HttpContext.Request.Headers["Referer"].ToString();
 
-            if (context.HttpContext.Session.GetString("id") == null || context.HttpContext.Session.GetString("id") == "")
+            if (string.IsNullOrEmpty(id))
             {
                 context.Result = new RedirectResult("/Login/Logout");
+            } 
+            else 
+            if ((nivel == "2" || nivel == "3") && controller == "Funcionario" && (action == "Index" || action == "Detalhes" || action == "Novo"))
+            {
+                context.Result = new RedirectResult("/Home/Denied");
             }
         }
     }
