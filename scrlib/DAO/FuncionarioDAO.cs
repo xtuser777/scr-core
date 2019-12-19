@@ -27,6 +27,7 @@ namespace scrlib.DAO
             {
                 funcionarios.Add(GetObject(row));
             }
+            
             return funcionarios;
         }
 
@@ -40,6 +41,7 @@ namespace scrlib.DAO
             {
                 return GetObject(dt.Rows[0]);
             }
+
             return null;
         }
 
@@ -52,6 +54,7 @@ namespace scrlib.DAO
             {
                 return GetList(dt);
             }
+            
             return null;
         }
 
@@ -65,6 +68,7 @@ namespace scrlib.DAO
             {
                 return GetObject(dt.Rows[0]);
             }
+            
             return null;
         }
 
@@ -77,6 +81,7 @@ namespace scrlib.DAO
             {
                 return GetList(dt);
             }
+            
             return null;
         }
 
@@ -88,11 +93,14 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@tipo", f.Tipo);
             ComandoSQL.Parameters.AddWithValue("@admissao", f.Admissao);
             ComandoSQL.Parameters.AddWithValue("@pessoa", f.Pessoa);
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 return Convert.ToInt32(dt.Rows[0]["id"]);
             }
+            
             return -1;
         }
 

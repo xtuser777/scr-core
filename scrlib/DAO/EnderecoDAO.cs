@@ -29,6 +29,7 @@ namespace scrlib.DAO
             {
                 enderecos.Add(GetObject(row));
             }
+            
             return enderecos;
         }
 
@@ -40,11 +41,14 @@ namespace scrlib.DAO
                                         from endereco 
                                         where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 endereco = GetObject(dt.Rows[0]);
             }
+            
             return endereco;
         }
 
@@ -54,11 +58,14 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,rua,numero,bairro,complemento,cep,cidade 
                                         from endereco;";
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 enderecos = GetList(dt);
             }
+            
             return enderecos;
         }
 
@@ -74,11 +81,14 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@complemento", e.Complemento);
             ComandoSQL.Parameters.AddWithValue("@cep", e.Cep);
             ComandoSQL.Parameters.AddWithValue("@cidade", e.Cidade);
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 res = Convert.ToInt32(dt.Rows[0]["id"]);
             }
+            
             return res;
         }
 
@@ -101,6 +111,7 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@cep", e.Cep);
             ComandoSQL.Parameters.AddWithValue("@cidade", e.Cidade);
             ComandoSQL.Parameters.AddWithValue("@id", e.Id);
+            
             res = ExecutaComando();
             return res;
         }
@@ -111,6 +122,7 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"delete from endereco where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
+            
             res = ExecutaComando();
             return res;
         }

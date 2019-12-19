@@ -21,7 +21,6 @@ var txlogin = document.getElementById("txLogin");
 var txsenha = document.getElementById("txSenha");
 var txconfsenha = document.getElementById("txConfSenha");
 
-var btlimpar = document.getElementById("btLimpar");
 var btsalvar = document.getElementById("btSalvar");
 var tbestados = document.getElementById("tbEstados");
 var tbestadosbody = document.getElementById("tbEstadosBody");
@@ -62,6 +61,7 @@ var idpessoa = 0;
 var idfuncionario = 0;
 var idusuario = 0;
 
+var nivel_atual = "";
 var login_orig = "";
 var estados = null;
 var cidades = null;
@@ -75,6 +75,52 @@ $(document).ready(function () {
                 option.value = data[i].id;
                 option.text = data[i].descricao;
                 cbnivel.appendChild(option);
+            }
+        }
+    });
+
+    $.getJSON("/Funcionario/ObterFuncInfo", function (response) {
+        if (response != null && response !== "") {
+            idendereco = response.funcionario.pessoa.endereco.id;
+            idpessoa = response.funcionario.pessoa.id;
+            idfuncionario = response.funcionario.id;
+            idusuario = response.id;
+
+            txnome.value = response.funcionario.pessoa.nome;
+            dtNasc.value = FormatarDataIso(response.funcionario.pessoa.nascimento);
+            txrg.value = response.funcionario.pessoa.rg;
+            txcpf.value = response.funcionario.pessoa.cpf;
+            cbtipo.value = response.funcionario.tipo;
+            dtadm.value = FormatarDataIso(response.funcionario.admissao);
+            txrua.value = response.funcionario.pessoa.endereco.rua;
+            txnumero.value = response.funcionario.pessoa.endereco.numero;
+            txbairro.value = response.funcionario.pessoa.endereco.bairro;
+            txcomplemento.value = response.funcionario.pessoa.endereco.complemento;
+            txcep.value = response.funcionario.pessoa.endereco.cep;
+            btestado.innerHTML = response.funcionario.pessoa.endereco.cidade.estado.nome;
+            txidestado.value = response.funcionario.pessoa.endereco.cidade.estado.id;
+            btcidade.innerHTML = response.funcionario.pessoa.endereco.cidade.nome;
+            txidcidade.value = response.funcionario.pessoa.endereco.cidade.id;
+            txtel.value = response.funcionario.pessoa.telefone;
+            txcel.value = response.funcionario.pessoa.celular;
+            txemail.value = response.funcionario.pessoa.email;
+            cbnivel.value = response.nivel.id;
+            nivel_atual = response.nivel.id;
+            txlogin.value = response.login;
+            login_orig = response.login;
+            txsenha.value = response.senha;
+            txconfsenha.value = response.senha;
+
+            if (cbtipo.value === "2") {
+                if (!auth.classList.contains("hidden"))
+                    auth.classList.add("hidden");
+            } else {
+                if (auth.classList.contains("hidden"))
+                    auth.classList.remove("hidden");
+            }
+
+            if (verificarAdmin() === true) {
+                cbnivel.disabled = true;
             }
         }
     });
@@ -282,10 +328,6 @@ function limparCampos() {
     txconfsenha.value = "";
 }
 
-btlimpar.addEventListener("click", function (event) {
-    limparCampos();
-});
-
 btvoltar.addEventListener("click", function (event) {
     limparCampos();
     window.location.href = "../../gerenciar/funcionario/index";
@@ -320,6 +362,21 @@ function verificarLogin(login) {
             alert("Ocorreu um problema na comunicação com o servidor...");
         }
     });
+}
+
+/**
+ * @return {string}
+ */
+function Get(whateverUrl){
+    var Httpreq = new XMLHttpRequest(); // a new request
+    Httpreq.open("GET",whateverUrl,false);
+    Httpreq.send(null);
+    return Httpreq.responseText;
+}
+
+function verificarAdmin() {
+    var data = JSON.parse(Get("/Funcionario/IsLastAdmin"));
+    return (data === true && nivel_atual === 1);
 }
 
 function validarCpf(cpf) {

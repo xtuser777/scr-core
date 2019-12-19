@@ -30,7 +30,8 @@ namespace scrweb.Controllers
         [HttpGet("/Funcionario/Detalhes/{id}", Name = "User_Info")]
         public IActionResult Detalhes(int id)
         {
-            ViewData["id"] = id;
+            //ViewData["id"] = id;
+            HttpContext.Session.SetInt32("idfunc", id);
             return View("Detalhes");
         }
 
@@ -40,9 +41,9 @@ namespace scrweb.Controllers
             return Json(funcionarios);
         }
 
-        [HttpPost]
-        public JsonResult ObterPorId(int id)
+        public JsonResult ObterFuncInfo()
         {
+            int id = (int)HttpContext.Session.GetInt32("idfunc");
             return Json(new UsuarioController().GetById(id));
         }
 
@@ -315,12 +316,29 @@ namespace scrweb.Controllers
             
             return Json("Ocorreu um problema ao gravar o Endereço.");
         }
+
+        public JsonResult IsLastAdmin()
+        {
+            return Json(new UsuarioController().IsLastAdmin());
+        }
         
         [HttpPost]
         public JsonResult Excluir(int id)
         {
             int res = new scrlib.Controllers.FuncionarioController().Excluir(id);
             return Json(res);
+        }
+
+        [HttpPost]
+        public JsonResult Desativar(int id)
+        {
+            return Json(new scrlib.Controllers.FuncionarioController().Desativar(id));
+        }
+
+        [HttpPost]
+        public JsonResult Reativar(int id)
+        {
+            return Json(new scrlib.Controllers.FuncionarioController().Reativar(id));
         }
     }
 }

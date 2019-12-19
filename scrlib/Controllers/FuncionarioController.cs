@@ -106,5 +106,15 @@ namespace scrlib.Controllers
         {
             return new Funcionario().Excluir(id);
         }
+
+        public int Desativar(int id)
+        {
+            return new Funcionario().Desativar(id);
+        }
+
+        public int Reativar(int id)
+        {
+            return new Funcionario().Reativar(id);
+        }
     }
 }

@@ -35,10 +35,8 @@ namespace scrlib.DAO
             {
                 return GetObject(dt.Rows[0]);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         internal int Gravar(PessoaFisica p)
@@ -55,15 +53,15 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@celular", p.Celular);
             ComandoSQL.Parameters.AddWithValue("@email", p.Email);
             ComandoSQL.Parameters.AddWithValue("@endereco", p.Endereco);
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 return Convert.ToInt32(dt.Rows[0]["id"]);
             }
-            else
-            {
-                return -1;
-            }
+            
+            return -1;
         }
 
         internal int Alterar(PessoaFisica p)
@@ -89,6 +87,7 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@celular", p.Celular);
             ComandoSQL.Parameters.AddWithValue("@email", p.Email);
             ComandoSQL.Parameters.AddWithValue("@endereco", p.Endereco);
+            ComandoSQL.Parameters.AddWithValue("@id", p.Id);
 
             return ExecutaComando();
         }
@@ -98,6 +97,7 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"delete from pessoa_fisica where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
+            
             return ExecutaComando();
         }
     }

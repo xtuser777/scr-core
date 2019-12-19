@@ -94,5 +94,10 @@ namespace scrlib.Controllers
         {
             return new Usuario().VerificarLogin(login);
         }
+
+        public bool IsLastAdmin()
+        {
+            return new Usuario().IsLastAdmin();
+        }
     }
 }

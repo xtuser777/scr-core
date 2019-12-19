@@ -74,5 +74,10 @@ namespace scrlib.Models
             }
             return res;
         }
+
+        internal bool IsLastAdmin()
+        {
+            return (new UsuarioDAO().AdminCount() == 1);
+        }
     }
 }

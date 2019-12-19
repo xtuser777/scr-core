@@ -65,6 +65,15 @@ namespace scrlib.DAO
             return usuario;
         }
 
+        /*internal List<Usuario> GetByKey(string chave)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel 
+                                        from usuario 
+                                        where login like @chave and
+                                        (select )"
+        }*/
+
         internal List<Usuario> Get()
         {
             List<Usuario> usuarios = null;
@@ -128,6 +137,19 @@ namespace scrlib.DAO
                 count = Convert.ToInt32(dt.Rows[0]["logins"]);
             }
             return count;
+        }
+
+        internal int AdminCount()
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select count(id) as admins from usuario where nivel = 1;";
+            DataTable dt = ExecutaSelect();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return Convert.ToInt32(dt.Rows[0]["admins"]);
+            }
+
+            return 0;
         }
     }
 }
