@@ -46,14 +46,16 @@
         <div class="table-container">
             <table id="tbFuncionarios" class="table">
                 <thead>
-                    <tr>
-                        <th style="width: 30%;">NOME</th>
-                        <th style="width: 10%;">USUÁRIO</th>
-                        <th style="width: 15%;">CPF</th>
-                        <th style="width: 10%;">ADMISSÃO</th>
-                        <th style="width: 10%;">TIPO</th>
-                        <th>EMAIL</th>
-                    </tr>
+                <tr>
+                    <th class="hidden">ID</th>
+                    <th style="width: 25%;">NOME</th>
+                    <th style="width: 10%;">USUÁRIO</th>
+                    <th style="width: 10%;">NÍVEL</th>
+                    <th style="width: 12%;">CPF</th>
+                    <th style="width: 10%;">ADMISSÃO</th>
+                    <th style="width: 10%;">TIPO</th>
+                    <th>EMAIL</th>
+                </tr>
                 </thead>
 
                 <tbody id="tbFuncionariosBody">
@@ -64,23 +66,19 @@
 </div>
 
 <div class="row">
-    <div class="col-sm-2" style="margin-right: 4.5%;">
-        <button id="btVoltar" class="btn btn-default" style="width: 100%;">VOLTAR</button>
-    </div>
-
-    <div class="col-sm-2" style="margin-right: 4%;">
+    <div class="col-sm-3">
         <button id="btDesativar" class="btn btn-danger" style="width: 100%;">DESATIVAR</button>
     </div>
 
-    <div class="col-sm-2" style="margin-right: 4%;">
+    <div class="col-sm-3">
         <button id="btReativar" class="btn btn-primary" style="width: 100%;">REATIVAR</button>
     </div>
 
-    <div class="col-sm-2" style="margin-right: 4%;">
+    <div class="col-sm-3">
         <button id="btDetalhes" class="btn btn-info" style="width: 100%;">DETALHES</button>
     </div>
 
-    <div class="col-sm-2">
+    <div class="col-sm-3">
         <button id="btNovo" class="btn btn-success" style="width: 100%;">NOVO</button>
     </div>
 </div>

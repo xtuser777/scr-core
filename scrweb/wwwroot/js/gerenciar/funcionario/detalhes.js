@@ -20,6 +20,7 @@ var cbnivel = document.getElementById("cbNivel");
 var txlogin = document.getElementById("txLogin");
 var txsenha = document.getElementById("txSenha");
 var txconfsenha = document.getElementById("txConfSenha");
+
 var btlimpar = document.getElementById("btLimpar");
 var btsalvar = document.getElementById("btSalvar");
 var tbestados = document.getElementById("tbEstados");
@@ -33,6 +34,7 @@ var txfiltrocidades = document.getElementById("txSelCidadePesquisa");
 var btconfirmarestado = document.getElementById("btConfirmarEstado");
 var btconfirmarcidade = document.getElementById("btConfirmarCidade");
 var btvoltar = document.getElementById("btVoltar");
+
 var msNome = document.getElementById("msNome");
 var msNasc = document.getElementById("msNasc");
 var msRg = document.getElementById("msRg");
@@ -52,8 +54,15 @@ var msNivel = document.getElementById("msNivel");
 var msLogin = document.getElementById("msLogin");
 var msSenha = document.getElementById("msSenha");
 var msConfSenha = document.getElementById("msConfSenha");
+
 var auth = document.getElementById("auth");
 
+var idendereco = 0;
+var idpessoa = 0;
+var idfuncionario = 0;
+var idusuario = 0;
+
+var login_orig = "";
 var estados = null;
 var cidades = null;
 var erros = 0;
@@ -299,7 +308,7 @@ function verificarLogin(login) {
         data: { login: login },
         async: false,
         success: function (response) {
-            if (response == "true") {
+            if (response === "true" && login !== login_orig) {
                 erros++;
                 msLogin.innerHTML = "O Login informado já existe...";
                 msLogin.classList.remove("hidden");
@@ -620,6 +629,10 @@ btsalvar.addEventListener("click", function (event) {
 
     if (erros == 0) {
         var form = new FormData();
+        form.append("idendereco", idendereco);
+        form.append("idpessoa", idpessoa);
+        form.append("idfuncionario", idfuncionario);
+        form.append("idusuario", idusuario);
         form.append("nome", nome);
         form.append("nasc", nasc);
         form.append("rg", rg);
@@ -641,7 +654,7 @@ btsalvar.addEventListener("click", function (event) {
 
         $.ajax({
             type: 'POST',
-            url: '/Funcionario/Gravar',
+            url: '/Funcionario/Alterar',
             data: form,
             contentType: false,
             processData: false,
@@ -649,7 +662,7 @@ btsalvar.addEventListener("click", function (event) {
                 if (response.length > 0) {
                     alert(response);
                 } else {
-                    limparCampos();
+                    alert("Alteração salva com sucesso!");
                 }
             },
             error: function (error) {

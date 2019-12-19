@@ -89,15 +89,8 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@celular", p.Celular);
             ComandoSQL.Parameters.AddWithValue("@email", p.Email);
             ComandoSQL.Parameters.AddWithValue("@endereco", p.Endereco);
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return Convert.ToInt32(dt.Rows[0]["id"]);
-            }
-            else
-            {
-                return -1;
-            }
+
+            return ExecutaComando();
         }
 
         internal int Excluir(int id)
