@@ -55,5 +55,20 @@ namespace scrlib.DAO
             }
             return estados;
         }
+        
+        internal List<Estado> GetByFilter(string chave)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select id,nome,sigla from estado where nome like @chave1 or sigla like @chave2;";
+            ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
+            ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
+            DataTable dt = ExecutaSelect();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return GetList(dt);
+            }
+
+            return null;
+        }
     }
 }

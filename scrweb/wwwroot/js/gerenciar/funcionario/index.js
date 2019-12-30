@@ -5,7 +5,7 @@ var btReativar = document.getElementById("btReativar");
 var btDetalhes = document.getElementById('btDetalhes');
 var btNovo = document.getElementById('btNovo');
 var txFiltro = document.getElementById('txFiltro');
-var dtFiltroAdmissao = document.getElementById('dtFiltroAdmissao');
+var dtFiltroAdm = document.getElementById('dtFiltroAdm');
 var tbFuncionario = document.getElementById('tbFuncionarios');
 var tbFuncionarioBody = document.getElementById('tbFuncionariosBody');
 
@@ -56,7 +56,7 @@ function carregarTabela(lista)
         row.appendChild(cell6);
 
         var cell7 = document.createElement("td");
-        var cellText7 = document.createTextNode((lista[i].funcionario.demissao === null) ? "Sim" : "Não");
+        var cellText7 = document.createTextNode((lista[i].ativo === true) ? "Sim" : "Não");
         cell7.appendChild(cellText7);
         row.appendChild(cell7);
 
@@ -86,13 +86,19 @@ function limparTabelaFuncionarios() {
     }
 }
 
-function obterFuncionarios() 
-{
-    $.getJSON("/Funcionario/Obter", function (data) 
-    {
-        funcs = data;
-        carregarTabela(data);
-    });
+/**
+ * @return {string}
+ */
+function Get(whateverUrl) {
+    var Httpreq = new XMLHttpRequest(); // a new request
+    Httpreq.open("GET",whateverUrl,false);
+    Httpreq.send(null);
+    return Httpreq.responseText;
+}
+
+function obterFuncionarios() {
+    var data = JSON.parse(Get("//Funcionario/Obter"));
+    carregarTabela(data);
 }
 
 document.addEventListener("ready", obterFuncionarios());
@@ -126,15 +132,59 @@ function verificarAdmin() {
 btFiltrar.addEventListener("click", function (event) 
 {
     var filtro = txFiltro.value;
-    var filtrado = [];
-    for (var i = 0; i < funcs.length; i++) {
-        var login = funcs[i].login;
-        var nome = funcs[i].funcionario.pessoa.nome;
-        if (nome.includes(filtro) || login.includes(filtro)) {
-            filtrado.push(funcs[i]);
+    var admissao = dtFiltroAdm.value;
+    
+    if (filtro === "" && admissao === "") {
+        obterFuncionarios();
+    } else {
+        if (filtro !== "" && admissao !== "") {
+            $.ajax({
+                type: 'POST',
+                url: '/Funcionario/ObterPorChaveAdm',
+                data: { chave: filtro, adm: admissao },
+                success: function (response) {
+                    if (response != null && response !== ""){
+                        carregarTabela(response);
+                    }
+                },
+                error: function () {
+                    alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                }
+            });
+        } else {
+            if (filtro !== "") {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Funcionario/ObterPorChave',
+                    data: { chave: filtro },
+                    success: function (response) {
+                        if (response != null && response !== ""){
+                            carregarTabela(response);
+                        }
+                    },
+                    error: function () {
+                        alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                    }
+                });
+            } else {
+                if (admissao !== ""){
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Funcionario/ObterPorAdmissao',
+                        data: { adm: admissao },
+                        success: function (response) {
+                            if (response != null && response !== ""){
+                                carregarTabela(response);
+                            }
+                        },
+                        error: function () {
+                            alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                        }
+                    });
+                }
+            }
         }
     }
-    carregarTabela(filtrado);
 });
 
 btDesativar.addEventListener("click", function (event) {
@@ -143,10 +193,68 @@ btDesativar.addEventListener("click", function (event) {
     if (selecionado != null && selecionado !== "") {
         selecionado = selecionado.getElementsByTagName("td");
         var id = selecionado[0].innerHTML;
+        var status = selecionado[7].innerHTML;
         nivel_atual = selecionado[3].innerHTML;
-        if (verificarAdmin() === false) {
+        
+        if (status === "Não") {
+            alert("Este funcionário já está desativado!");
+        } else {
+            if (verificarAdmin() === true) {
+                alert("Não é possível excluir o último administrador.");
+            } else {
+                bootbox.confirm({
+                    message: "Confirma o desligamento deste funcionário?",
+                    buttons: {
+                        confirm: {
+                            label: 'Sim',
+                            className: 'btn-success'
+                        },
+                        cancel: {
+                            label: 'Não',
+                            className: 'btn-danger'
+                        }
+                    },
+                    callback: function (result) {
+                        if (result) {
+                            $.ajax({
+                                type: 'POST',
+                                url: '/Funcionario/Desativar',
+                                data: {id: id},
+                                success: function (result) {
+                                    if (result > 0) {
+                                        obterFuncionarios();
+                                    } else {
+                                        alert(result);
+                                    }
+                                },
+                                error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                                    alert("Status: " + txtStatus);
+                                    alert("Error: " + errorThrown);
+                                    $("#divLoading").hide(300);
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    } else {
+        alert("Selecione pelo menos um Funcionário!");
+    }
+});
+
+btReativar.addEventListener("click", function (event) {
+    var selecionados = tbFuncionario.getElementsByClassName("selecionado");
+    var selecionado = selecionados[0];
+    if (selecionado != null && selecionado !== "") {
+        selecionado = selecionado.getElementsByTagName("td");
+        var id = selecionado[0].innerHTML;
+        var status = selecionado[7].innerHTML;
+        if (status === "Sim") {
+            alert("Este funcionário já está ativo!");
+        } else {
             bootbox.confirm({
-                message: "Confirma o desligamento deste funcionário?",
+                message: "Confirma a Reativação deste funcionário?",
                 buttons: {
                     confirm: {
                         label: 'Sim',
@@ -161,7 +269,7 @@ btDesativar.addEventListener("click", function (event) {
                     if (result) {
                         $.ajax({
                             type: 'POST',
-                            url: '/Funcionario/Desativar',
+                            url: '/Funcionario/Reativar',
                             data: { id: id },
                             success: function (result) {
                                 if (result > 0) {
@@ -178,53 +286,8 @@ btDesativar.addEventListener("click", function (event) {
                         });
                     }
                 }
-            });
+            });   
         }
-    } else {
-        alert("Selecione pelo menos um Funcionário!");
-    }
-});
-
-btReativar.addEventListener("click", function (event) {
-    var selecionados = tbFuncionario.getElementsByClassName("selecionado");
-    var selecionado = selecionados[0];
-    if (selecionado != null && selecionado != "") {
-        selecionado = selecionado.getElementsByTagName("td");
-        var id = selecionado[0].innerHTML;
-        bootbox.confirm({
-            message: "Confirma a Reativação deste funcionário?",
-            buttons: {
-                confirm: {
-                    label: 'Sim',
-                    className: 'btn-success'
-                },
-                cancel: {
-                    label: 'Não',
-                    className: 'btn-danger'
-                }
-            },
-            callback: function (result) {
-                if (result) {
-                    $.ajax({
-                        type: 'POST',
-                        url: '/Funcionario/Reativar',
-                        data: { id: id },
-                        success: function (result) {
-                            if (result > 0) {
-                                obterFuncionarios();
-                            }
-                            else {
-                                alert(result);
-                            }
-                        },
-                        error: function (XMLHttpRequest, txtStatus, errorThrown) {
-                            alert("Status: " + txtStatus); alert("Error: " + errorThrown);
-                            $("#divLoading").hide(300);
-                        }
-                    });
-                }
-            }
-        });
     } else {
         alert("Selecione pelo menos um Funcionário!");
     }
@@ -234,7 +297,7 @@ btDetalhes.addEventListener("click", function (event)
 {
     var selecionados = tbFuncionario.getElementsByClassName("selecionado");
     var selecionado = selecionados[0];
-    if (selecionado != null && selecionado != "") {
+    if (selecionado != null && selecionado !== "") {
         selecionado = selecionado.getElementsByTagName("td");
         var id = selecionado[0].innerHTML;
         window.location.href = "../../Funcionario/Detalhes/"+id;

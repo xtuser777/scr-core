@@ -2,6 +2,7 @@
 using scrlib.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace scrlib.Controllers
@@ -10,58 +11,51 @@ namespace scrlib.Controllers
     {
         public CidadeViewModel GetById(int id)
         {
-            CidadeViewModel cvm = null;
             var cidade = new Cidade().GetById(id);
             if (cidade != null)
             {
-                cvm = new CidadeViewModel()
+                return new CidadeViewModel()
                 {
                     Id = cidade.Id,
                     Nome = cidade.Nome,
                     Estado = new EstadoController().GetById(cidade.Estado)
                 };
             }
-            return cvm;
+            
+            return null;
         }
 
         public List<CidadeViewModel> GetByEstado(int estado)
         {
-            List<CidadeViewModel> cvms = null;
             var cidades = new Cidade().GetByEstado(estado);
             if (cidades != null && cidades.Count > 0)
             {
-                cvms = new List<CidadeViewModel>();
-                foreach (Cidade cidade in cidades)
-                {
-                    cvms.Add(new CidadeViewModel()
-                    {
-                        Id = cidade.Id,
-                        Nome = cidade.Nome,
-                        Estado = null
-                    });
-                }
+                return cidades.Select(cidade => new CidadeViewModel() {Id = cidade.Id, Nome = cidade.Nome, Estado = null}).ToList();
             }
-            return cvms;
+            
+            return null;
+        }
+        
+        public List<CidadeViewModel> GetByEstAndKey(int estado, string chave)
+        {
+            var cidades = new Cidade().GetByEstAndKey(estado, chave);
+            if (cidades != null && cidades.Count > 0)
+            {
+                return cidades.Select(cidade => new CidadeViewModel() {Id = cidade.Id, Nome = cidade.Nome, Estado = null}).ToList();
+            }
+            
+            return null;
         }
 
         public List<CidadeViewModel> Get()
         {
-            List<CidadeViewModel> cvms = null;
             var cidades = new Cidade().Get();
             if (cidades != null && cidades.Count > 0)
             {
-                cvms = new List<CidadeViewModel>();
-                foreach (Cidade cidade in cidades)
-                {
-                    cvms.Add(new CidadeViewModel()
-                    {
-                        Id = cidade.Id,
-                        Nome = cidade.Nome,
-                        Estado = new EstadoController().GetById(cidade.Estado)
-                    });
-                }
+                return cidades.Select(cidade => new CidadeViewModel() {Id = cidade.Id, Nome = cidade.Nome, Estado = new EstadoController().GetById(cidade.Estado)}).ToList();
             }
-            return cvms;
+            
+            return null;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using scrweb.Filters;
 using scrlib.Controllers;
 using scrlib.ViewModels;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 
 namespace scrweb.Controllers
 {
@@ -27,12 +29,17 @@ namespace scrweb.Controllers
             return View();
         }
 
-        [HttpGet("/Funcionario/Detalhes/{id}", Name = "User_Info")]
+        /*[HttpGet("/Funcionario/Detalhes/{id}", Name = "User_Info")]*/
         public IActionResult Detalhes(int id)
         {
             //ViewData["id"] = id;
             HttpContext.Session.SetInt32("idfunc", id);
             return View("Detalhes");
+        }
+
+        public ActionResult Dados()
+        {
+            return View("Dados");
         }
 
         public JsonResult Obter()
@@ -41,23 +48,54 @@ namespace scrweb.Controllers
             return Json(funcionarios);
         }
 
-        public JsonResult ObterFuncInfo()
+        [HttpPost]
+        public JsonResult ObterPorChave(string chave)
         {
-            int id = (int)HttpContext.Session.GetInt32("idfunc");
-            return Json(new UsuarioController().GetById(id));
+            return Json(new UsuarioController().GetByKey(chave));
         }
 
-        [HttpGet]
-        public JsonResult ObterEstados()
+        [HttpPost]
+        public JsonResult ObterPorAdmissao(string adm)
         {
-            var estados = new EstadoController().Get();
+            DateTime.TryParse(adm, out var admissao);
+
+            return Json(new UsuarioController().GetByAdm(admissao));
+        }
+
+        [HttpPost]
+        public JsonResult ObterPorChaveAdm(string chave, string adm)
+        {
+            DateTime.TryParse(adm, out var admissao);
+
+            return Json(new UsuarioController().GetByKeyAndAdm(chave,admissao));
+        }
+
+        public JsonResult ObterFuncInfo()
+        {
+            var id = HttpContext.Session.GetInt32("idfunc");
+            return Json(new UsuarioController().GetById((int)id));
+        }
+
+        public JsonResult ObterFuncData()
+        {
+            var id = HttpContext.Session.GetString("id");
+            return Json(new UsuarioController().GetById(Convert.ToInt32(id)));
+        }
+
+        [HttpPost]
+        public JsonResult ObterEstados(string chave)
+        {
+            var estados = new EstadoController().GetByFilter(chave);
             return Json(estados);
         }
 
         [HttpPost]
-        public JsonResult ObterCidadesPorEstado(string estado)
+        public JsonResult ObterCidades(IFormCollection form)
         {
-            var cidades = new CidadeController().GetByEstado(Convert.ToInt32(estado));
+            string estado = form["estado"];
+            string chave = form["chave"];
+            
+            var cidades = new CidadeController().GetByEstAndKey(Convert.ToInt32(estado), chave);
             return Json(cidades);
         }
 
@@ -153,6 +191,7 @@ namespace scrweb.Controllers
                             Id = 0,
                             Login = login,
                             Senha = senha,
+                            Ativo = true,
                             Funcionario = new scrlib.Controllers.FuncionarioController().GetById(res3),
                             Nivel = new NivelController().GetById(nivel1)
                         });
@@ -174,6 +213,7 @@ namespace scrweb.Controllers
                             Id = 0,
                             Login = "",
                             Senha = "",
+                            Ativo = true,
                             Funcionario = new scrlib.Controllers.FuncionarioController().GetById(res3),
                             Nivel = new NivelController().GetById(3)
                         });
@@ -207,6 +247,7 @@ namespace scrweb.Controllers
             string idpessoa = form["idpessoa"];
             string idfuncionario = form["idfuncionario"];
             string idusuario = form["idusuario"];
+            string ativo = form["ativo"];
             string nome = form["nome"];
             string nasc = form["nasc"];
             string rg = form["rg"];
@@ -241,6 +282,7 @@ namespace scrweb.Controllers
             int.TryParse(nivel, out int nivel1);
             DateTime.TryParse(nasc, out DateTime dataNasc);
             DateTime.TryParse(adm, out DateTime dataAdm);
+            bool.TryParse(ativo, out var ativo1);
 
             int res1 = new EnderecoController().Alterar(new EnderecoViewModel()
             {
@@ -287,6 +329,7 @@ namespace scrweb.Controllers
                             Id = usu,
                             Login = login,
                             Senha = senha,
+                            Ativo = ativo1,
                             Funcionario = new scrlib.Controllers.FuncionarioController().GetById(func),
                             Nivel = new NivelController().GetById(nivel1)
                         });
@@ -296,11 +339,12 @@ namespace scrweb.Controllers
                     
                     if (res3 > 0 && tipo1 == 2)
                     {
-                        int res4 = new UsuarioController().Gravar(new UsuarioViewModel()
+                        int res4 = new UsuarioController().Alterar(new UsuarioViewModel()
                         {
                             Id = usu,
                             Login = "",
                             Senha = "",
+                            Ativo = ativo1,
                             Funcionario = new scrlib.Controllers.FuncionarioController().GetById(func),
                             Nivel = new NivelController().GetById(3)
                         });

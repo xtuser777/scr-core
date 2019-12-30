@@ -105,20 +105,18 @@
 
             <div class="row">
                 <div class="col-sm-4">
-                    <label for="btEstado">Estado:</label>
-                    <a role="button" id="btEstado" class="btn btn-default btn-sm" style="width: 100%;" data-fancybox data-src="#fancySelEstado" href="javascript:;">
-                        SELECIONAR
-                    </a>
+                    <label for="cbestado">Estado:</label>
+                    <input id="cbestado" class="form-control input-sm" style="width: 100%;" list="estados" placeholder="Digite para buscar." value="" />
+                    <datalist id="estados"></datalist>
                     <span id="msEstado" class="label label-danger hidden"></span>
                 </div>
 
                 <input type="hidden" name="txIdEstado" id="txIdEstado" value="0" />
 
                 <div class="col-sm-5">
-                    <label for="btCidade">Cidade:</label>
-                    <a role="button" id="btCidade" class="btn btn-default btn-sm" style="width: 100%;" data-fancybox data-src="#fancySelCidade" href="javascript:;">
-                        SELECIONAR
-                    </a>
+                    <label for="cbcidade">Cidade:</label>
+                    <input id="cbcidade" class="form-control input-sm" style="width: 100%;" list="cidades" placeholder="Digite para buscar." value="" />
+                    <datalist id="cidades"></datalist>
                     <span id="msCidade" class="label label-danger hidden"></span>
                 </div>
 
@@ -223,103 +221,4 @@
     <div class="col-sm-2">
         <button id="btSalvar" class="btn btn-success" style="width: 100%;">SALVAR</button>
     </div>
-</div>
-
-
-<!-- Fancybox FORM ESTADO -->
-<div style="display: none; min-width: 300px; width: 700px" id="fancySelEstado">
-
-    <h3 style="text-align: center; font-weight: bold;">Selecionar Estado</h3>
-    <hr style="color: grey;" />
-
-    <div class="row">
-        <div class="col-sm-9">
-            <div class="form-group">
-                <label for="txSelEstadoPesquisa">Filtro:</label>
-                <input type="text" name="txSelEstadoPesquisa" id="txSelEstadoPesquisa" class="form-control" />
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="form-group">
-                <label for="btFiltrarEstado">&nbsp;</label>
-                <button name="btFiltrarEstado" id="btFiltrarEstado" class="btn btn-primary" style="width: 100%;">FILTRAR</button>
-            </div>
-        </div>
-    </div>
-    <div class="table-container" style="height: 190px;">
-        <table name="tbEstados" id="tbEstados" class="table table-striped table-hover">
-
-            <thead>
-                <tr>
-                    <th class="hidden">ID</th>
-                    <th>NOME</th>
-                    <th>SIGLA</th>
-                </tr>
-            </thead>
-
-            <tbody id="tbEstadosBody">
-            </tbody>
-
-        </table>
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            <button name="btCancelarEstado" id="btCancelarEstado" class="btn btn-danger" style="width: 100%;" onclick="$.fancybox.close();">Cancelar</button>
-        </div>
-
-        <div class="col-sm-6"></div>
-
-        <div class="col-sm-3">
-            <button name="btConfirmarEstado" id="btConfirmarEstado" class="btn btn-success" style="width: 100%;">Confirmar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Fancybox FORM CIDADE -->
-<div style="display: none; min-width: 300px; width: 700px" id="fancySelCidade">
-
-    <h3 style="text-align: center; font-weight: bold;">Selecionar Cidade</h3>
-    <hr style="color: grey;" />
-
-        <div class="row">
-            <div class="col-sm-9">
-                <div class="form-group">
-                    <label for="txSelCidadePesquisa">Filtro:</label>
-                    <input type="text" name="txSelCidadePesquisa" id="txSelCidadePesquisa" class="form-control" />
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="form-group">
-                    <label for="btFiltrarCidade">&nbsp;</label>
-                    <button name="btFiltrarCidade" id="btFiltrarCidade" class="btn btn-primary" style="width: 100%;">FILTRAR</button>
-                </div>
-            </div>
-        </div>
-        <div class="table-container" style="height: 190px;">
-            <table id="tbCidades" class="table table-striped table-hover">
-
-                <thead>
-                    <tr>
-                        <th class="hidden">ID</th>
-                        <th>NOME</th>
-                    </tr>
-                </thead>
-
-                <tbody id="tbCidadesBody">
-                </tbody>
-
-            </table>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-3">
-                <button name="btCancelarCidade" id="btCancelarCidade" class="btn btn-danger" style="width: 100%;" onclick="$.fancybox.close();">Cancelar</button>
-            </div>
-
-            <div class="col-sm-6"></div>
-
-            <div class="col-sm-3">
-                <button name="btConfirmarCidade" id="btConfirmarCidade" class="btn btn-success" style="width: 100%;">Confirmar</button>
-            </div>
-        </div>
 </div>

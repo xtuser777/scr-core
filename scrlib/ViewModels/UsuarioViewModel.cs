@@ -9,6 +9,7 @@ namespace scrlib.ViewModels
         public int Id { get; set; }
         public string Login { get; set; }
         public string Senha { get; set; }
+        public bool Ativo { get; set; }
         public FuncionarioViewModel Funcionario { get; set; }
         public NivelViewModel Nivel { get; set; }
     }

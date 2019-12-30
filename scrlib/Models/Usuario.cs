@@ -1,6 +1,7 @@
 ﻿using scrlib.DAO;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Text;
 
 namespace scrlib.Models
@@ -10,6 +11,7 @@ namespace scrlib.Models
         private int _id;
         private string _login;
         private string _senha;
+        private bool _ativo;
         private int _funcionario;
         private int _nivel;
 
@@ -18,6 +20,8 @@ namespace scrlib.Models
         internal string Login { get => _login; set => _login = value; }
 
         internal string Senha { get => _senha; set => _senha = value; }
+
+        internal bool Ativo { get => _ativo; set => _ativo = value; }
 
         internal int Funcionario { get => _funcionario; set => _funcionario = value; }
 
@@ -42,6 +46,31 @@ namespace scrlib.Models
             }
             return usuario;
         }
+
+        internal List<Usuario> GetByKey(string chave)
+        {
+            return !string.IsNullOrEmpty(chave) ? new UsuarioDAO().GetByKey(chave) : null;
+        }
+
+        internal List<Usuario> GetByAdm(DateTime admissao)
+        {
+            return new UsuarioDAO().GetByAdm(admissao);
+        }
+
+        internal List<Usuario> GetByKeyAndAdm(string chave, DateTime admissao)
+        {
+            return !string.IsNullOrEmpty(chave) ? new UsuarioDAO().GetByKeyAndAdm(chave, admissao) : null;
+        }
+
+        /*internal List<Usuario> GetByFilters(string nome, string login, int nivel, string cpf, DateTime admissao, int tipo, Boolean? ativo, string email)
+        {
+            if (nome != null && login != null && cpf != null && email != null)
+            {
+                return new UsuarioDAO().GetByFilters(nome, login, nivel, cpf, admissao, tipo, ativo, email);
+            }
+
+            return null;
+        }*/
 
         internal List<Usuario> Get()
         {

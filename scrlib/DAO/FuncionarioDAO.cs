@@ -132,7 +132,8 @@ namespace scrlib.DAO
         internal int Desativar(int id)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"update funcionario set demissao = now() where id = @id;";
+            ComandoSQL.CommandText = @"update funcionario set demissao = now() where id = @id;
+                                       update usuario set ativo = false where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
 
             return ExecutaComando();
@@ -141,7 +142,8 @@ namespace scrlib.DAO
         internal int Reativar(int id)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"update funcionario set demissao = null where id = @id;";
+            ComandoSQL.CommandText = @"update funcionario set demissao = null where id = @id;
+                                       update usuario set ativo = true where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
 
             return ExecutaComando();

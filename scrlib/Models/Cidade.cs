@@ -11,49 +11,35 @@ namespace scrlib.Models
 		private string _nome;
 		private int _estado;
 
-		internal int Estado
-		{
-			get { return _estado; }
-			set { _estado = value; }
-		}
+		internal int Estado { get { return _estado; } set { _estado = value; } }
 
-		internal string Nome
-		{
-			get { return _nome; }
-			set { _nome = value; }
-		}
+		internal string Nome { get { return _nome; } set { _nome = value; } }
 
-		internal int Id
-		{
-			get { return _id; }
-			set { _id = value; }
-		}
+		internal int Id { get { return _id; } set { _id = value; } }
 
 		internal Cidade GetById(int id)
 		{
-			Cidade cidade = null;
-			if (id > 0)
-			{
-				cidade = new CidadeDAO().GetById(id);
-			}
-			return cidade;
+			return id > 0 ? new CidadeDAO().GetById(id) : null;
 		}
 
 		internal List<Cidade> GetByEstado(int estado)
 		{
-			List<Cidade> cidades = null;
-			if (estado > 0)
+			return estado > 0 ? new CidadeDAO().GetByEstado(estado) : null;
+		}
+		
+		internal List<Cidade> GetByEstAndKey(int estado, string chave)
+		{
+			if (estado > 0 && !string.IsNullOrEmpty(chave))
 			{
-				cidades = new CidadeDAO().GetByEstado(estado);
+				return new CidadeDAO().GetByEstAndKey(estado, chave);
 			}
-			return cidades;
+			
+			return null;
 		}
 
 		internal List<Cidade> Get()
 		{
-			List<Cidade> cidades = null;
-			cidades = new CidadeDAO().Get();
-			return cidades;
+			return new CidadeDAO().Get();
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace scrlib.DAO
@@ -10,69 +11,83 @@ namespace scrlib.DAO
     {
         private Cidade GetObject(DataRow dr)
         {
-            Cidade cidade = new Cidade()
+            var cidade = new Cidade()
             {
                 Id = Convert.ToInt32(dr["id"]),
                 Nome = dr["nome"].ToString(),
                 Estado = Convert.ToInt32(dr["estado"])
             };
+            
             return cidade;
         }
 
         private List<Cidade> GetList(DataTable dt)
         {
-            List<Cidade> cidades = new List<Cidade>();
-            foreach (DataRow row in dt.Rows)
-            {
-                cidades.Add(GetObject(row));
-            }
-            return cidades;
+            return (from DataRow row in dt.Rows select GetObject(row)).ToList();
         }
 
         internal Cidade GetById(int id)
         {
-            Cidade cidade = null;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,nome,estado 
                                         from cidade 
                                         where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
             {
-                cidade = GetObject(dt.Rows[0]);
+                return GetObject(dt.Rows[0]);
             }
-            return cidade;
+            
+            return null;
         }
 
         internal List<Cidade> Get()
         {
-            List<Cidade> cidades = null;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,nome,estado 
                                         from cidade;";
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
             {
-                cidades = GetList(dt);
+                return GetList(dt);
             }
-            return cidades;
+            
+            return null;
         }
 
         internal List<Cidade> GetByEstado(int estado)
         {
-            List<Cidade> cidades = null;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,nome,estado 
                                         from cidade 
                                         where estado = @est;";
             ComandoSQL.Parameters.AddWithValue("@est", estado);
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
             {
-                cidades = GetList(dt);
+                return GetList(dt);
             }
-            return cidades;
+            
+            return null;
+        }
+        
+        internal List<Cidade> GetByEstAndKey(int estado, string chave)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select id,nome,estado 
+                                        from cidade 
+                                        where estado = @est 
+                                        and nome like @chave;";
+            ComandoSQL.Parameters.AddWithValue("@est", estado);
+            ComandoSQL.Parameters.AddWithValue("@chave", "%" + chave + "%");
+            var dt = ExecutaSelect();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return GetList(dt);
+            }
+            
+            return null;
         }
     }
 }

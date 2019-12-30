@@ -45,5 +45,10 @@ namespace scrlib.Models
 			estados = new EstadoDAO().Get();
 			return estados;
 		}
+		
+		internal List<Estado> GetByFilter(string chave)
+		{
+			return !string.IsNullOrEmpty(chave) ? new EstadoDAO().GetByFilter(chave) : null;
+		}
 	}
 }

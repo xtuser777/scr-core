@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace scrlib.DAO
@@ -15,6 +16,7 @@ namespace scrlib.DAO
                 Id = Convert.ToInt32(dr["id"]),
                 Login = dr["login"].ToString(),
                 Senha = dr["senha"].ToString(),
+                Ativo = Convert.ToBoolean(dr["ativo"]),
                 Funcionario = Convert.ToInt32(dr["funcionario"]),
                 Nivel = Convert.ToInt32(dr["nivel"])
             };
@@ -34,7 +36,7 @@ namespace scrlib.DAO
         {
             Usuario usuario = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel 
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
                                         from usuario 
                                         where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
@@ -50,11 +52,11 @@ namespace scrlib.DAO
         {
             Usuario usuario = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel 
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
                                         from usuario 
                                         where login = @login 
                                         and senha = @senha 
-                                        and (select demissao from funcionario where funcionario.id = usuario.funcionario) is null;";
+                                        and ativo = true;";
             ComandoSQL.Parameters.AddWithValue("@login", login);
             ComandoSQL.Parameters.AddWithValue("@senha", senha);
             DataTable dt = ExecutaSelect();
@@ -65,20 +67,74 @@ namespace scrlib.DAO
             return usuario;
         }
 
-        /*internal List<Usuario> GetByKey(string chave)
+        internal List<Usuario> GetByKey(string chave)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel 
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
                                         from usuario 
-                                        where login like @chave and
-                                        (select )"
-        }*/
+                                        inner join funcionario using (id)
+                                        inner join pessoa_fisica using(id)
+                                        where usuario.login like @chave 
+                                        or pessoa_fisica.nome like @chave1 
+                                        or pessoa_fisica.email like @chave2;";
+            ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
+            ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
+            ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
+            DataTable dt = ExecutaSelect();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return GetList(dt);
+            }
+
+            return null;
+        }
+        
+        internal List<Usuario> GetByAdm(DateTime admissao)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
+                                        from usuario 
+                                        inner join funcionario using (id)
+                                        where funcionario.admissao = @admissao;";
+            ComandoSQL.Parameters.AddWithValue("@admissao", admissao);
+            DataTable dt = ExecutaSelect();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return GetList(dt);
+            }
+
+            return null;
+        }
+        
+        internal List<Usuario> GetByKeyAndAdm(string chave, DateTime admissao)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
+                                        from usuario 
+                                        inner join funcionario using (id)
+                                        inner join pessoa_fisica using(id)
+                                        where (usuario.login like @chave 
+                                        or pessoa_fisica.nome like @chave1 
+                                        or pessoa_fisica.email like @chave2)
+                                        and funcionario.admissao = @admissao;";
+            ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
+            ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
+            ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
+            ComandoSQL.Parameters.AddWithValue("@admissao", admissao);
+            DataTable dt = ExecutaSelect();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                return GetList(dt);
+            }
+
+            return null;
+        }
 
         internal List<Usuario> Get()
         {
             List<Usuario> usuarios = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel 
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
                                         from usuario;";
             DataTable dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
@@ -92,12 +148,13 @@ namespace scrlib.DAO
         {
             int res = -1;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"insert into usuario(id,login,senha,funcionario,nivel) 
-                                        values((select count(id)+1 from usuario),@login,@senha,@funcionario,@nivel) returning id;";
+            ComandoSQL.CommandText = @"insert into usuario(id,login,senha,funcionario,nivel,ativo) 
+                                        values((select count(id)+1 from usuario),@login,@senha,@funcionario,@nivel,@ativo) returning id;";
             ComandoSQL.Parameters.AddWithValue("@login", u.Login);
             ComandoSQL.Parameters.AddWithValue("@senha", u.Senha);
             ComandoSQL.Parameters.AddWithValue("@funcionario", u.Funcionario);
             ComandoSQL.Parameters.AddWithValue("@nivel", u.Nivel);
+            ComandoSQL.Parameters.AddWithValue("@ativo", u.Ativo);
             DataTable dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
             {
@@ -114,12 +171,14 @@ namespace scrlib.DAO
                                         set login = @login,
                                         senha = @senha,
                                         funcionario = @funcionario,
-                                        nivel = @nivel
+                                        nivel = @nivel,
+                                        ativo = @ativo
                                         where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@login", u.Login);
             ComandoSQL.Parameters.AddWithValue("@senha", u.Senha);
             ComandoSQL.Parameters.AddWithValue("@funcionario", u.Funcionario);
             ComandoSQL.Parameters.AddWithValue("@nivel", u.Nivel);
+            ComandoSQL.Parameters.AddWithValue("@ativo", u.Ativo);
             ComandoSQL.Parameters.AddWithValue("@id", u.Id);
             res = ExecutaComando();
             return res;
@@ -142,7 +201,11 @@ namespace scrlib.DAO
         internal int AdminCount()
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select count(id) as admins from usuario where nivel = 1;";
+            ComandoSQL.CommandText = @"select count(id) as admins 
+                                        from usuario 
+                                        inner join funcionario using(id) 
+                                        where nivel = 1 
+                                        and funcionario.demissao is null;";
             DataTable dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
             {

@@ -8,9 +8,11 @@ var txrua = document.getElementById("txRua");
 var txnumero = document.getElementById("txNumero");
 var txbairro = document.getElementById("txBairro");
 var txcomplemento = document.getElementById("txComplemento");
-var btestado = document.getElementById("btEstado");
+var cbestado = document.getElementById("cbestado");
+var estados = document.getElementById("estados");
 var txidestado = document.getElementById("txIdEstado");
-var btcidade = document.getElementById("btCidade");
+var cbcidade = document.getElementById("cbcidade");
+var cidades = document.getElementById("cidades");
 var txidcidade = document.getElementById("txIdCidade");
 var txcep = document.getElementById("txCep");
 var txtel = document.getElementById("txTel");
@@ -20,19 +22,11 @@ var cbnivel = document.getElementById("cbNivel");
 var txlogin = document.getElementById("txLogin");
 var txsenha = document.getElementById("txSenha");
 var txconfsenha = document.getElementById("txConfSenha");
+
 var btlimpar = document.getElementById("btLimpar");
 var btsalvar = document.getElementById("btSalvar");
-var tbestados = document.getElementById("tbEstados");
-var tbestadosbody = document.getElementById("tbEstadosBody");
-var btfiltrarestados = document.getElementById("btFiltrarEstado");
-var txestadopesquisa = document.getElementById("txSelEstadoPesquisa");
-var tbcidades = document.getElementById("tbCidades");
-var tbcidadesbody = document.getElementById("tbCidadesBody");
-var btfiltrarcidades = document.getElementById("btFiltrarCidade");
-var txfiltrocidades = document.getElementById("txSelCidadePesquisa");
-var btconfirmarestado = document.getElementById("btConfirmarEstado");
-var btconfirmarcidade = document.getElementById("btConfirmarCidade");
 var btvoltar = document.getElementById("btVoltar");
+
 var msNome = document.getElementById("msNome");
 var msNasc = document.getElementById("msNasc");
 var msRg = document.getElementById("msRg");
@@ -52,15 +46,103 @@ var msNivel = document.getElementById("msNivel");
 var msLogin = document.getElementById("msLogin");
 var msSenha = document.getElementById("msSenha");
 var msConfSenha = document.getElementById("msConfSenha");
+
 var auth = document.getElementById("auth");
 
-var estados = null;
-var cidades = null;
 var erros = 0;
+
+$(cbestado).keyup(function () {
+    var filtro = cbestado.value;
+    $.ajax({
+        type: 'POST',
+        url: '/Funcionario/ObterEstados',
+        data: { chave: filtro },
+        async: false,
+        success: function (response) {
+            limparEstados();
+            if (response != null && response !== "") {
+                for (var i = 0; i < response.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = "("+response[i].id+") "+response[i].nome;
+                    estados.appendChild(option);
+                }
+            }
+        },
+        error: function (err) {
+            alert("Ocorreu um problema ao se comunicar com o servidor...");
+        }
+    });
+});
+
+function limparEstados() {
+    for (var i = estados.childElementCount - 1; i >= 0; i--) {
+        estados.children.item(i).remove();
+    }
+}
+
+$(cbestado).focusin(function () {
+    $(cbestado).select();
+});
+
+$(cbestado).focusout(function () {
+    var estado = cbestado.value;
+    txidestado.value = estado.slice(1,estado.indexOf(')'));
+    cbcidade.disabled = false;
+});
+
+$(cbestado).change(function (event) {
+    $(cbcidade).val("");
+    txidcidade.value = "0";
+});
+
+$(cbcidade).keyup(function () {
+    var filtro = cbcidade.value;
+
+    var form = new FormData();
+    form.append("chave", filtro);
+    form.append("estado", txidestado.value);
+
+    $.ajax({
+        type: 'POST',
+        url: '/Funcionario/ObterCidades',
+        data: form,
+        contentType: false,
+        processData: false,
+        async: false,
+        success: function (response) {
+            limparCidades();
+            if (response != null && response !== "") {
+                for (var i = 0; i < response.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = "("+response[i].id+") "+response[i].nome;
+                    cidades.appendChild(option);
+                }
+            }
+        },
+        error: function (err) {
+            alert("Ocorreu um problema ao se comunicar com o servidor...");
+        }
+    });
+});
+
+function limparCidades() {
+    for (var i = cidades.childElementCount - 1; i >= 0; i--) {
+        cidades.children.item(i).remove();
+    }
+}
+
+$(cbcidade).focusin(function () {
+    $(cbcidade).select();
+});
+
+$(cbcidade).focusout(function () {
+    var cidade = cbcidade.value;
+    txidcidade.value = cidade.slice(1,cidade.indexOf(')'));
+});
 
 $(document).ready(function () {
     $.getJSON("/Funcionario/ObterNiveis", function (data) {
-        if (data != null && data != "") {
+        if (data != null && data !== "") {
             for (var i = 0; i < data.length; i++) {
                 var option = document.createElement("option");
                 option.value = data[i].id;
@@ -69,183 +151,6 @@ $(document).ready(function () {
             }
         }
     });
-});
-
-function carregarTabelaEstados(dados) {
-    limparTabelaEstados();
-    for (var i = 0; i < dados.length; i++) {
-        var row = document.createElement("tr");
-
-        var cell0 = document.createElement("td");
-        var cellText0 = document.createTextNode(dados[i].id);
-        cell0.appendChild(cellText0);
-        cell0.classList.add("hidden");
-        row.appendChild(cell0);
-
-        var cell1 = document.createElement("td");
-        var cellText1 = document.createTextNode(dados[i].nome);
-        cell1.appendChild(cellText1);
-        row.appendChild(cell1);
-
-        var cell2 = document.createElement("td");
-        var cellText2 = document.createTextNode(dados[i].sigla);
-        cell2.appendChild(cellText2);
-        row.appendChild(cell2);
-
-        tbestadosbody.appendChild(row);
-    }
-
-    var itensTabela = tbestadosbody.getElementsByTagName("tr");
-
-    for (var i = 0; i < itensTabela.length; i++) {
-        var item = itensTabela[i];
-        item.addEventListener("click", function (event) {
-            selecionarItemEstado(this);
-        });
-    }
-}
-
-function selecionarItemEstado(item) {
-    var itens = tbestadosbody.getElementsByTagName("tr");
-    for (var i = 0; i < itens.length; i++) {
-        var item_ = itens[i];
-        item_.classList.remove("selecionado");
-    }
-    item.classList.toggle("selecionado");
-}
-
-function limparTabelaEstados() {
-    for (var i = tbestadosbody.childElementCount - 1; i >= 0; i--) {
-        tbestadosbody.children.item(i).remove();
-    }
-}
-
-btestado.addEventListener("click", function (event) {
-    $.getJSON("/Funcionario/ObterEstados", function (data) {
-        if (data != null && data.length > 0) {
-            estados = data;
-            carregarTabelaEstados(data);
-        }
-    });
-});
-
-btfiltrarestados.addEventListener("click", function (event) {
-    var filtro = txestadopesquisa.value;
-    var filtrado = [];
-    for (var i = 0; i < estados.length; i++) {
-        var nome = estados[i].nome;
-        var sigla = estados[i].sigla;
-        if (nome.includes(filtro) || sigla.includes(filtro)) {
-            filtrado.push(estados[i]);
-        }
-    }
-    limparTabelaEstados();
-    carregarTabelaEstados(filtrado);
-});
-
-btconfirmarestado.addEventListener("click", function (event) {
-    var selecionados = tbestados.getElementsByClassName("selecionado");
-    var selecionado = selecionados[0];
-    if (selecionado != null && selecionado != "") {
-        selecionado = selecionado.getElementsByTagName("td");
-        txidestado.value = selecionado[0].innerHTML;
-        btestado.innerHTML = selecionado[1].innerText;
-        $.fancybox.close();
-    } else {
-        alert("selecione pelo menos um estado!");
-    }
-});
-
-function carregarTabelaCidades(dados) {
-    limparTabelaCidades();
-    for (var i = 0; i < dados.length; i++) {
-        var row = document.createElement("tr");
-
-        var cell0 = document.createElement("td");
-        var cellText0 = document.createTextNode(dados[i].id);
-        cell0.appendChild(cellText0);
-        cell0.classList.add("hidden");
-        row.appendChild(cell0);
-
-        var cell1 = document.createElement("td");
-        var cellText1 = document.createTextNode(dados[i].nome);
-        cell1.appendChild(cellText1);
-        row.appendChild(cell1);
-
-        tbcidadesbody.appendChild(row);
-    }
-
-    var itensTabela = tbcidadesbody.getElementsByTagName("tr");
-
-    for (var i = 0; i < itensTabela.length; i++) {
-        var item = itensTabela[i];
-        item.addEventListener("click", function (event) {
-            selecionarItemCidade(this);
-        });
-    }
-}
-
-function selecionarItemCidade(item) {
-    var itens = tbcidadesbody.getElementsByTagName("tr");
-    for (var i = 0; i < itens.length; i++) {
-        var item_ = itens[i];
-        item_.classList.remove("selecionado");
-    }
-    item.classList.toggle("selecionado");
-}
-
-function limparTabelaCidades() {
-    for (var i = tbcidadesbody.childElementCount - 1; i >= 0; i--) {
-        tbcidadesbody.children.item(i).remove();
-    }
-}
-
-btcidade.addEventListener("click", function (event) {
-    if (txidestado.value != "0") {
-        $.ajax({
-            type: 'POST',
-            url: '/Funcionario/ObterCidadesPorEstado',
-            data: { estado: txidestado.value },
-            success: function (result) {
-                if (result != null && result.length > 0) {
-                    cidades = result;
-                    carregarTabelaCidades(result);
-                }
-            },
-            error: function () {
-                alert("Houve um erro na comunicação com o servidor...");
-            }
-        });
-    } else {
-        alert("Selecione um estado primeiro!");
-        $.fancybox.close();
-    }
-});
-
-btfiltrarcidades.addEventListener("click", function (event) {
-    var filtro = txfiltrocidades.value;
-    var filtrado = [];
-    for (var i = 0; i < cidades.length; i++) {
-        var nome = cidades[i].nome;
-        if (nome.includes(filtro)) {
-            filtrado.push(cidades[i]);
-        }
-    }
-    limparTabelaCidades();
-    carregarTabelaCidades(filtrado);
-});
-
-btconfirmarcidade.addEventListener("click", function (event) {
-    var selecionados = tbcidades.getElementsByClassName("selecionado");
-    var selecionado = selecionados[0];
-    if (selecionado != null && selecionado != "") {
-        selecionado = selecionado.getElementsByTagName("td");
-        txidcidade.value = selecionado[0].innerHTML;
-        btcidade.innerHTML = selecionado[1].innerText;
-        $.fancybox.close();
-    } else {
-        alert("Selecione pelo menos uma Cidade!");
-    }
 });
 
 function limparCampos() {
@@ -260,9 +165,9 @@ function limparCampos() {
     txbairro.value = "";
     txcomplemento.value = "";
     txcep.value = "";
-    btestado.innerHTML = "SELECIONAR";
+    cbestado.value = "";
     txidestado.value = "0";
-    btcidade.innerHTML = "SELECIONAR";
+    cbcidade.value = "";
     txidcidade.value = "0";
     txtel.value = "";
     txcel.value = "";
@@ -283,7 +188,7 @@ btvoltar.addEventListener("click", function (event) {
 });
 
 cbtipo.addEventListener("change", function (event) {
-    if (cbtipo.value == "2") {
+    if (cbtipo.value === "2") {
         if (!auth.classList.contains("hidden"))
             auth.classList.add("hidden");
     } else {
@@ -299,12 +204,12 @@ function verificarLogin(login) {
         data: { login: login },
         async: false,
         success: function (response) {
-            if (response == "true") {
+            if (response === "true") {
                 erros++;
                 msLogin.innerHTML = "O Login informado já existe...";
                 msLogin.classList.remove("hidden");
             } else {
-                if (msLogin.classList.contains("hidden") == false) { msLogin.classList.add("hidden"); }
+                if (msLogin.classList.contains("hidden") === false) { msLogin.classList.add("hidden"); }
             }
         },
         error: function () {
@@ -315,7 +220,7 @@ function verificarLogin(login) {
 
 function validarCpf(cpf) {
     cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf == '') {
+    if (cpf === '') {
         return false;
     }
     // Elimina CPFs invalidos conhecidos	
@@ -373,7 +278,7 @@ btsalvar.addEventListener("click", function (event) {
     var dataAdm = new Date(adm);
     erros = 0;
 
-    if (nome.length == 0) {
+    if (nome.length === 0) {
         erros++;
         msNome.innerHTML = "O Nome precisa ser preenchido!";
         msNome.classList.remove("hidden");
@@ -383,12 +288,12 @@ btsalvar.addEventListener("click", function (event) {
             msNome.innerHTML = "O Nome informado é inválido...";
             msNome.classList.remove("hidden");
         } else {
-            if (msNome.classList.contains("hidden") == false) {
+            if (msNome.classList.contains("hidden") === false) {
                 msNome.classList.add("hidden");
             }
         }
 
-    if (nasc.length == 0) {
+    if (nasc.length === 0) {
         erros++;
         msNasc.innerHTML = "A data de admissão precisa ser preenchida!";
         msNasc.classList.remove("hidden");
@@ -398,22 +303,22 @@ btsalvar.addEventListener("click", function (event) {
             msNasc.innerHTML = "A data de admissão informada é inválida...";
             msNasc.classList.remove("hidden");
         } else {
-            if (msNasc.classList.contains("hidden") == false) {
+            if (msNasc.classList.contains("hidden") === false) {
                 msNasc.classList.add("hidden");
             }
         }
 
-    if (rg.length == 0) {
+    if (rg.length === 0) {
         erros++;
         msRg.innerHTML = "O RG precisa ser preenchido!";
         msRg.classList.remove("hidden");
     } else {
-        if (msRg.classList.contains("hidden") == false) {
+        if (msRg.classList.contains("hidden") === false) {
             msRg.classList.add("hidden");
         }
     }
 
-    if (cpf.length == 0) {
+    if (cpf.length === 0) {
         erros++;
         msCpf.innerHTML = "O CPF precisa ser preenchido!";
         msCpf.classList.remove("hidden");
@@ -423,12 +328,12 @@ btsalvar.addEventListener("click", function (event) {
             msCpf.innerHTML = "O CPF informado é inválido...";
             msCpf.classList.remove("hidden");
         } else {
-            if (msCpf.classList.contains("hidden") == false) {
+            if (msCpf.classList.contains("hidden") === false) {
                 msCpf.classList.add("hidden");
             }
         }
 
-    if (adm.length == 0) {
+    if (adm.length === 0) {
         erros++;
         msAdm.innerHTML = "A data de admissão precisa ser preenchida!";
         msAdm.classList.remove("hidden");
@@ -438,52 +343,52 @@ btsalvar.addEventListener("click", function (event) {
             msAdm.innerHTML = "A data de admissão informada é inválida...";
             msAdm.classList.remove("hidden");
         } else {
-            if (msAdm.classList.contains("hidden") == false) {
+            if (msAdm.classList.contains("hidden") === false) {
                 msAdm.classList.add("hidden");
             }
         }
 
-    if (tipo == "0") {
+    if (tipo === "0") {
         erros++;
         msTipo.innerHTML = "O Tipo de do funcionário precisa der preenchido!";
         msTipo.classList.remove("hidden");
     } else {
-        if (msTipo.classList.contains("hidden") == false) {
+        if (msTipo.classList.contains("hidden") === false) {
             msTipo.classList.add("hidden");
         }
     }
 
-    if (rua.length == 0) {
+    if (rua.length === 0) {
         erros++;
         msRua.innerHTML = "A Rua precisa ser preenchida!";
         msRua.classList.remove("hidden");
     } else {
-        if (msRua.classList.contains("hidden") == false) {
+        if (msRua.classList.contains("hidden") === false) {
             msRua.classList.add("hidden");
         }
     }
 
-    if (numero.length == 0) {
+    if (numero.length === 0) {
         erros++;
         msNumero.innerHTML = "O Número precisa ser preenchido!";
         msNumero.classList.remove("hidden");
     } else {
-        if (msNumero.classList.contains("hidden") == false) {
+        if (msNumero.classList.contains("hidden") === false) {
             msNumero.classList.add("hidden");
         }
     }
 
-    if (bairro.length == 0) {
+    if (bairro.length === 0) {
         erros++;
         msBairro.innerHTML = "O Bairro precisa ser preenchido!";
         msBairro.classList.remove("hidden");
     } else {
-        if (msBairro.classList.contains("hidden") == false) {
+        if (msBairro.classList.contains("hidden") === false) {
             msBairro.classList.add("hidden");
         }
     }
 
-    if (cep.length == 0) {
+    if (cep.length === 0) {
         erros++;
         msCep.innerHTML = "O CEP precisa ser preenchido!";
         msCep.classList.remove("hidden");
@@ -493,32 +398,32 @@ btsalvar.addEventListener("click", function (event) {
             msCep.innerHTML = "O CEP informado é inválido...";
             msCep.classList.remove("hidden");
         } else {
-            if (msCep.classList.contains("hidden") == false) {
+            if (msCep.classList.contains("hidden") === false) {
                 msCep.classList.add("hidden");
             }
         }
 
-    if (txidestado.value == "0") {
+    if (txidestado.value === "0") {
         erros++;
         msEstado.innerHTML = "O Estado precisa ser selecionado!";
         msEstado.classList.remove("hidden");
     } else {
-        if (msEstado.classList.contains("hidden") == false) {
+        if (msEstado.classList.contains("hidden") === false) {
             msEstado.classList.add("hidden");
         }
     }
 
-    if (txidcidade.value == "0") {
+    if (txidcidade.value === "0") {
         erros++;
         msCidade.innerHTML = "A Cidade precisa ser selecionada!";
         msCidade.classList.remove("hidden");
     } else {
-        if (msCidade.classList.contains("hidden") == false) {
+        if (msCidade.classList.contains("hidden") === false) {
             msCidade.classList.add("hidden");
         }
     }
 
-    if (telefone.length == 0) {
+    if (telefone.length === 0) {
         erros++;
         msTelefone.innerHTML = "O Telefone precisa ser preenchido!";
         msTelefone.classList.remove("hidden");
@@ -528,7 +433,7 @@ btsalvar.addEventListener("click", function (event) {
             msTelefone.innerHTML = "O Telefone informado possui tamanho inválido...";
             msTelefone.classList.remove("hidden");
         } else {
-            if (msTelefone.classList.contains("hidden") == false) {
+            if (msTelefone.classList.contains("hidden") === false) {
                 msTelefone.classList.add("hidden");
             }
         }
@@ -618,7 +523,7 @@ btsalvar.addEventListener("click", function (event) {
                 }
     }
 
-    if (erros == 0) {
+    if (erros === 0) {
         var form = new FormData();
         form.append("nome", nome);
         form.append("nasc", nasc);

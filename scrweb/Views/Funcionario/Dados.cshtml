@@ -1,18 +1,19 @@
-﻿
+
 @{
-    ViewData["Title"] = "Novo";
+    ViewBag.Title = "Meus Dados";
+    Layout = "_Layout";
 }
 
 @section Scripts{ 
     <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
     <script type="text/javascript" src="~/lib/fancybox/jquery.fancybox.min.js"></script>
-    <script type="text/javascript" src="~/js/gerenciar/funcionario/novo.js" asp-append-version="true"></script>
+    <script type="text/javascript" src="~/js/gerenciar/funcionario/dados.js" asp-append-version="true"></script>
 }
 
 <!-- Card titulo pagina -->
 <div class="card-title">
     <div class="card-title-container" style="text-align: center;">
-        <h4><b>SCR - Cadastrar Novo Funcionário</b></h4>
+        <h4><b>SCR - Dados do Funcionário</b></h4>
     </div>
 </div>
 <!-- Fim card titulo pagina -->
@@ -22,16 +23,10 @@
     <div class="fieldset-card-container">
         <form class="form-inline">
             <div class="row">
-                <div class="col-sm-9">
+                <div class="col-sm-12">
                     <label for="txNome">Nome:</label>
                     <input type="text" id="txNome" class="form-control input-sm" style="width: 100%;" value="" />
                     <span id="msNome" class="label label-danger hidden"></span>
-                </div>
-
-                <div class="col-sm-3">
-                    <label for="dtNasc">Nascimento:</label>
-                    <input type="date" id="dtNasc" class="form-control input-sm" style="width: 100%;" value="" />
-                    <span id="msNasc" class="label label-danger hidden"></span>
                 </div>
             </div>
 
@@ -47,21 +42,17 @@
                     <input type="text" id="txCpf" class="form-control input-sm" style="width: 100%;" data-mask="000.000.000-00" data-mask-clearifnotmatch="true" value="" />
                     <span id="msCpf" class="label label-danger hidden"></span>
                 </div>
+                
+                <div class="col-sm-3">
+                    <label for="dtNasc">Nascimento:</label>
+                    <input type="date" id="dtNasc" class="form-control input-sm" style="width: 100%;" value="" />
+                    <span id="msNasc" class="label label-danger hidden"></span>
+                </div>
 
                 <div class="col-sm-3">
                     <label for="dtAdm">Admissão:</label>
                     <input type="date" id="dtAdm" class="form-control input-sm" style="width: 100%;" value="" />
                     <span id="msAdm" class="label label-danger hidden"></span>
-                </div>
-
-                <div class="col-sm-3">
-                    <label for="cbTipo">Tipo:</label>
-                    <select id="cbTipo" class="form-control input-sm" style="width: 100%;">
-                        <option value="0">SELECIONE</option>
-                        <option value="1">INTERNO</option>
-                        <option value="2">VENDEDOR</option>
-                    </select>
-                    <span id="msTipo" class="label label-danger hidden"></span>
                 </div>
             </div>
         </form>
@@ -165,15 +156,7 @@
     <div class="fieldset-card-container">
         <form class="form-inline">
             <div class="row">
-                <div class="col-sm-6">
-                    <label for="cbNivel">Nível:</label>
-                    <select name="cbNivel" id="cbNivel" class="form-control input-sm" style="width: 100%;">
-                        <option value="0">SELECIONAR</option>
-                    </select>
-                    <span id="msNivel" class="label label-danger hidden"></span>
-                </div>
-
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <label for="txLogin">Login:</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
@@ -181,10 +164,8 @@
                     </div>
                     <span id="msLogin" class="label label-danger hidden"></span>
                 </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-6">
+                
+                <div class="col-sm-4">
                     <label for="txSenha">Senha:</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></div>
@@ -193,7 +174,7 @@
                     <span id="msSenha" class="label label-danger hidden"></span>
                 </div>
 
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                     <label for="txConfSenha">Confirmar Senha:</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></div>
@@ -214,109 +195,10 @@
     <div class="col-sm-6"></div>
 
     <div class="col-sm-2">
-        <button id="btLimpar" class="btn btn-primary" style="width: 100%;">LIMPAR</button>
+        
     </div>
 
     <div class="col-sm-2">
         <button id="btSalvar" class="btn btn-success" style="width: 100%;">SALVAR</button>
     </div>
-</div>
-
-
-<!-- Fancybox FORM ESTADO -->
-<div style="display: none; min-width: 300px; width: 700px" id="fancySelEstado">
-
-    <h3 style="text-align: center; font-weight: bold;">Selecionar Estado</h3>
-    <hr style="color: grey;" />
-
-    <div class="row">
-        <div class="col-sm-9">
-            <div class="form-group">
-                <label for="txSelEstadoPesquisa">Filtro:</label>
-                <input type="text" name="txSelEstadoPesquisa" id="txSelEstadoPesquisa" class="form-control" />
-            </div>
-        </div>
-        <div class="col-sm-3">
-            <div class="form-group">
-                <label for="btFiltrarEstado">&nbsp;</label>
-                <button name="btFiltrarEstado" id="btFiltrarEstado" class="btn btn-primary" style="width: 100%;">FILTRAR</button>
-            </div>
-        </div>
-    </div>
-    <div class="table-container" style="height: 190px;">
-        <table name="tbEstados" id="tbEstados" class="table table-striped table-hover">
-
-            <thead>
-                <tr>
-                    <th class="hidden">ID</th>
-                    <th>NOME</th>
-                    <th>SIGLA</th>
-                </tr>
-            </thead>
-
-            <tbody id="tbEstadosBody">
-            </tbody>
-
-        </table>
-    </div>
-    <div class="row">
-        <div class="col-sm-3">
-            <button name="btCancelarEstado" id="btCancelarEstado" class="btn btn-danger" style="width: 100%;" onclick="$.fancybox.close();">Cancelar</button>
-        </div>
-
-        <div class="col-sm-6"></div>
-
-        <div class="col-sm-3">
-            <button name="btConfirmarEstado" id="btConfirmarEstado" class="btn btn-success" style="width: 100%;">Confirmar</button>
-        </div>
-    </div>
-</div>
-
-<!-- Fancybox FORM CIDADE -->
-<div style="display: none; min-width: 300px; width: 700px" id="fancySelCidade">
-
-    <h3 style="text-align: center; font-weight: bold;">Selecionar Cidade</h3>
-    <hr style="color: grey;" />
-
-        <div class="row">
-            <div class="col-sm-9">
-                <div class="form-group">
-                    <label for="txSelCidadePesquisa">Filtro:</label>
-                    <input type="text" name="txSelCidadePesquisa" id="txSelCidadePesquisa" class="form-control" />
-                </div>
-            </div>
-            <div class="col-sm-3">
-                <div class="form-group">
-                    <label for="btFiltrarCidade">&nbsp;</label>
-                    <button name="btFiltrarCidade" id="btFiltrarCidade" class="btn btn-primary" style="width: 100%;">FILTRAR</button>
-                </div>
-            </div>
-        </div>
-        <div class="table-container" style="height: 190px;">
-            <table id="tbCidades" class="table table-striped table-hover">
-
-                <thead>
-                    <tr>
-                        <th class="hidden">ID</th>
-                        <th>NOME</th>
-                    </tr>
-                </thead>
-
-                <tbody id="tbCidadesBody">
-                </tbody>
-
-            </table>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-3">
-                <button name="btCancelarCidade" id="btCancelarCidade" class="btn btn-danger" style="width: 100%;" onclick="$.fancybox.close();">Cancelar</button>
-            </div>
-
-            <div class="col-sm-6"></div>
-
-            <div class="col-sm-3">
-                <button name="btConfirmarCidade" id="btConfirmarCidade" class="btn btn-success" style="width: 100%;">Confirmar</button>
-            </div>
-        </div>
 </div>
