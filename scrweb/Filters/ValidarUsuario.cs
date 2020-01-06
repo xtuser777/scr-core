@@ -30,11 +30,15 @@ namespace scrweb.Filters
             if (string.IsNullOrEmpty(id))
             {
                 context.Result = new RedirectResult("/Login/Logout");
-            } 
-            else 
-            if ((nivel == "2" || nivel == "3") && controller == "Funcionario" && (action == "Index" || action == "Detalhes" || action == "Novo"))
+            }
+            else
             {
-                context.Result = new RedirectResult("/Home/Denied");
+                if ((nivel == "2" || nivel == "3") && 
+                    new[] { "funcionario", "parametrizacao" }.Contains(controller.ToLower()) && 
+                    new[] { "index", "detalhes", "novo" }.Contains(action.ToLower()))
+                {
+                    context.Result = new RedirectResult("/Home/Denied");
+                }
             }
         }
     }

@@ -144,47 +144,46 @@ $(cbcidade).focusout(function () {
 });
 
 $(document).ready(function () {
-    $.getJSON("/Funcionario/ObterFuncData", function (response) {
-        if (response != null && response !== "") {
-            idendereco = response.funcionario.pessoa.endereco.id;
-            idpessoa = response.funcionario.pessoa.id;
-            idfuncionario = response.funcionario.id;
-            idusuario = response.id;
-            ativo = response.ativo;
+    var response = JSON.parse(Get("/Funcionario/ObterFuncData"));
+    if (response != null && response !== "") {
+        idendereco = response.funcionario.pessoa.endereco.id;
+        idpessoa = response.funcionario.pessoa.id;
+        idfuncionario = response.funcionario.id;
+        idusuario = response.id;
+        ativo = response.ativo;
 
-            txnome.value = response.funcionario.pessoa.nome;
-            dtNasc.value = FormatarDataIso(response.funcionario.pessoa.nascimento);
-            txrg.value = response.funcionario.pessoa.rg;
-            txcpf.value = response.funcionario.pessoa.cpf;
-            tipo_atual = response.funcionario.tipo;
-            dtadm.value = FormatarDataIso(response.funcionario.admissao);
-            txrua.value = response.funcionario.pessoa.endereco.rua;
-            txnumero.value = response.funcionario.pessoa.endereco.numero;
-            txbairro.value = response.funcionario.pessoa.endereco.bairro;
-            txcomplemento.value = response.funcionario.pessoa.endereco.complemento;
-            txcep.value = response.funcionario.pessoa.endereco.cep;
-            cbestado.value = "("+response.funcionario.pessoa.endereco.cidade.estado.id+") "+response.funcionario.pessoa.endereco.cidade.estado.nome;
-            txidestado.value = response.funcionario.pessoa.endereco.cidade.estado.id;
-            cbcidade.value = "("+response.funcionario.pessoa.endereco.cidade.id+") "+response.funcionario.pessoa.endereco.cidade.nome;
-            txidcidade.value = response.funcionario.pessoa.endereco.cidade.id;
-            txtel.value = response.funcionario.pessoa.telefone;
-            txcel.value = response.funcionario.pessoa.celular;
-            txemail.value = response.funcionario.pessoa.email;
-            nivel_atual = response.nivel.id;
-            txlogin.value = response.login;
-            login_orig = response.login;
-            txsenha.value = response.senha;
-            txconfsenha.value = response.senha;
+        txnome.value = response.funcionario.pessoa.nome;
+        dtNasc.value = FormatarDataIso(response.funcionario.pessoa.nascimento);
+        txrg.value = response.funcionario.pessoa.rg;
+        txcpf.value = response.funcionario.pessoa.cpf;
+        tipo_atual = response.funcionario.tipo;
+        dtadm.value = FormatarDataIso(response.funcionario.admissao);
+        txrua.value = response.funcionario.pessoa.endereco.rua;
+        txnumero.value = response.funcionario.pessoa.endereco.numero;
+        txbairro.value = response.funcionario.pessoa.endereco.bairro;
+        txcomplemento.value = response.funcionario.pessoa.endereco.complemento;
+        txcep.value = response.funcionario.pessoa.endereco.cep;
+        cbestado.value = "("+response.funcionario.pessoa.endereco.cidade.estado.id+") "+response.funcionario.pessoa.endereco.cidade.estado.nome;
+        txidestado.value = response.funcionario.pessoa.endereco.cidade.estado.id;
+        cbcidade.value = "("+response.funcionario.pessoa.endereco.cidade.id+") "+response.funcionario.pessoa.endereco.cidade.nome;
+        txidcidade.value = response.funcionario.pessoa.endereco.cidade.id;
+        txtel.value = response.funcionario.pessoa.telefone;
+        txcel.value = response.funcionario.pessoa.celular;
+        txemail.value = response.funcionario.pessoa.email;
+        nivel_atual = response.nivel.id;
+        txlogin.value = response.login;
+        login_orig = response.login;
+        txsenha.value = response.senha;
+        txconfsenha.value = response.senha;
 
-            if (tipo_atual.value === "2") {
-                if (!auth.classList.contains("hidden"))
-                    auth.classList.add("hidden");
-            } else {
-                if (auth.classList.contains("hidden"))
-                    auth.classList.remove("hidden");
-            }
+        if (tipo_atual.value === "2") {
+            if (!auth.classList.contains("hidden"))
+                auth.classList.add("hidden");
+        } else {
+            if (auth.classList.contains("hidden"))
+                auth.classList.remove("hidden");
         }
-    });
+    }
 });
 
 function limparCampos() {
@@ -227,7 +226,7 @@ function verificarLogin(login) {
                 msLogin.innerHTML = "O Login informado já existe...";
                 msLogin.classList.remove("hidden");
             } else {
-                if (msLogin.classList.contains("hidden") == false) { msLogin.classList.add("hidden"); }
+                if (msLogin.classList.contains("hidden") === false) { msLogin.classList.add("hidden"); }
             }
         },
         error: function () {
@@ -285,6 +284,26 @@ function validarCpf(cpf) {
         return false;
     }
     return true;
+}
+
+function validacaoEmail(email) {
+    usuario = email.substring(0, email.indexOf("@"));
+    dominio = email.substring(email.indexOf("@")+ 1, email.length);
+    if (
+        (usuario.length >=1) &&
+        (dominio.length >=3) &&
+        (usuario.search("@")===-1) &&
+        (dominio.search("@")===-1) &&
+        (usuario.search(" ")===-1) &&
+        (dominio.search(" ")===-1) &&
+        (dominio.search(".")!==-1) &&
+        (dominio.indexOf(".") >=1)&&
+        (dominio.lastIndexOf(".") < dominio.length - 1)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 btsalvar.addEventListener("click", function (event) {
@@ -476,23 +495,23 @@ btsalvar.addEventListener("click", function (event) {
         }
     }
 
-    if (email.length == 0) {
+    if (email.length === 0) {
         erros++;
         msEmail.innerHTML = "O Email precisa ser preenchido!";
         msEmail.classList.remove("hidden");
     } else
-    if (email.includes("@") == false) {
+    if (validacaoEmail(email) === false) {
         erros++;
         msEmail.innerHTML = "O Email informado é inválido...";
         msEmail.classList.remove("hidden");
     } else {
-        if (msEmail.classList.contains("hidden") == false) {
+        if (msEmail.classList.contains("hidden") === false) {
             msEmail.classList.add("hidden");
         }
     }
 
-    if (tipo != "2") {
-        if (login.length == 0) {
+    if (tipo !== "2") {
+        if (login.length === 0) {
             erros++;
             msLogin.innerHTML = "O Login precisa ser preenchido!";
             msLogin.classList.remove("hidden");
@@ -500,7 +519,7 @@ btsalvar.addEventListener("click", function (event) {
             verificarLogin(login);
         }
 
-        if (senha.length == 0) {
+        if (senha.length === 0) {
             erros++;
             msSenha.innerHTML = "A Senha precisa ser preenchida!";
             msSenha.classList.remove("hidden");

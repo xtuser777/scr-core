@@ -319,6 +319,26 @@ function validarCpf(cpf) {
     return true;   
 }
 
+function validacaoEmail(email) {
+    usuario = email.substring(0, email.indexOf("@"));
+    dominio = email.substring(email.indexOf("@")+ 1, email.length);
+    if (
+        (usuario.length >=1) &&
+        (dominio.length >=3) &&
+        (usuario.search("@")===-1) &&
+        (dominio.search("@")===-1) &&
+        (usuario.search(" ")===-1) &&
+        (dominio.search(" ")===-1) &&
+        (dominio.search(".")!==-1) &&
+        (dominio.indexOf(".") >=1)&&
+        (dominio.lastIndexOf(".") < dominio.length - 1)
+    ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 btsalvar.addEventListener("click", function (event) {
     var nome = txnome.value;
     var nasc = dtNasc.value;
@@ -518,33 +538,33 @@ btsalvar.addEventListener("click", function (event) {
             }
         }
 
-    if (email.length == 0) {
+    if (email.length === 0) {
         erros++;
         msEmail.innerHTML = "O Email precisa ser preenchido!";
         msEmail.classList.remove("hidden");
     } else
-        if (email.includes("@") == false) {
+        if (validacaoEmail(email) === false) {
             erros++;
             msEmail.innerHTML = "O Email informado é inválido...";
             msEmail.classList.remove("hidden");
         } else {
-            if (msEmail.classList.contains("hidden") == false) {
+            if (msEmail.classList.contains("hidden") === false) {
                 msEmail.classList.add("hidden");
             }
         }
 
-    if (tipo != "2") {
-        if (nivel == "0") {
+    if (tipo !== "2") {
+        if (nivel === "0") {
             erros++;
             msNivel.innerHTML = "O Nível de acesso precisa ser selecionado!";
             msNivel.classList.remove("hidden");
         } else {
-            if (msNivel.classList.contains("hidden") == false) {
+            if (msNivel.classList.contains("hidden") === false) {
                 msNivel.classList.add("hidden");
             }
         }
 
-        if (login.length == 0) {
+        if (login.length === 0) {
             erros++;
             msLogin.innerHTML = "O Login precisa ser preenchido!";
             msLogin.classList.remove("hidden");
@@ -588,7 +608,7 @@ btsalvar.addEventListener("click", function (event) {
                 }
     }
 
-    if (erros == 0) {
+    if (erros === 0) {
         var form = new FormData();
         form.append("idendereco", idendereco);
         form.append("idpessoa", idpessoa);

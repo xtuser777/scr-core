@@ -10,7 +10,6 @@ var tbFuncionario = document.getElementById('tbFuncionarios');
 var tbFuncionarioBody = document.getElementById('tbFuncionariosBody');
 
 var nivel_atual = "";
-var funcs = null;
 
 function carregarTabela(lista) 
 {
@@ -97,7 +96,7 @@ function Get(whateverUrl) {
 }
 
 function obterFuncionarios() {
-    var data = JSON.parse(Get("//Funcionario/Obter"));
+    var data = JSON.parse(Get("/Funcionario/Obter"));
     carregarTabela(data);
 }
 
@@ -112,16 +111,6 @@ function selecionarItem(item)
         item_.classList.remove("selecionado");
     }
     item.classList.toggle("selecionado");
-}
-
-/**
- * @return {string}
- */
-function Get(whateverUrl){
-    var Httpreq = new XMLHttpRequest(); // a new request
-    Httpreq.open("GET",whateverUrl,false);
-    Httpreq.send(null);
-    return Httpreq.responseText;
 }
 
 function verificarAdmin() {

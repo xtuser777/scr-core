@@ -76,7 +76,8 @@ namespace scrlib.DAO
                                         inner join pessoa_fisica using(id)
                                         where usuario.login like @chave 
                                         or pessoa_fisica.nome like @chave1 
-                                        or pessoa_fisica.email like @chave2;";
+                                        or pessoa_fisica.email like @chave2
+                                        order by id;";
             ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
             ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
             ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
@@ -95,7 +96,8 @@ namespace scrlib.DAO
             ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
                                         from usuario 
                                         inner join funcionario using (id)
-                                        where funcionario.admissao = @admissao;";
+                                        where funcionario.admissao = @admissao
+                                        order by id;";
             ComandoSQL.Parameters.AddWithValue("@admissao", admissao);
             DataTable dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
@@ -116,7 +118,8 @@ namespace scrlib.DAO
                                         where (usuario.login like @chave 
                                         or pessoa_fisica.nome like @chave1 
                                         or pessoa_fisica.email like @chave2)
-                                        and funcionario.admissao = @admissao;";
+                                        and funcionario.admissao = @admissao
+                                        order by id;";
             ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
             ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
             ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
@@ -135,7 +138,8 @@ namespace scrlib.DAO
             List<Usuario> usuarios = null;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
-                                        from usuario;";
+                                        from usuario
+                                        order by id;";
             DataTable dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
             {

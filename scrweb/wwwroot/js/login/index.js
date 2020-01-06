@@ -6,8 +6,7 @@ var msgLogin1 = document.getElementById("msgLogin");
 var msgSenha1 = document.getElementById("msgSenha");
 var msgAutenticacao = document.getElementById("msgAutenticacao");
 
-btnEntrar.addEventListener("click", function (event)
-{
+function validarAcesso() {
     var msgLogin = "";
     var msgSenha = "";
 
@@ -75,5 +74,15 @@ btnEntrar.addEventListener("click", function (event)
                 alert("Houve um problema no processamento desta requisição...\nSe o problema persistir, entre em contato com o suporte.");
             }
         });
+    }
+}
+
+btnEntrar.addEventListener("click", function (event) {
+    validarAcesso();
+});
+
+txtSenha.addEventListener("keypress", function (event) {
+    if (event.which === 13) {
+        validarAcesso();
     }
 });

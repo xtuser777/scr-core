@@ -134,7 +134,9 @@
                             <a href="#" style="color: #fff; font-weight: bold;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">@Context.Session.GetString("login") <span class="caret"></span></a>
                             <!-- Popup usuario -->
                             <ul class="dropdown-menu">
-                                @if (Context.Session.GetString("nivel") == "1") {<li><a href="#">Configurações</a></li>}
+                                <li class="dropdown-header">Configurações</li>
+                                @if (Context.Session.GetString("nivel") == "1")
+                                {<li><a href="/configuracao/parametrizacao">Parametrização</a></li>}
                                 <li><a href="/gerenciar/funcionario/dados">Meus Dados</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="/login/logout">Sair</a></li>
