@@ -8,8 +8,81 @@ var txFiltro = document.getElementById('txFiltro');
 var dtFiltroAdm = document.getElementById('dtFiltroAdm');
 var tbFuncionario = document.getElementById('tbFuncionarios');
 var tbFuncionarioBody = document.getElementById('tbFuncionariosBody');
+var cbord = document.getElementById('cbord');
 
 var nivel_atual = "";
+var funcs = [];
+
+function ordenarLista() {
+    var ord = cbord.value;
+
+    switch (ord) {
+        case "1":
+            funcs.sort(function (a,b) {
+                return a.id - b.id;
+            });
+            carregarTabela(funcs);
+            break;
+        case "2":
+            funcs.sort(function (a,b) {
+                return b.id - a.id;
+            });
+            carregarTabela(funcs);
+            break;
+        case "3":
+            funcs.sort(function (a,b) {
+                return a.funcionario.pessoa.nome - b.funcionario.pessoa.nome;
+            });
+            carregarTabela(funcs);
+            break;
+        case "4":
+            funcs.sort(function (a,b) {
+                return b.funcionario.pessoa.nome - a.funcionario.pessoa.nome;
+            });
+            carregarTabela(funcs);
+            break;
+        case "5":
+            funcs.sort(function (a,b) {
+                return a.login - b.login;
+            });
+            carregarTabela(funcs);
+            break;
+        case "6":
+            funcs.sort(function (a,b) {
+                return b.login - a.login;
+            });
+            carregarTabela(funcs);
+            break;
+        case "7":
+            break;
+        case "8":
+            break;
+        case "9":
+            break;
+        case "10":
+            break;
+        case "11":
+            break;
+        case "12":
+            break;
+        case "13":
+            break;
+        case "14":
+            break;
+        case "15":
+            break;
+        case "16":
+            break;
+        case "17":
+            break;
+        case "18":
+            break;
+    }
+}
+
+cbord.addEventListener("change", function (event) {
+    ordenarLista();
+});
 
 function carregarTabela(lista) 
 {
@@ -85,18 +158,23 @@ function limparTabelaFuncionarios() {
     }
 }
 
-/**
- * @return {string}
- */
-function Get(whateverUrl) {
-    var Httpreq = new XMLHttpRequest(); // a new request
-    Httpreq.open("GET",whateverUrl,false);
-    Httpreq.send(null);
-    return Httpreq.responseText;
+function get(url_i) {
+    let res;
+    $.ajax({
+        type: 'GET',
+        url: url_i,
+        async: false,
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function (result) {res = result;},
+        error: function (err) {alert(err.d);}
+    });
+    return res;
 }
 
 function obterFuncionarios() {
-    var data = JSON.parse(Get("/Funcionario/Obter"));
+    var data = get("/Funcionario/Obter");
+    funcs = data;
     carregarTabela(data);
 }
 
@@ -114,7 +192,7 @@ function selecionarItem(item)
 }
 
 function verificarAdmin() {
-    var data = JSON.parse(Get("/Funcionario/IsLastAdmin"));
+    var data = get("/Funcionario/IsLastAdmin");
     return (data === true && nivel_atual === "Administrador");
 }
 

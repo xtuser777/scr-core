@@ -24,7 +24,7 @@
             <div class="row">
                 <div class="col-sm-12">
                     <label for="txNome">Nome (Obrigatório):</label>
-                    <input type="text" id="txNome" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" id="txNome" class="form-control input-sm" style="width: 100%;" />
                     <span id="msNome" class="label label-danger hidden"></span>
                 </div>
             </div>
@@ -32,26 +32,20 @@
             <div class="row">
                 <div class="col-sm-3">
                     <label for="txRg">RG (Obrigatório):</label>
-                    <input type="text" id="txRg" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" id="txRg" class="form-control input-sm" style="width: 100%;" maxlength="30" />
                     <span id="msRg" class="label label-danger hidden"></span>
                 </div>
 
                 <div class="col-sm-3">
                     <label for="txCpf">CPF (Obrigatório):</label>
-                    <input type="text" id="txCpf" class="form-control input-sm" style="width: 100%;" data-mask="000.000.000-00" data-mask-clearifnotmatch="true" value="" />
+                    <input type="text" id="txCpf" class="form-control input-sm" style="width: 100%;" />
                     <span id="msCpf" class="label label-danger hidden"></span>
                 </div>
                 
                 <div class="col-sm-3">
                     <label for="dtNasc">Nascimento (Obrigatório):</label>
-                    <input type="date" id="dtNasc" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="date" id="dtNasc" class="form-control input-sm" style="width: 100%;" />
                     <span id="msNasc" class="label label-danger hidden"></span>
-                </div>
-
-                <div class="col-sm-3">
-                    <label for="dtAdm">Admissão (Obrigatório):</label>
-                    <input type="date" id="dtAdm" class="form-control input-sm" style="width: 100%;" value="" />
-                    <span id="msAdm" class="label label-danger hidden"></span>
                 </div>
             </div>
         </form>
@@ -65,29 +59,27 @@
             <div class="row">
                 <div class="col-sm-9">
                     <label for="txRua">Rua (Obrigatório):</label>
-                    <input type="text" name="txRua" id="txRua" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" name="txRua" id="txRua" class="form-control input-sm" style="width: 100%;" />
                     <span id="msRua" class="label label-danger hidden"></span>
                 </div>
 
                 <div class="col-sm-3">
                     <label for="txNumero">Número (Obrigatório):</label>
-                    <input type="text" name="txNumero" id="txNumero" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" name="txNumero" id="txNumero" class="form-control input-sm" style="width: 100%;" />
                     <span id="msNumero" class="label label-danger hidden"></span>
                 </div>
             </div>
 
-            <div style="height: 7px;"></div>
-
             <div class="row">
                 <div class="col-sm-6">
                     <label for="txBairro">Bairro (Obrigatório):</label>
-                    <input type="text" name="txBairro" id="txBairro" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" name="txBairro" id="txBairro" class="form-control input-sm" style="width: 100%;" />
                     <span id="msBairro" class="label label-danger hidden"></span>
                 </div>
 
                 <div class="col-sm-6">
                     <label for="txComplemento">Complemento:</label>
-                    <input type="text" name="txComplemento" id="txComplemento" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" name="txComplemento" id="txComplemento" class="form-control input-sm" style="width: 100%;" />
                     <span id="msComplemento" class="label label-danger hidden"></span>
                 </div>
             </div>
@@ -95,7 +87,7 @@
             <div class="row">
                 <div class="col-sm-4">
                     <label for="cbestado">Estado (Obrigatório):</label>
-                    <input id="cbestado" class="form-control input-sm" style="width: 100%;" list="estados" placeholder="Digite para buscar." value="" />
+                    <input id="cbestado" class="form-control input-sm" style="width: 100%;" list="estados" placeholder="Digite para buscar." autocomplete="off" />
                     <datalist id="estados"></datalist>
                     <span id="msEstado" class="label label-danger hidden"></span>
                 </div>
@@ -104,7 +96,7 @@
 
                 <div class="col-sm-5">
                     <label for="cbcidade">Cidade (Obrigatório):</label>
-                    <input id="cbcidade" class="form-control input-sm" style="width: 100%;" list="cidades" placeholder="Digite para buscar." value="" />
+                    <input id="cbcidade" class="form-control input-sm" style="width: 100%;" list="cidades" placeholder="Digite para buscar." autocomplete="off" />
                     <datalist id="cidades"></datalist>
                     <span id="msCidade" class="label label-danger hidden"></span>
                 </div>
@@ -113,7 +105,7 @@
 
                 <div class="col-sm-3">
                     <label for="txCep">CEP (Obrigatório):</label>
-                    <input type="text" name="txCep" id="txCep" class="form-control input-sm" style="width: 100%;" data-mask="00.000-000" data-mask-clearifnotmatch="true" value="" />
+                    <input type="text" name="txCep" id="txCep" class="form-control input-sm" style="width: 100%;" />
                     <span id="msCep" class="label label-danger hidden"></span>
                 </div>
             </div>
@@ -123,7 +115,7 @@
                     <label for="txTel">Telefone (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span></div>
-                        <input type="text" id="txTel" class="form-control input-sm" data-mask="(00) 0000-0000" data-mask-clearifnotmatch="true" value="" />
+                        <input type="text" id="txTel" class="form-control input-sm" />
                     </div>
                     <span id="msTelefone" class="label label-danger hidden"></span>
                 </div>
@@ -132,7 +124,7 @@
                     <label for="txCel">Celular (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></div>
-                        <input type="text" id="txCel" class="form-control input-sm" data-mask="(00) 00000-0000" data-mask-clearifnotmatch="true" value="" />
+                        <input type="text" id="txCel" class="form-control input-sm" />
                     </div>
                     <span id="msCelular" class="label label-danger hidden"></span>
                 </div>

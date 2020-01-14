@@ -54,32 +54,11 @@ var idfuncionario = 0;
 var idusuario = 0;
 
 var ativo = false;
+var lista_estados = [];
+var lista_cidades = [];
 var nivel_atual = "";
 var login_orig = "";
 var erros = 0;
-
-$(cbestado).keyup(function () {
-    var filtro = cbestado.value;
-    $.ajax({
-        type: 'POST',
-        url: '/Funcionario/ObterEstados',
-        data: { chave: filtro },
-        async: false,
-        success: function (response) {
-            limparEstados();
-            if (response != null && response !== "") {
-                for (var i = 0; i < response.length; i++) {
-                    var option = document.createElement("option");
-                    option.value = "("+response[i].id+") "+response[i].nome;
-                    estados.appendChild(option);
-                }
-            }
-        },
-        error: function (err) {
-            alert("Ocorreu um problema ao se comunicar com o servidor...");
-        }
-    });
-});
 
 function limparEstados() {
     for (var i = estados.childElementCount - 1; i >= 0; i--) {
@@ -91,22 +70,14 @@ $(cbestado).focusin(function () {
     $(cbestado).select();
 });
 
-$(cbestado).focusout(function () {
-    var estado = cbestado.value;
-    txidestado.value = estado.slice(1,estado.indexOf(')'));
-    cbcidade.disabled = false;
-});
-
 $(cbestado).change(function (event) {
-    $(cbcidade).val("");
+    cbcidade.value = "";
     txidcidade.value = "0";
-});
 
-$(cbcidade).keyup(function () {
-    var filtro = cbcidade.value;
+    var est = cbestado.value;
+    txidestado.value = est.slice(1,est.indexOf(')'));
 
     var form = new FormData();
-    form.append("chave", filtro);
     form.append("estado", txidestado.value);
 
     $.ajax({
@@ -116,20 +87,18 @@ $(cbcidade).keyup(function () {
         contentType: false,
         processData: false,
         async: false,
-        success: function (response) {
-            limparCidades();
-            if (response != null && response !== "") {
-                for (var i = 0; i < response.length; i++) {
-                    var option = document.createElement("option");
-                    option.value = "("+response[i].id+") "+response[i].nome;
-                    cidades.appendChild(option);
-                }
-            }
-        },
-        error: function (err) {
-            alert("Ocorreu um problema ao se comunicar com o servidor...");
-        }
+        success: function (response) {lista_cidades = response;},
+        error: function (err) {alert("Ocorreu um problema ao se comunicar com o servidor...");}
     });
+
+    limparCidades();
+    if (lista_cidades !== "") {
+        for (var i = 0; i < lista_cidades.length; i++) {
+            var option = document.createElement("option");
+            option.value = "("+lista_cidades[i].id+") "+lista_cidades[i].nome;
+            cidades.appendChild(option);
+        }
+    }
 });
 
 function limparCidades() {
@@ -147,9 +116,38 @@ $(cbcidade).focusout(function () {
     txidcidade.value = cidade.slice(1,cidade.indexOf(')'));
 });
 
+function get(url_i) {
+    let res;
+    $.ajax({
+        type: 'GET',
+        url: url_i,
+        async: false,
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function (result) {res = result;},
+        error: function (err) {alert(err.d);}
+    });
+    return res;
+}
+
 $(document).ready(function () {
-    var data = JSON.parse(Get("/Funcionario/ObterNiveis"));
-    if (data != null && data != "") {
+    $(txcpf).mask('000.000.000-00', {reverse: false});
+    $(txcep).mask('00.000-000', {reverse: false});
+    $(txtel).mask('(00) 0000-0000', {reverse: false});
+    $(txcel).mask('(00) 00000-0000', {reverse: false});
+    
+    lista_estados = get('/Funcionario/ObterEstados');
+    limparEstados();
+    if (lista_estados !== "") {
+        for (var i = 0; i < lista_estados.length; i++) {
+            var option = document.createElement("option");
+            option.value = "("+lista_estados[i].id+") "+lista_estados[i].nome;
+            estados.appendChild(option);
+        }
+    }
+    
+    var data = get("/Funcionario/ObterNiveis");
+    if (data != null && data !== "") {
         for (var i = 0; i < data.length; i++) {
             var option = document.createElement("option");
             option.value = data[i].id;
@@ -158,7 +156,7 @@ $(document).ready(function () {
         }
     }
     
-    var response = JSON.parse(Get("/Funcionario/ObterFuncInfo"));
+    var response = get("/Funcionario/ObterFuncInfo");
     if (response != null && response !== "") {
         idendereco = response.funcionario.pessoa.endereco.id;
         idpessoa = response.funcionario.pessoa.id;

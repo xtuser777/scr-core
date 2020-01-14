@@ -1,7 +1,11 @@
+var cbtipo = document.getElementById("cbtipo");
 var txnome = document.getElementById("txNome");
 var dtNasc = document.getElementById("dtNasc");
 var txrg = document.getElementById("txRg");
-var txcpf = document.getElementById("txCpf");
+var txcpf = document.getElementById("txCpf");  
+var txrazaosocial = document.getElementById("txRazaoSocial");
+var txnomefantasia = document.getElementById("txNomeFantasia");
+var txcnpj = document.getElementById("txCnpj");
 var txrua = document.getElementById("txRua");
 var txnumero = document.getElementById("txNumero");
 var txbairro = document.getElementById("txBairro");
@@ -16,10 +20,8 @@ var txcep = document.getElementById("txCep");
 var txtel = document.getElementById("txTel");
 var txcel = document.getElementById("txCel");
 var txemail = document.getElementById("txEmail");
-var txlogin = document.getElementById("txLogin");
-var txsenha = document.getElementById("txSenha");
-var txconfsenha = document.getElementById("txConfSenha");
 
+var btlimpar = document.getElementById("btLimpar");
 var btsalvar = document.getElementById("btSalvar");
 var btvoltar = document.getElementById("btVoltar");
 
@@ -27,6 +29,10 @@ var msNome = document.getElementById("msNome");
 var msNasc = document.getElementById("msNasc");
 var msRg = document.getElementById("msRg");
 var msCpf = document.getElementById("msCpf");
+var msRazaoSocial = document.getElementById("msRazaoSocial");
+var msNomeFantasia = document.getElementById("msNomeFantasia");
+var msCnpj = document.getElementById("msCnpj");
+var msTipo = document.getElementById("msTipo");
 var msRua = document.getElementById("msRua");
 var msNumero = document.getElementById("msNumero");
 var msBairro = document.getElementById("msBairro");
@@ -36,23 +42,12 @@ var msCidade = document.getElementById("msCidade");
 var msTelefone = document.getElementById("msTelefone");
 var msCelular = document.getElementById("msCelular");
 var msEmail = document.getElementById("msEmail");
-var msLogin = document.getElementById("msLogin");
-var msSenha = document.getElementById("msSenha");
-var msConfSenha = document.getElementById("msConfSenha");
 
-var auth = document.getElementById("auth");
+var fisica = document.getElementById("fisica");
+var juridica = document.getElementById("juridica");
 
-var idendereco = 0;
-var idpessoa = 0;
-var idfuncionario = 0;
-var idusuario = 0;
-
-var ativo = true;
 var lista_estados = [];
 var lista_cidades = [];
-var nivel_atual = "";
-var tipo_atual = "";
-var login_orig = "";
 var erros = 0;
 
 function limparEstados() {
@@ -71,13 +66,13 @@ $(cbestado).change(function (event) {
 
     var est = cbestado.value;
     txidestado.value = est.slice(1,est.indexOf(')'));
-    
+
     var form = new FormData();
     form.append("estado", txidestado.value);
 
     $.ajax({
         type: 'POST',
-        url: '/Funcionario/ObterCidades',
+        url: '/Cliente/ObterCidades',
         data: form,
         contentType: false,
         processData: false,
@@ -127,11 +122,12 @@ function get(url_i) {
 
 $(document).ready(function () {
     $(txcpf).mask('000.000.000-00', {reverse: false});
+    $(txcnpj).mask('00.000.000/0000-00', {reverse: false});
     $(txcep).mask('00.000-000', {reverse: false});
     $(txtel).mask('(00) 0000-0000', {reverse: false});
     $(txcel).mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/Funcionario/ObterEstados');
+    lista_estados = get('/Cliente/ObterEstados');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
@@ -141,45 +137,16 @@ $(document).ready(function () {
         }
     }
 
-    let response = get('/Funcionario/ObterFuncData');
-
-    if (response !== "") {
-        idendereco = response.funcionario.pessoa.endereco.id;
-        idpessoa = response.funcionario.pessoa.id;
-        idfuncionario = response.funcionario.id;
-        idusuario = response.id;
-        ativo = response.ativo;
-
-        txnome.value = response.funcionario.pessoa.nome;
-        dtNasc.value = FormatarDataIso(response.funcionario.pessoa.nascimento);
-        txrg.value = response.funcionario.pessoa.rg;
-        txcpf.value = response.funcionario.pessoa.cpf;
-        tipo_atual = response.funcionario.tipo;
-        txrua.value = response.funcionario.pessoa.endereco.rua;
-        txnumero.value = response.funcionario.pessoa.endereco.numero;
-        txbairro.value = response.funcionario.pessoa.endereco.bairro;
-        txcomplemento.value = response.funcionario.pessoa.endereco.complemento;
-        txcep.value = response.funcionario.pessoa.endereco.cep;
-        cbestado.value = "("+response.funcionario.pessoa.endereco.cidade.estado.id+") "+response.funcionario.pessoa.endereco.cidade.estado.nome;
-        txidestado.value = response.funcionario.pessoa.endereco.cidade.estado.id;
-        cbcidade.value = "("+response.funcionario.pessoa.endereco.cidade.id+") "+response.funcionario.pessoa.endereco.cidade.nome;
-        txidcidade.value = response.funcionario.pessoa.endereco.cidade.id;
-        txtel.value = response.funcionario.pessoa.telefone;
-        txcel.value = response.funcionario.pessoa.celular;
-        txemail.value = response.funcionario.pessoa.email;
-        nivel_atual = response.nivel.id;
-        txlogin.value = response.login;
-        login_orig = response.login;
-        txsenha.value = response.senha;
-        txconfsenha.value = response.senha;
-
-        if (tipo_atual.value === "2") {
-            if (!auth.classList.contains("hidden"))
-                auth.classList.add("hidden");
-        } else {
-            if (auth.classList.contains("hidden"))
-                auth.classList.remove("hidden");
-        }
+    if (cbtipo.value === "1") {
+        if (!juridica.classList.contains("hidden"))
+            juridica.classList.add("hidden");
+        if (fisica.classList.contains("hidden"))
+            fisica.classList.remove("hidden");
+    } else {
+        if (juridica.classList.contains("hidden"))
+            juridica.classList.remove("hidden");
+        if (!fisica.classList.contains("hidden"))
+            fisica.classList.add("hidden");
     }
 });
 
@@ -188,6 +155,9 @@ function limparCampos() {
     dtNasc.value = "";
     txrg.value = "";
     txcpf.value = "";
+    txrazaosocial.value = "";
+    txnomefantasia.value = "";
+    txcnpj.value = "";
     txrua.value = "";
     txnumero.value = "";
     txbairro.value = "";
@@ -200,45 +170,34 @@ function limparCampos() {
     txtel.value = "";
     txcel.value = "";
     txemail.value = "";
-    txlogin.value = "";
-    txsenha.value = "";
-    txconfsenha.value = "";
 }
+
+btlimpar.addEventListener("click", function (event) {
+    limparCampos();
+});
 
 btvoltar.addEventListener("click", function (event) {
     limparCampos();
-    window.location.href = "../../inicio/index";
+    window.location.href = "../../gerenciar/cliente/index";
 });
 
-function verificarLogin(login) {
-    $.ajax({
-        type: 'POST',
-        url: '/Funcionario/VerificaLogin',
-        data: { login: login },
-        async: false,
-        success: function (response) {
-            if (response === "true" && login !== login_orig) {
-                erros++;
-                msLogin.innerHTML = "O Login informado já existe...";
-                msLogin.classList.remove("hidden");
-            } else {
-                if (msLogin.classList.contains("hidden") === false) { msLogin.classList.add("hidden"); }
-            }
-        },
-        error: function () {
-            alert("Ocorreu um problema na comunicação com o servidor...");
-        }
-    });
-}
-
-function verificarAdmin() {
-    var data = get("/Funcionario/IsLastAdmin");
-    return (data === true && nivel_atual === 1);
-}
+cbtipo.addEventListener("change", function (event) {
+    if (cbtipo.value === "1") {
+        if (!juridica.classList.contains("hidden"))
+            juridica.classList.add("hidden");
+        if (fisica.classList.contains("hidden"))
+            fisica.classList.remove("hidden");
+    } else {
+        if (juridica.classList.contains("hidden"))
+            juridica.classList.remove("hidden");
+        if (!fisica.classList.contains("hidden"))
+            fisica.classList.add("hidden");
+    }
+});
 
 function validarCpf(cpf) {
     cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf == '') {
+    if (cpf === '') {
         return false;
     }
     // Elimina CPFs invalidos conhecidos	
@@ -272,6 +231,59 @@ function validarCpf(cpf) {
     return true;
 }
 
+function validarCNPJ(cnpj) {
+
+    cnpj = cnpj.replace(/[^\d]+/g,'');
+
+    if(cnpj === '') return false;
+
+    if (cnpj.length !== 14)
+        return false;
+
+    // Elimina CNPJs invalidos conhecidos
+    if (cnpj === "00000000000000" ||
+        cnpj === "11111111111111" ||
+        cnpj === "22222222222222" ||
+        cnpj === "33333333333333" ||
+        cnpj === "44444444444444" ||
+        cnpj === "55555555555555" ||
+        cnpj === "66666666666666" ||
+        cnpj === "77777777777777" ||
+        cnpj === "88888888888888" ||
+        cnpj === "99999999999999")
+        return false;
+
+    // Valida DVs
+    tamanho = cnpj.length - 2;
+    numeros = cnpj.substring(0,tamanho);
+    digitos = cnpj.substring(tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+    for (i = tamanho; i >= 1; i--) {
+        soma += numeros.charAt(tamanho - i) * pos--;
+        if (pos < 2)
+            pos = 9;
+    }
+    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    if (resultado.toString().charAt(0) !== digitos.charAt(0))
+        return false;
+
+    tamanho = tamanho + 1;
+    numeros = cnpj.substring(0,tamanho);
+    soma = 0;
+    pos = tamanho - 7;
+    for (i = tamanho; i >= 1; i--) {
+        soma += numeros.charAt(tamanho - i) * pos--;
+        if (pos < 2)
+            pos = 9;
+    }
+    resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+    if (resultado.toString().charAt(0) !== digitos.charAt(1))
+        return false;
+
+    return true;
+}
+
 function validacaoEmail(email) {
     usuario = email.substring(0, email.indexOf("@"));
     dominio = email.substring(email.indexOf("@")+ 1, email.length);
@@ -293,11 +305,17 @@ function validacaoEmail(email) {
 }
 
 btsalvar.addEventListener("click", function (event) {
-    var nome = txnome.value;
-    var nasc = dtNasc.value;
-    var rg = txrg.value;
-    var cpf = txcpf.value;
-    var tipo = tipo_atual;
+    if (cbtipo.value === "1") {
+        var nome = txnome.value;
+        var nasc = dtNasc.value;
+        var rg = txrg.value;
+        var cpf = txcpf.value;
+    } else {
+        var razaosocial = txrazaosocial.value;
+        var nomefantasia = txnomefantasia.value;
+        var cnpj = txcnpj.value;  
+    }
+    var tipo = cbtipo.value;
     var rua = txrua.value;
     var numero = txnumero.value;
     var bairro = txbairro.value;
@@ -306,66 +324,114 @@ btsalvar.addEventListener("click", function (event) {
     var telefone = txtel.value;
     var celular = txcel.value;
     var email = txemail.value;
-    var nivel = nivel_atual;
-    var login = txlogin.value;
-    var senha = txsenha.value;
-    var confsenha = txconfsenha.value;
 
     var dataNasc = new Date(nasc);
     erros = 0;
 
-    if (nome.length === 0) {
-        erros++;
-        msNome.innerHTML = "O Nome precisa ser preenchido!";
-        msNome.classList.remove("hidden");
-    } else
-    if (nome.length < 3) {
-        erros++;
-        msNome.innerHTML = "O Nome informado é inválido...";
-        msNome.classList.remove("hidden");
+    if (cbtipo.value === "1") {
+        if (nome.length === 0) {
+            erros++;
+            msNome.innerHTML = "O Nome precisa ser preenchido!";
+            msNome.classList.remove("hidden");
+        } else
+        if (nome.length < 3) {
+            erros++;
+            msNome.innerHTML = "O Nome informado é inválido...";
+            msNome.classList.remove("hidden");
+        } else {
+            if (msNome.classList.contains("hidden") === false) {
+                msNome.classList.add("hidden");
+            }
+        }
+
+        if (nasc.length === 0) {
+            erros++;
+            msNasc.innerHTML = "A data de admissão precisa ser preenchida!";
+            msNasc.classList.remove("hidden");
+        } else
+        if (dataNasc >= Date.now()) {
+            erros++;
+            msNasc.innerHTML = "A data de admissão informada é inválida...";
+            msNasc.classList.remove("hidden");
+        } else {
+            if (msNasc.classList.contains("hidden") === false) {
+                msNasc.classList.add("hidden");
+            }
+        }
+
+        if (rg.length === 0) {
+            erros++;
+            msRg.innerHTML = "O RG precisa ser preenchido!";
+            msRg.classList.remove("hidden");
+        } else {
+            if (msRg.classList.contains("hidden") === false) {
+                msRg.classList.add("hidden");
+            }
+        }
+
+        if (cpf.length === 0) {
+            erros++;
+            msCpf.innerHTML = "O CPF precisa ser preenchido!";
+            msCpf.classList.remove("hidden");
+        } else
+        if (!validarCpf(cpf)) {
+            erros++;
+            msCpf.innerHTML = "O CPF informado é inválido...";
+            msCpf.classList.remove("hidden");
+        } else {
+            if (msCpf.classList.contains("hidden") === false) {
+                msCpf.classList.add("hidden");
+            }
+        }   
     } else {
-        if (msNome.classList.contains("hidden") === false) {
-            msNome.classList.add("hidden");
+        if (razaosocial.length === 0) {
+            erros++;
+            msRazaoSocial.innerHTML = "A Razão Social precisa ser preenchida!";
+            msRazaoSocial.classList.remove("hidden");
+        } else
+        if (razaosocial.length < 3) {
+            erros++;
+            msRazaoSocial.innerHTML = "A Razão Social informada é inválida...";
+            msRazaoSocial.classList.remove("hidden");
+        } else {
+            if (msRazaoSocial.classList.contains("hidden") === false) {
+                msRazaoSocial.classList.add("hidden");
+            }
+        }
+
+        if (nomefantasia.length === 0) {
+            erros++;
+            msNomeFantasia.innerHTML = "O Nome Fantasia precisa ser preenchido!";
+            msNomeFantasia.classList.remove("hidden");
+        } else {
+            if (msNomeFantasia.classList.contains("hidden") === false) {
+                msNomeFantasia.classList.add("hidden");
+            }
+        }
+
+        if (cnpj.length === 0) {
+            erros++;
+            msCnpj.innerHTML = "O CNPJ precisa ser preenchido!";
+            msCnpj.classList.remove("hidden");
+        } else
+        if (!validarCNPJ(cnpj)) {
+            erros++;
+            msCnpj.innerHTML = "O CNPJ informado é inválido...";
+            msCnpj.classList.remove("hidden");
+        } else {
+            if (msCnpj.classList.contains("hidden") === false) {
+                msCnpj.classList.add("hidden");
+            }
         }
     }
 
-    if (nasc.length === 0) {
+    if (tipo === "0") {
         erros++;
-        msNasc.innerHTML = "A data de admissão precisa ser preenchida!";
-        msNasc.classList.remove("hidden");
-    } else
-    if (dataNasc >= Date.now()) {
-        erros++;
-        msNasc.innerHTML = "A data de admissão informada é inválida...";
-        msNasc.classList.remove("hidden");
+        msTipo.innerHTML = "O Tipo de do funcionário precisa der preenchido!";
+        msTipo.classList.remove("hidden");
     } else {
-        if (msNasc.classList.contains("hidden") === false) {
-            msNasc.classList.add("hidden");
-        }
-    }
-
-    if (rg.length === 0) {
-        erros++;
-        msRg.innerHTML = "O RG precisa ser preenchido!";
-        msRg.classList.remove("hidden");
-    } else {
-        if (msRg.classList.contains("hidden") === false) {
-            msRg.classList.add("hidden");
-        }
-    }
-
-    if (cpf.length === 0) {
-        erros++;
-        msCpf.innerHTML = "O CPF precisa ser preenchido!";
-        msCpf.classList.remove("hidden");
-    } else
-    if (!validarCpf(cpf)) {
-        erros++;
-        msCpf.innerHTML = "O CPF informado é inválido...";
-        msCpf.classList.remove("hidden");
-    } else {
-        if (msCpf.classList.contains("hidden") === false) {
-            msCpf.classList.add("hidden");
+        if (msTipo.classList.contains("hidden") === false) {
+            msTipo.classList.add("hidden");
         }
     }
 
@@ -478,63 +544,19 @@ btsalvar.addEventListener("click", function (event) {
             msEmail.classList.add("hidden");
         }
     }
-
-    if (tipo !== "2") {
-        if (login.length === 0) {
-            erros++;
-            msLogin.innerHTML = "O Login precisa ser preenchido!";
-            msLogin.classList.remove("hidden");
-        } else {
-            verificarLogin(login);
-        }
-
-        if (senha.length === 0) {
-            erros++;
-            msSenha.innerHTML = "A Senha precisa ser preenchida!";
-            msSenha.classList.remove("hidden");
-        } else
-        if (senha.length < 6) {
-            erros++;
-            msSenha.innerHTML = "A Senha informada possui tamanho inválido...";
-            msSenha.classList.remove("hidden");
-        } else {
-            if (msSenha.classList.contains("hidden") === false) {
-                msSenha.classList.add("hidden");
-            }
-        }
-
-        if (confsenha.length === 0) {
-            erros++;
-            msConfSenha.innerHTML = "A Senha de confirmação precisa ser preenchida!";
-            msConfSenha.classList.remove("hidden");
-        } else
-            if (confsenha.length < 6) {
-                erros++;
-                msConfSenha.innerHTML = "A Senha de confirmação possui tamanho inválido...";
-                msConfSenha.classList.remove("hidden");
-            } else
-                if (confsenha !== senha) {
-                    erros++;
-                    msConfSenha.innerHTML = "As senhas não conferem!";
-                    msConfSenha.classList.remove("hidden");
-                } else {
-                    if (msConfSenha.classList.contains("hidden") === false) {
-                        msConfSenha.classList.add("hidden");
-                    }
-                }
-    }
-
+    
     if (erros === 0) {
         var form = new FormData();
-        form.append("idendereco", idendereco);
-        form.append("idpessoa", idpessoa);
-        form.append("idfuncionario", idfuncionario);
-        form.append("idusuario", idusuario);
-        form.append("ativo", ativo);
-        form.append("nome", nome);
-        form.append("nasc", nasc);
-        form.append("rg", rg);
-        form.append("cpf", cpf);
+        if (cbtipo.value === "1") {
+            form.append("nome", nome);
+            form.append("nasc", nasc);
+            form.append("rg", rg);
+            form.append("cpf", cpf);    
+        } else {
+            form.append("razaosocial", razaosocial);
+            form.append("nomefantasia", nomefantasia);
+            form.append("cnpj", cnpj);   
+        }
         form.append("tipo", tipo);
         form.append("rua", rua);
         form.append("numero", numero);
@@ -545,13 +567,10 @@ btsalvar.addEventListener("click", function (event) {
         form.append("telefone", telefone);
         form.append("celular", celular);
         form.append("email", email);
-        form.append("nivel", nivel);
-        form.append("login", login);
-        form.append("senha", senha);
 
         $.ajax({
             type: 'POST',
-            url: '/Funcionario/Alterar',
+            url: '/Cliente/Gravar',
             data: form,
             contentType: false,
             processData: false,
@@ -559,13 +578,12 @@ btsalvar.addEventListener("click", function (event) {
                 if (response.length > 0) {
                     alert(response);
                 } else {
-                    alert("Alteração salva com sucesso!");
+                    limparCampos();
                 }
             },
             error: function (error) {
-                alert("Ocorreu um problema ao se comunicar com o servidor..;");
+                alert('Ocorreu um problema ao comunicar-se com o servidor...');
             }
         });
     }
 });
-

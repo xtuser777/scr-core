@@ -1,0 +1,104 @@
+
+@{
+    ViewBag.Title = "Gerenciar Clientes";
+    Layout = "_Layout";
+}
+
+@section Scripts {
+    <script type="text/javascript" src="~/lib/bootbox/bootbox.min.js"></script>
+    <script type="text/javascript" src="~/js/gerenciar/cliente/index.js"></script>
+}
+
+<!-- Card titulo pagina -->
+<div class="card-title">
+    <div class="card-title-container" style="text-align: center;">
+        <h4>
+            <b>SCR - Gerenciar Clientes</b>
+        </h4>
+    </div>
+</div>
+<!-- Fim card titulo pagina -->
+
+<div class="fieldset-card">
+    <div class="fieldset-card-legend" style="width: 200px;">Filtragem de Clientes</div>
+
+    <div class="fieldset-card-container">
+        <div class="row">
+            <div class="col-sm-8">
+                <label for="txFiltro">Filtro:</label>
+                <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por nome e email..." />
+            </div>
+            
+            <div class="col-sm-2">
+                <label for="dtFiltroCad">Filtro Cadastro:</label>
+                <input type="date" id="dtFiltroCad" class="form-control input-sm" style="width: 100%;" />
+            </div>
+
+            <div class="col-sm-2">
+                <label for="btFiltrar">&nbsp;</label>
+                <button id="btFiltrar" class="btn btn-primary btn-sm" style="width: 100%;">FILTRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fieldset-card">
+    <div class="fieldset-card-legend" style="width: 200px;">Clientes Cadastrados</div>
+
+    <div class="fieldset-card-container">
+        <div class="row">
+            <div class="col-sm-12">
+                <label for="cbord">Ordenar por:</label>
+                <select id="cbord" class="form-control input-sm">
+                    <option value="1">REGISTRO - CRESCENTE</option>
+                    <option value="2">REGISTRO - DECRESCENTE</option>
+                    <option value="3">NOME - CRESCENTE</option>
+                    <option value="4">NOME - DECRESCENTE</option>
+                    <option value="5">CPF/CNPJ - CRESCENTE</option>
+                    <option value="6">CPF/CNPJ - DECRESCENTE</option>
+                    <option value="7">CADASTRO - CRESCENTE</option>
+                    <option value="8">CADASTRO - DECRESCENTE</option>
+                    <option value="9">TIPO - CRESCENTE</option>
+                    <option value="10">TIPO - DECRESCENTE</option>
+                    <option value="11">EMAIL - CRESCENTE</option>
+                    <option value="12">EMAIL - DECRESCENTE</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-container">
+            <table id="tbClientes" class="table">
+                <thead>
+                <tr>
+                    <th class="hidden">ID</th>
+                    <th style="width: 40%;">NOME/NOME FANTASIA</th>
+                    <th style="width: 16%;">CPF/CNPJ</th>
+                    <th style="width: 10%;">CADASTRO</th>
+                    <th style="width: 10%;">TIPO</th>
+                    <th>EMAIL</th>
+                </tr>
+                </thead>
+                <tbody id="tbClientesBody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-3">
+        <button id="btVoltar" class="btn btn-default" style="width: 100%;">VOLTAR</button>
+    </div>
+
+    <div class="col-sm-3">
+        <button id="btExcluir" class="btn btn-danger" style="width: 100%;">EXCLUIR</button>
+    </div>
+
+    <div class="col-sm-3">
+        <button id="btDetalhes" class="btn btn-info" style="width: 100%;">DETALHES</button>
+    </div>
+
+    <div class="col-sm-3">
+        <button id="btNovo" class="btn btn-success" style="width: 100%;">NOVO</button>
+    </div>
+</div>

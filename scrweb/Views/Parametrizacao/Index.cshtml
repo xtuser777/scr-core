@@ -6,7 +6,6 @@
 
 @section Scripts{ 
     <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-    <script type="text/javascript" src="~/lib/fancybox/jquery.fancybox.min.js"></script>
     <script type="text/javascript" src="~/js/configuracao/parametrizacao/index.js" asp-append-version="true"></script>
 }
 
@@ -19,13 +18,13 @@
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 130px;">Dados do Empresa</div>
+    <div class="fieldset-card-legend" style="width: 130px;">Dados da Empresa</div>
     <div class="fieldset-card-container">
         <form class="form-inline">
             <div class="row">
                 <div class="col-sm-12">
                     <label for="txRazaoSocial">Razão Social (Obrigatório):</label>
-                    <input type="text" id="txRazaoSocial" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" id="txRazaoSocial" class="form-control input-sm" style="width: 100%;" />
                     <span id="msRazaoSocial" class="label label-danger hidden"></span>
                 </div>
             </div>
@@ -33,13 +32,13 @@
             <div class="row">
                 <div class="col-sm-9">
                     <label for="txNomeFantasia">Nome Fantasia (Obrigatório):</label>
-                    <input type="text" id="txNomeFantasia" class="form-control input-sm" style="width: 100%;" value="" />
+                    <input type="text" id="txNomeFantasia" class="form-control input-sm" style="width: 100%;" />
                     <span id="msNomeFantasia" class="label label-danger hidden"></span>
                 </div>
 
                 <div class="col-sm-3">
                     <label for="txCnpj">CNPJ (Obrigatório):</label>
-                    <input type="text" id="txCnpj" class="form-control input-sm" style="width: 100%;" data-mask="00.000.000/0000-00" data-mask-clearifnotmatch="true" value="" />
+                    <input type="text" id="txCnpj" class="form-control input-sm" style="width: 100%;" />
                     <span id="msCnpj" class="label label-danger hidden"></span>
                 </div>
             </div>
@@ -84,7 +83,7 @@
             <div class="row">
                 <div class="col-sm-4">
                     <label for="cbestado">Estado (Obrigatório):</label>
-                    <input id="cbestado" class="form-control input-sm" style="width: 100%;" list="estados" placeholder="Digite para buscar." value="" />
+                    <input id="cbestado" class="form-control input-sm" style="width: 100%;" list="estados" placeholder="Digite para buscar." autocomplete="off" />
                     <datalist id="estados"></datalist>
                     <span id="msEstado" class="label label-danger hidden"></span>
                 </div>
@@ -93,7 +92,7 @@
 
                 <div class="col-sm-5">
                     <label for="cbcidade">Cidade (Obrigatório):</label>
-                    <input id="cbcidade" class="form-control input-sm" style="width: 100%;" list="cidades" placeholder="Digite para buscar." value="" />
+                    <input id="cbcidade" class="form-control input-sm" style="width: 100%;" list="cidades" placeholder="Digite para buscar." autocomplete="off" />
                     <datalist id="cidades"></datalist>
                     <span id="msCidade" class="label label-danger hidden"></span>
                 </div>
@@ -102,7 +101,7 @@
 
                 <div class="col-sm-3">
                     <label for="txCep">CEP (Obrigatório):</label>
-                    <input type="text" name="txCep" id="txCep" class="form-control input-sm" style="width: 100%;" data-mask="00.000-000" data-mask-clearifnotmatch="true" value="" />
+                    <input type="text" name="txCep" id="txCep" class="form-control input-sm" style="width: 100%;" />
                     <span id="msCep" class="label label-danger hidden"></span>
                 </div>
             </div>
@@ -112,7 +111,7 @@
                     <label for="txTel">Telefone (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span></div>
-                        <input type="text" id="txTel" class="form-control input-sm" data-mask="(00) 0000-0000" data-mask-clearifnotmatch="true" value="" />
+                        <input type="text" id="txTel" class="form-control input-sm" />
                     </div>
                     <span id="msTelefone" class="label label-danger hidden"></span>
                 </div>
@@ -121,7 +120,7 @@
                     <label for="txCel">Celular (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></div>
-                        <input type="text" id="txCel" class="form-control input-sm" data-mask="(00) 00000-0000" data-mask-clearifnotmatch="true" value="" />
+                        <input type="text" id="txCel" class="form-control input-sm" />
                     </div>
                     <span id="msCelular" class="label label-danger hidden"></span>
                 </div>

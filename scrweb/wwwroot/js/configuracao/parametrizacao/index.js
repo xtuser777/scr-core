@@ -34,30 +34,9 @@ var msCelular = document.getElementById("msCelular");
 var msEmail = document.getElementById("msEmail");
 
 var erros = 0;
+var lista_estados = [];
+var lista_cidades = [];
 var novo = true;
-
-$(cbestado).keyup(function () {
-    var filtro = cbestado.value;
-    $.ajax({
-        type: 'POST',
-        url: '/Funcionario/ObterEstados',
-        data: { chave: filtro },
-        async: false,
-        success: function (response) {
-            limparEstados();
-            if (response != null && response !== "") {
-                for (var i = 0; i < response.length; i++) {
-                    var option = document.createElement("option");
-                    option.value = "("+response[i].id+") "+response[i].nome;
-                    estados.appendChild(option);
-                }
-            }
-        },
-        error: function (err) {
-            alert("Ocorreu um problema ao se comunicar com o servidor...");
-        }
-    });
-});
 
 function limparEstados() {
     for (var i = estados.childElementCount - 1; i >= 0; i--) {
@@ -69,22 +48,14 @@ $(cbestado).focusin(function () {
     $(cbestado).select();
 });
 
-$(cbestado).focusout(function () {
-    var estado = cbestado.value;
-    txidestado.value = estado.slice(1,estado.indexOf(')'));
-    cbcidade.disabled = false;
-});
-
 $(cbestado).change(function (event) {
-    $(cbcidade).val("");
+    cbcidade.value = "";
     txidcidade.value = "0";
-});
 
-$(cbcidade).keyup(function () {
-    var filtro = cbcidade.value;
+    var est = cbestado.value;
+    txidestado.value = est.slice(1,est.indexOf(')'));
 
     var form = new FormData();
-    form.append("chave", filtro);
     form.append("estado", txidestado.value);
 
     $.ajax({
@@ -94,20 +65,18 @@ $(cbcidade).keyup(function () {
         contentType: false,
         processData: false,
         async: false,
-        success: function (response) {
-            limparCidades();
-            if (response != null && response !== "") {
-                for (var i = 0; i < response.length; i++) {
-                    var option = document.createElement("option");
-                    option.value = "("+response[i].id+") "+response[i].nome;
-                    cidades.appendChild(option);
-                }
-            }
-        },
-        error: function (err) {
-            alert("Ocorreu um problema ao se comunicar com o servidor...");
-        }
+        success: function (response) {lista_cidades = response;},
+        error: function (err) {alert("Ocorreu um problema ao se comunicar com o servidor...");}
     });
+
+    limparCidades();
+    if (lista_cidades !== "") {
+        for (var i = 0; i < lista_cidades.length; i++) {
+            var option = document.createElement("option");
+            option.value = "("+lista_cidades[i].id+") "+lista_cidades[i].nome;
+            cidades.appendChild(option);
+        }
+    }
 });
 
 function limparCidades() {
@@ -125,8 +94,37 @@ $(cbcidade).focusout(function () {
     txidcidade.value = cidade.slice(1,cidade.indexOf(')'));
 });
 
+function get(url_i) {
+    let res;
+    $.ajax({
+        type: 'GET',
+        url: url_i,
+        async: false,
+        contentType: 'application/json',
+        dataType: 'json',
+        success: function (result) {res = result;},
+        error: function (err) {alert(err.d);}
+    });
+    return res;
+}
+
 $(document).ready(function () {
-    var response = JSON.parse(Get("/Parametrizacao/Obter"));
+    $(txcnpj).mask('00.000.000/0000-00', {reverse: false});
+    $(txcep).mask('00.000-000', {reverse: false});
+    $(txtel).mask('(00) 0000-0000', {reverse: false});
+    $(txcel).mask('(00) 00000-0000', {reverse: false});
+
+    lista_estados = get('/Funcionario/ObterEstados');
+    limparEstados();
+    if (lista_estados !== "") {
+        for (var i = 0; i < lista_estados.length; i++) {
+            var option = document.createElement("option");
+            option.value = "("+lista_estados[i].id+") "+lista_estados[i].nome;
+            estados.appendChild(option);
+        }
+    }
+    
+    var response = get("/Parametrizacao/Obter");
     if (response != null && response !== "") {
         txrazaosocial.value = response.razaoSocial;
         txnomefantasia.value = response.nomeFantasia;
@@ -173,16 +171,6 @@ btvoltar.addEventListener("click", function (event) {
     limparCampos();
     window.location.href = "../../inicio/index";
 });
-
-/**
- * @return {string}
- */
-function Get(whateverUrl){
-    var Httpreq = new XMLHttpRequest(); // a new request
-    Httpreq.open("GET",whateverUrl,false);
-    Httpreq.send(null);
-    return Httpreq.responseText;
-}
 
 function validarCNPJ(cnpj) {
 

@@ -82,20 +82,16 @@ namespace scrweb.Controllers
             return Json(new UsuarioController().GetById(Convert.ToInt32(id)));
         }
 
-        [HttpPost]
-        public JsonResult ObterEstados(string chave)
+        public JsonResult ObterEstados()
         {
-            var estados = new EstadoController().GetByFilter(chave);
+            var estados = new EstadoController().Get();
             return Json(estados);
         }
 
         [HttpPost]
         public JsonResult ObterCidades(IFormCollection form)
         {
-            string estado = form["estado"];
-            string chave = form["chave"];
-            
-            var cidades = new CidadeController().GetByEstAndKey(Convert.ToInt32(estado), chave);
+            var cidades = new CidadeController().GetByEstado(Convert.ToInt32(form["estado"]));
             return Json(cidades);
         }
 

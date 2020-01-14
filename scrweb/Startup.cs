@@ -48,14 +48,14 @@ namespace scrweb
             app.UseMvc(routes =>
             {
                 routes.MapRoute( name: "default", template: "{controller=Inicio}/{action=Index}/{id?}");
-                //routes.MapRoute(name: "inicio_index1", template: "/inicio/index", defaults: new { controller="Inicio", action="Index" });
-                //routes.MapRoute(name: "login_index", template: "/login/index", defaults: new { controller="Login", action="Index" });
-                //routes.MapRoute(name: "login_autenticar", template: "/login/autenticar", defaults: new { controller = "Login", action = "Autenticar" });
                 routes.MapRoute(name: "funcionario_index", template: "/gerenciar/funcionario/index", defaults: new { controller = "Funcionario", action = "Index" });
                 routes.MapRoute(name: "funcionario_novo", template: "/gerenciar/funcionario/novo", defaults: new { controller = "Funcionario", action = "Novo" });
                 routes.MapRoute(name: "funcionario_detalhes", template: "/gerenciar/funcionario/detalhes/{id}", defaults: new { controller = "Funcionario", action = "Detalhes" });
                 routes.MapRoute(name: "funcionario_dados", template: "/gerenciar/funcionario/dados", defaults: new { controller = "Funcionario", action = "Dados" });
                 routes.MapRoute(name: "parametrizacao", template: "/configuracao/parametrizacao", defaults: new { controller = "Parametrizacao", action = "Index" });
+                routes.MapRoute(name: "cliente", template: "/gerenciar/cliente/index", defaults: new { controller = "Cliente", action = "Index" });
+                routes.MapRoute(name: "cliente_novo", template: "/gerenciar/cliente/novo", defaults: new { controller = "Cliente", action = "Novo" });
+                routes.MapRoute(name: "cliente_detalhes", template: "/gerenciar/cliente/detalhes", defaults: new { controller = "Cliente", action = "Detalhes" });
             });
         }
     }
