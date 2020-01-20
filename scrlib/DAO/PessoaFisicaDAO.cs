@@ -30,13 +30,25 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select * from pessoa_fisica where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
-            DataTable dt = ExecutaSelect();
+            
+            var dt = ExecutaSelect();
             if (dt != null && dt.Rows.Count > 0)
             {
                 return GetObject(dt.Rows[0]);
             }
 
             return null;
+        }
+
+        internal int CountCpf(string cpf)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select count(id) as cnt from pessoa_fisica where cpf = @cpf;";
+            ComandoSQL.Parameters.AddWithValue("@cpf", cpf);
+
+            var dt = ExecutaSelect();
+
+            return dt != null && dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["cnt"]) : -10;
         }
 
         internal int Gravar(PessoaFisica p)

@@ -12,7 +12,7 @@
 <!-- Card titulo pagina -->
 <div class="card-title">
     <div class="card-title-container" style="text-align: center;">
-        <h4><b>SCR - Cadastrar Novo Cliente</b></h4>
+        <h4><b>SCR - Detalhes do Cliente</b></h4>
     </div>
 </div>
 <!-- Fim card titulo pagina -->
@@ -22,12 +22,8 @@
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-12">
-                <label for="cbtipo">Tipo do Cliente</label>
-                <select id="cbtipo" class="form-control input-sm">
-                    <option value="1">PESSOA FÍSICA</option>
-                    <option value="2">PESSOA JURÍDICA</option>
-                </select>
-                <span id="msTipo" class="label label-danger hidden"></span>
+                <label for="txtipo">Tipo do Cliente: </label>
+                <input type="text" id="txtipo" class="form-control input-sm" style="width: 100%;" />
             </div>
         </div>
     </div>
@@ -130,21 +126,19 @@
             <div class="row">
                 <div class="col-sm-4">
                     <label for="cbestado">Estado (Obrigatório):</label>
-                    <input id="cbestado" class="form-control input-sm" style="width: 100%;" list="estados" placeholder="Digite para buscar." autocomplete="off" />
-                    <datalist id="estados"></datalist>
+                    <select id="cbestado" class="form-control input-sm" style="width: 100%;">
+                        <option value="0">SELECIONAR</option>
+                    </select>
                     <span id="msEstado" class="label label-danger hidden"></span>
                 </div>
 
-                <input type="hidden" name="txIdEstado" id="txIdEstado" value="0" />
-
                 <div class="col-sm-5">
                     <label for="cbcidade">Cidade (Obrigatório):</label>
-                    <input id="cbcidade" class="form-control input-sm" style="width: 100%;" list="cidades" placeholder="Digite para buscar." autocomplete="off" />
-                    <datalist id="cidades"></datalist>
+                    <select id="cbcidade" class="form-control input-sm" style="width: 100%;">
+                        <option value="0">SELECIONAR</option>
+                    </select>
                     <span id="msCidade" class="label label-danger hidden"></span>
                 </div>
-
-                <input type="hidden" name="txIdCidade" id="txIdCidade" value="0" />
 
                 <div class="col-sm-3">
                     <label for="txCep">CEP (Obrigatório):</label>

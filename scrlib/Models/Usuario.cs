@@ -47,31 +47,6 @@ namespace scrlib.Models
             return usuario;
         }
 
-        internal List<Usuario> GetByKey(string chave)
-        {
-            return !string.IsNullOrEmpty(chave) ? new UsuarioDAO().GetByKey(chave) : null;
-        }
-
-        internal List<Usuario> GetByAdm(DateTime admissao)
-        {
-            return new UsuarioDAO().GetByAdm(admissao);
-        }
-
-        internal List<Usuario> GetByKeyAndAdm(string chave, DateTime admissao)
-        {
-            return !string.IsNullOrEmpty(chave) ? new UsuarioDAO().GetByKeyAndAdm(chave, admissao) : null;
-        }
-
-        /*internal List<Usuario> GetByFilters(string nome, string login, int nivel, string cpf, DateTime admissao, int tipo, Boolean? ativo, string email)
-        {
-            if (nome != null && login != null && cpf != null && email != null)
-            {
-                return new UsuarioDAO().GetByFilters(nome, login, nivel, cpf, admissao, tipo, ativo, email);
-            }
-
-            return null;
-        }*/
-
         internal List<Usuario> Get()
         {
             return new UsuarioDAO().Get();
@@ -79,21 +54,21 @@ namespace scrlib.Models
 
         internal int Gravar()
         {
-            int res = -10;
+            var res = -10;
             if (_id == 0) res = new UsuarioDAO().Gravar(this);
             return res;
         }
 
         internal int Alterar()
         {
-            int res = -10;
+            var res = -10;
             if (_id > 0) res = new UsuarioDAO().Alterar(this);
             return res;
         }
 
         internal bool VerificarLogin(string login)
         {
-            bool res = false;
+            var res = false;
             if (!string.IsNullOrEmpty(login))
             {
                 if (new UsuarioDAO().LoginCount(login) > 0)
@@ -107,6 +82,11 @@ namespace scrlib.Models
         internal bool IsLastAdmin()
         {
             return (new UsuarioDAO().AdminCount() == 1);
+        }
+
+        internal int Excluir(int id)
+        {
+            return id > 0 ? new UsuarioDAO().Excluir(id) : -5;
         }
     }
 }

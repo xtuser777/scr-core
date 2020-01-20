@@ -3,8 +3,8 @@
     ViewData["Title"] = "Novo";
 }
 
-@section Scripts{ 
-    <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
+@section Scripts{
+<script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js" xmlns="http://www.w3.org/1999/html"></script>
     <script type="text/javascript" src="~/js/gerenciar/funcionario/novo.js" asp-append-version="true"></script>
 }
 
@@ -104,21 +104,19 @@
             <div class="row">
                 <div class="col-sm-4">
                     <label for="cbestado">Estado (Obrigatório):</label>
-                    <input id="cbestado" class="form-control input-sm" style="width: 100%;" list="estados" placeholder="Digite para buscar." autocomplete="off" />
-                    <datalist id="estados"></datalist>
+                    <select id="cbestado" class="form-control input-sm" style="width: 100%;">
+                        <option value="0">SELECIONAR</option>
+                    </select>
                     <span id="msEstado" class="label label-danger hidden"></span>
                 </div>
 
-                <input type="hidden" name="txIdEstado" id="txIdEstado" value="0" />
-
                 <div class="col-sm-5">
                     <label for="cbcidade">Cidade (Obrigatório):</label>
-                    <input id="cbcidade" class="form-control input-sm" style="width: 100%;" list="cidades" placeholder="Digite para buscar." autocomplete="off" />
-                    <datalist id="cidades"></datalist>
+                    <select id="cbcidade" class="form-control input-sm" style="width: 100%;">
+                        <option value="0">SELECIONAR</option>
+                    </select>
                     <span id="msCidade" class="label label-danger hidden"></span>
                 </div>
-
-                <input type="hidden" name="txIdCidade" id="txIdCidade" value="0" />
 
                 <div class="col-sm-3">
                     <label for="txCep">CEP (Obrigatório):</label>

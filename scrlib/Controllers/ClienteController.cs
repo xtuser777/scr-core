@@ -26,60 +26,6 @@ namespace scrlib.Controllers
             return null;
         }
 
-        public List<ClienteViewModel> GetByFilter(string chave)
-        {
-            var cvms = new List<ClienteViewModel>();
-            var c = new Cliente().GetByFilter(chave);
-            if (c == null || c.Count <= 0) return cvms;
-            cvms.AddRange(c.Select(cli => 
-                new ClienteViewModel()
-                {
-                    Id = cli.Id, 
-                    Cadastro = cli.Cadastro, 
-                    Tipo = cli.Tipo, 
-                    Pessoa = cli.Tipo == 1 ? (PessoaViewModel) new PessoaFisicaController().GetById(cli.Pessoa) : new PessoaJuridicaController().GetById(cli.Pessoa)
-                }
-            ));
-
-            return cvms;
-        }
-
-        public List<ClienteViewModel> GetByCad(DateTime cadastro)
-        {
-            var cvms = new List<ClienteViewModel>();
-            var c = new Cliente().GetByCad(cadastro);
-            if (c == null || c.Count <= 0) return cvms;
-            cvms.AddRange(c.Select(cli => 
-                new ClienteViewModel()
-                {
-                    Id = cli.Id, 
-                    Cadastro = cli.Cadastro, 
-                    Tipo = cli.Tipo, 
-                    Pessoa = cli.Tipo == 1 ? (PessoaViewModel) new PessoaFisicaController().GetById(cli.Pessoa) : new PessoaJuridicaController().GetById(cli.Pessoa)
-                }
-            ));
-
-            return cvms;
-        }
-
-        public List<ClienteViewModel> GetByFilterAndCad(string chave, DateTime cadastro)
-        {
-            var cvms = new List<ClienteViewModel>();
-            var c = new Cliente().GetByFilterCad(chave, cadastro);
-            if (c == null || c.Count <= 0) return cvms;
-            cvms.AddRange(c.Select(cli => 
-                new ClienteViewModel()
-                {
-                    Id = cli.Id, 
-                    Cadastro = cli.Cadastro, 
-                    Tipo = cli.Tipo, 
-                    Pessoa = cli.Tipo == 1 ? (PessoaViewModel) new PessoaFisicaController().GetById(cli.Pessoa) : new PessoaJuridicaController().GetById(cli.Pessoa)
-                }
-            ));
-
-            return cvms;
-        }
-
         public List<ClienteViewModel> GetAll()
         {
             var cvms = new List<ClienteViewModel>();

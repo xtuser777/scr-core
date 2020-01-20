@@ -40,72 +40,81 @@
     </div>
 </div>
 
-<div class="fieldset-card">
+<div class="fieldset-card" style="margin-bottom: 40px;">
     <div class="fieldset-card-legend" style="width: 200px;">Funcionários Cadastrados</div>
 
     <div class="fieldset-card-container">
-        <div class="row">
+        <div class="row" style="margin-bottom: 10px;">
             <div class="col-sm-12">
                 <label for="cbord">Ordenar por:</label>
                 <select id="cbord" class="form-control input-sm">
-                    <option value="1">REGISTRO - CRESCENTE</option>
-                    <option value="2">REGISTRO - DECRESCENTE</option>
-                    <option value="3">NOME - CRESCENTE</option>
-                    <option value="4">NOME - DECRESCENTE</option>
-                    <option value="5">USUÁRIO - CRESCENTE</option>
-                    <option value="6">USUÁRIO - DECRESCENTE</option>
-                    <option value="7">NÍVEL - CRESCENTE</option>
-                    <option value="8">NÍVEL - DECRESCENTE</option>
-                    <option value="9">CPF - CRESCENTE</option>
-                    <option value="10">CPF - DECRESCENTE</option>
-                    <option value="11">ADMISSÃO - CRESCENTE</option>
-                    <option value="12">ADMISSÃO - DECRESCENTE</option>
-                    <option value="13">TIPO - CRESCENTE</option>
-                    <option value="14">TIPO - DECRESCENTE</option>
-                    <option value="15">ATIVO - CRESCENTE</option>
-                    <option value="16">ATIVO - DECRESCENTE</option>
-                    <option value="17">EMAIL - CRESCENTE</option>
-                    <option value="18">EMAIL - DECRESCENTE</option>
+                    <option value="1">REGISTRO (CRESCENTE)</option>
+                    <option value="2">REGISTRO (DECRESCENTE)</option>
+                    <option value="3">NOME (CRESCENTE)</option>
+                    <option value="4">NOME (DECRESCENTE)</option>
+                    <option value="5">USUÁRIO (CRESCENTE)</option>
+                    <option value="6">USUÁRIO (DECRESCENTE)</option>
+                    <option value="7">NÍVEL (CRESCENTE)</option>
+                    <option value="8">NÍVEL (DECRESCENTE)</option>
+                    <option value="9">CPF (CRESCENTE)</option>
+                    <option value="10">CPF (DECRESCENTE)</option>
+                    <option value="11">ADMISSÃO (CRESCENTE)</option>
+                    <option value="12">ADMISSÃO (DECRESCENTE)</option>
+                    <option value="13">TIPO (CRESCENTE)</option>
+                    <option value="14">TIPO (DECRESCENTE)</option>
+                    <option value="15">ATIVO (CRESCENTE)</option>
+                    <option value="16">ATIVO (DECRESCENTE)</option>
+                    <option value="17">EMAIL (CRESCENTE)</option>
+                    <option value="18">EMAIL (DECRESCENTE)</option>
                 </select>
             </div>
         </div>
         
-        <div class="table-container">
-            <table id="tbFuncionarios" class="table">
-                <thead>
-                <tr>
-                    <th class="hidden">ID</th>
-                    <th style="width: 20%;">NOME</th>
-                    <th style="width: 10%;">USUÁRIO</th>
-                    <th style="width: 12%;">NÍVEL</th>
-                    <th style="width: 12%;">CPF</th>
-                    <th style="width: 8%;">ADMISSÃO</th>
-                    <th style="width: 10%;">TIPO</th>
-                    <th style="width: 8%;">ATIVO</th>
-                    <th>EMAIL</th>
-                </tr>
-                </thead>
-                <tbody id="tbFuncionariosBody">
-                </tbody>
-            </table>
-        </div>
+        <table id="tbFuncionarios" class="table table-responsive" style="width: 100%;">
+            <thead>
+            <tr>
+                <th class="hidden">ID</th>
+                <th style="width: 20%;">NOME</th>
+                <th style="width: 10%;">USUÁRIO</th>
+                <th style="width: 12%;">NÍVEL</th>
+                <th style="width: 12%;">CPF</th>
+                <th style="width: 8%;">ADMISSÃO</th>
+                <th style="width: 10%;">TIPO</th>
+                <th style="width: 8%;">ATIVO</th>
+                <th>EMAIL</th>
+            </tr>
+            </thead>
+            
+            <tbody id="tbFuncionariosBody">
+            </tbody>
+        </table>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-sm-3">
-        <button id="btDesativar" class="btn btn-danger" style="width: 100%;">DESATIVAR</button>
-    </div>
+<div class="panel-actions">
+    <div class="row">
+        <div class="col-sm-2">
+            <button id="btVoltar" class="btn btn-default btn-sm" style="width: 100%;">VOLTAR</button>
+        </div>
+        
+        <div class="col-sm-2">
+            <button id="btExcluir" class="btn btn-danger btn-sm" style="width: 100%;">EXCLUIR</button>
+        </div>
+        
+        <div class="col-sm-2">
+            <button id="btDesativar" class="btn btn-warning btn-sm" style="width: 100%;">DESATIVAR</button>
+        </div>
 
-    <div class="col-sm-3">
-        <button id="btReativar" class="btn btn-primary" style="width: 100%;">REATIVAR</button>
-    </div>
+        <div class="col-sm-2">
+            <button id="btReativar" class="btn btn-primary btn-sm" style="width: 100%;">REATIVAR</button>
+        </div>
 
-    <div class="col-sm-3">
-        <button id="btDetalhes" class="btn btn-info" style="width: 100%;">DETALHES</button>
-    </div>
+        <div class="col-sm-2">
+            <button id="btDetalhes" class="btn btn-info btn-sm" style="width: 100%;">DETALHES</button>
+        </div>
 
-    <div class="col-sm-3">
-        <button id="btNovo" class="btn btn-success" style="width: 100%;">NOVO</button>
+        <div class="col-sm-2">
+            <button id="btNovo" class="btn btn-success btn-sm" style="width: 100%;">NOVO</button>
+        </div>
     </div>
 </div>

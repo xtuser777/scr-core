@@ -46,6 +46,11 @@ namespace scrlib.Models
             return null;
         }
 
+        internal bool VerifyCpf(string cpf)
+        {
+            return !string.IsNullOrEmpty(cpf) && new PessoaFisicaDAO().CountCpf(cpf) > 0;
+        }
+
         internal int Gravar()
         {
             if (Id == 0 && Tipo == 1 && !string.IsNullOrEmpty(Telefone) && !string.IsNullOrEmpty(Celular) &&

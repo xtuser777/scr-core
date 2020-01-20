@@ -1,84 +1,93 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using scrweb.Filters;
 using scrlib.Controllers;
 using scrlib.ViewModels;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json.Linq;
 
 namespace scrweb.Controllers
 {
-    [SuppressMessage("ReSharper", "IdentifierTypo")]
     [ValidarUsuario]
     public class FuncionarioController : Controller
     {
-        [HttpGet]
+        private static List<UsuarioViewModel> _funcs;
+        
         public IActionResult Index()
         {
             return View();
         }
 
-        [HttpGet]
         public IActionResult Novo()
         {
             return View();
         }
 
-        /*[HttpGet("/Funcionario/Detalhes/{id}", Name = "User_Info")]*/
         public IActionResult Detalhes(int id)
         {
-            //ViewData["id"] = id;
-            HttpContext.Session.SetInt32("idfunc", id);
-            return View("Detalhes");
+            HttpContext.Session.SetString("idfunc", id.ToString());
+            
+            return View();
         }
 
         public ActionResult Dados()
         {
-            return View("Dados");
+            return View();
         }
 
         public JsonResult Obter()
         {
-            var funcionarios = new UsuarioController().Get();
-            return Json(funcionarios);
+            _funcs = new UsuarioController().Get();
+            return Json(_funcs);
         }
 
         [HttpPost]
         public JsonResult ObterPorChave(string chave)
         {
-            return Json(new UsuarioController().GetByKey(chave));
+            var filtrado = _funcs.FindAll(u =>
+                u.Funcionario.Pessoa.Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                u.Login.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                u.Funcionario.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)
+            );
+            
+            return Json(filtrado);
         }
 
         [HttpPost]
         public JsonResult ObterPorAdmissao(string adm)
         {
-            DateTime.TryParse(adm, out var admissao);
+            var filtrado = _funcs.FindAll(u =>
+                u.Funcionario.Admissao.ToString("yyyy-MM-dd") == adm
+            );
 
-            return Json(new UsuarioController().GetByAdm(admissao));
+            return Json(filtrado);
         }
 
         [HttpPost]
         public JsonResult ObterPorChaveAdm(string chave, string adm)
         {
-            DateTime.TryParse(adm, out var admissao);
-
-            return Json(new UsuarioController().GetByKeyAndAdm(chave,admissao));
+            var filtrado = _funcs.FindAll(u =>
+                (u.Funcionario.Pessoa.Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                u.Login.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                u.Funcionario.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)) &&
+                u.Funcionario.Admissao.ToString("yyyy-MM-dd") == adm
+            );
+            
+            return Json(filtrado);
         }
 
         public JsonResult ObterFuncInfo()
         {
-            var id = HttpContext.Session.GetInt32("idfunc");
-            return Json(new UsuarioController().GetById((int)id));
+            var id = HttpContext.Session.GetString("idfunc");
+            
+            return Json(_funcs.Find(u => u.Id == Convert.ToInt32(id)));
         }
 
         public JsonResult ObterFuncData()
         {
             var id = HttpContext.Session.GetString("id");
+            
             return Json(new UsuarioController().GetById(Convert.ToInt32(id)));
         }
 
@@ -106,6 +115,78 @@ namespace scrweb.Controllers
         public JsonResult VerificaLogin(string login)
         {
             return Json(new UsuarioController().VerificarLogin(login) == true ? "true" : "false");
+        }
+
+        [HttpPost]
+        public JsonResult Ordenar(string col)
+        {
+            var ord = new List<UsuarioViewModel>();
+
+            switch (col)
+            {
+                case "1":
+                    ord = _funcs.OrderBy(u => u.Id).ToList();
+                    break;
+                case "2":
+                    ord = _funcs.OrderByDescending(u => u.Id).ToList();
+                    break;
+                case "3":
+                    ord = _funcs.OrderBy(u => u.Funcionario.Pessoa.Nome).ToList();
+                    break;
+                case "4":
+                    ord = _funcs.OrderByDescending(u => u.Funcionario.Pessoa.Nome).ToList();
+                    break;
+                case "5":
+                    ord = _funcs.OrderBy(u => u.Login).ToList();
+                    break;
+                case "6":
+                    ord = _funcs.OrderByDescending(u => u.Login).ToList();
+                    break;
+                case "7":
+                    ord = _funcs.OrderBy(u => u.Nivel.Id).ToList();
+                    break;
+                case "8":
+                    ord = _funcs.OrderByDescending(u => u.Nivel.Id).ToList();
+                    break;
+                case "9":
+                    ord = _funcs.OrderBy(u => u.Funcionario.Pessoa.Cpf).ToList();
+                    break;
+                case "10":
+                    ord = _funcs.OrderByDescending(u => u.Funcionario.Pessoa.Cpf).ToList();
+                    break;
+                case "11":
+                    ord = _funcs.OrderBy(u => u.Funcionario.Admissao).ToList();
+                    break;
+                case "12":
+                    ord = _funcs.OrderByDescending(u => u.Funcionario.Admissao).ToList();
+                    break;
+                case "13":
+                    ord = _funcs.OrderBy(u => u.Funcionario.Tipo).ToList();
+                    break;
+                case "14":
+                    ord = _funcs.OrderByDescending(u => u.Funcionario.Tipo).ToList();
+                    break;
+                case "15":
+                    ord = _funcs.OrderBy(u => u.Ativo).ToList();
+                    break;
+                case "16":
+                    ord = _funcs.OrderByDescending(u => u.Ativo).ToList();
+                    break;
+                case "17":
+                    ord = _funcs.OrderBy(u => u.Funcionario.Pessoa.Email).ToList();
+                    break;
+                case "18":
+                    ord = _funcs.OrderByDescending(u => u.Funcionario.Pessoa.Email).ToList();
+                    break;
+            }
+
+            return Json(ord);
+        }
+
+        [HttpPost]
+        public JsonResult VerificarCpf(string cpf)
+        {
+            return Json(new scrlib.Controllers.PessoaFisicaController().VerifyCpf(cpf));
         }
 
         [HttpPost]
@@ -365,7 +446,12 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int id)
         {
-            int res = new scrlib.Controllers.FuncionarioController().Excluir(id);
+            var res = 0;
+            res = new scrlib.Controllers.UsuarioController().Excluir(id);
+            res = new scrlib.Controllers.FuncionarioController().Excluir(id);
+            res = new scrlib.Controllers.PessoaFisicaController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Id);
+            res = new scrlib.Controllers.EnderecoController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Endereco.Id);
+            
             return Json(res);
         }
 

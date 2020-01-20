@@ -7,11 +7,7 @@ var txnumero = document.getElementById("txNumero");
 var txbairro = document.getElementById("txBairro");
 var txcomplemento = document.getElementById("txComplemento");
 var cbestado = document.getElementById("cbestado");
-var estados = document.getElementById("estados");
-var txidestado = document.getElementById("txIdEstado");
 var cbcidade = document.getElementById("cbcidade");
-var cidades = document.getElementById("cidades");
-var txidcidade = document.getElementById("txIdCidade");
 var txcep = document.getElementById("txCep");
 var txtel = document.getElementById("txTel");
 var txcel = document.getElementById("txCel");
@@ -50,30 +46,21 @@ var idusuario = 0;
 var ativo = true;
 var lista_estados = [];
 var lista_cidades = [];
+var cpf_atual = "";
 var nivel_atual = "";
 var tipo_atual = "";
 var login_orig = "";
 var erros = 0;
 
 function limparEstados() {
-    for (var i = estados.childElementCount - 1; i >= 0; i--) {
-        estados.children.item(i).remove();
+    for (var i = cbestado.childElementCount - 1; i > 0; i--) {
+        cbestado.children.item(i).remove();
     }
 }
 
-$(cbestado).focusin(function () {
-    $(cbestado).select();
-});
-
-$(cbestado).change(function (event) {
-    cbcidade.value = "";
-    txidcidade.value = "0";
-
-    var est = cbestado.value;
-    txidestado.value = est.slice(1,est.indexOf(')'));
-    
+function carregarCidades() {
     var form = new FormData();
-    form.append("estado", txidestado.value);
+    form.append("estado", cbestado.value);
 
     $.ajax({
         type: 'POST',
@@ -83,33 +70,42 @@ $(cbestado).change(function (event) {
         processData: false,
         async: false,
         success: function (response) {lista_cidades = response;},
-        error: function (err) {alert("Ocorreu um problema ao se comunicar com o servidor...");}
+        error: function (err) {
+            mostraDialogo(
+                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                "<br/>Um problema no servidor impediu sua comunicação...",
+                "danger",
+                2000
+            );
+        }
     });
 
     limparCidades();
     if (lista_cidades !== "") {
         for (var i = 0; i < lista_cidades.length; i++) {
             var option = document.createElement("option");
-            option.value = "("+lista_cidades[i].id+") "+lista_cidades[i].nome;
-            cidades.appendChild(option);
+            option.value = lista_cidades[i].id;
+            option.text = lista_cidades[i].nome;
+            cbcidade.appendChild(option);
         }
+    }
+}
+
+$(cbestado).change(function (event) {
+    if (cbestado.value === "0") {
+        limparCidades();
+        cbcidade.disabled = true;
+    } else {
+        carregarCidades();
+        cbcidade.disabled = false;
     }
 });
 
 function limparCidades() {
-    for (var i = cidades.childElementCount - 1; i >= 0; i--) {
-        cidades.children.item(i).remove();
+    for (var i = cbcidade.childElementCount - 1; i > 0; i--) {
+        cbcidade.children.item(i).remove();
     }
 }
-
-$(cbcidade).focusin(function () {
-    $(cbcidade).select();
-});
-
-$(cbcidade).focusout(function () {
-    var cidade = cbcidade.value;
-    txidcidade.value = cidade.slice(1,cidade.indexOf(')'));
-});
 
 function get(url_i) {
     let res;
@@ -120,7 +116,14 @@ function get(url_i) {
         contentType: 'application/json',
         dataType: 'json',
         success: function (result) {res = result;},
-        error: function (err) {alert(err.d);}
+        error: function (err) {
+            mostraDialogo(
+                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                "<br/>Um problema no servidor impediu sua comunicação...",
+                "danger",
+                2000
+            );
+        }
     });
     return res;
 }
@@ -136,8 +139,9 @@ $(document).ready(function () {
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
             var option = document.createElement("option");
-            option.value = "("+lista_estados[i].id+") "+lista_estados[i].nome;
-            estados.appendChild(option);
+            option.value = lista_estados[i].id;
+            option.text = lista_estados[i].nome;
+            cbestado.appendChild(option);
         }
     }
 
@@ -149,6 +153,7 @@ $(document).ready(function () {
         idfuncionario = response.funcionario.id;
         idusuario = response.id;
         ativo = response.ativo;
+        cpf_atual = response.funcionario.pessoa.cpf;
 
         txnome.value = response.funcionario.pessoa.nome;
         dtNasc.value = FormatarDataIso(response.funcionario.pessoa.nascimento);
@@ -160,10 +165,9 @@ $(document).ready(function () {
         txbairro.value = response.funcionario.pessoa.endereco.bairro;
         txcomplemento.value = response.funcionario.pessoa.endereco.complemento;
         txcep.value = response.funcionario.pessoa.endereco.cep;
-        cbestado.value = "("+response.funcionario.pessoa.endereco.cidade.estado.id+") "+response.funcionario.pessoa.endereco.cidade.estado.nome;
-        txidestado.value = response.funcionario.pessoa.endereco.cidade.estado.id;
-        cbcidade.value = "("+response.funcionario.pessoa.endereco.cidade.id+") "+response.funcionario.pessoa.endereco.cidade.nome;
-        txidcidade.value = response.funcionario.pessoa.endereco.cidade.id;
+        cbestado.value = response.funcionario.pessoa.endereco.cidade.estado.id;
+        carregarCidades();
+        cbcidade.value = response.funcionario.pessoa.endereco.cidade.id;
         txtel.value = response.funcionario.pessoa.telefone;
         txcel.value = response.funcionario.pessoa.celular;
         txemail.value = response.funcionario.pessoa.email;
@@ -193,10 +197,8 @@ function limparCampos() {
     txbairro.value = "";
     txcomplemento.value = "";
     txcep.value = "";
-    cbestado.value = "";
-    txidestado.value = "0";
-    cbcidade.value = "";
-    txidcidade.value = "0";
+    cbestado.value = "0";
+    cbcidade.value = "0";
     txtel.value = "";
     txcel.value = "";
     txemail.value = "";
@@ -234,6 +236,32 @@ function verificarLogin(login) {
 function verificarAdmin() {
     var data = get("/Funcionario/IsLastAdmin");
     return (data === true && nivel_atual === 1);
+}
+
+function verificarCpf(cpf) {
+    $.ajax({
+        type: 'POST',
+        url: '/Funcionario/VerificarCpf',
+        data: { cpf: cpf },
+        async: false,
+        success: function (response) {
+            if (response === true && cpf !== cpf_atual) {
+                erros++;
+                msCpf.innerHTML = "O CPF informado já existe no cadastro...";
+                msCpf.classList.remove("hidden");
+            } else {
+                if (msCpf.classList.contains("hidden") === false) { msCpf.classList.add("hidden"); }
+            }
+        },
+        error: function () {
+            mostraDialogo(
+                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                "<br/>Um problema no servidor impediu sua comunicação...",
+                "danger",
+                2000
+            );
+        }
+    });
 }
 
 function validarCpf(cpf) {
@@ -303,6 +331,7 @@ btsalvar.addEventListener("click", function (event) {
     var bairro = txbairro.value;
     var complemento = txcomplemento.value;
     var cep = txcep.value;
+    let cidade = cbcidade.value;
     var telefone = txtel.value;
     var celular = txcel.value;
     var email = txemail.value;
@@ -364,9 +393,7 @@ btsalvar.addEventListener("click", function (event) {
         msCpf.innerHTML = "O CPF informado é inválido...";
         msCpf.classList.remove("hidden");
     } else {
-        if (msCpf.classList.contains("hidden") === false) {
-            msCpf.classList.add("hidden");
-        }
+        verificarCpf(cpf);
     }
 
     if (rua.length === 0) {
@@ -414,7 +441,7 @@ btsalvar.addEventListener("click", function (event) {
         }
     }
 
-    if (txidestado.value === "0") {
+    if (cbestado.value === "0") {
         erros++;
         msEstado.innerHTML = "O Estado precisa ser selecionado!";
         msEstado.classList.remove("hidden");
@@ -424,7 +451,7 @@ btsalvar.addEventListener("click", function (event) {
         }
     }
 
-    if (txidcidade.value === "0") {
+    if (cbcidade.value === "0") {
         erros++;
         msCidade.innerHTML = "A Cidade precisa ser selecionada!";
         msCidade.classList.remove("hidden");
@@ -541,7 +568,7 @@ btsalvar.addEventListener("click", function (event) {
         form.append("bairro", bairro);
         form.append("complemento", complemento);
         form.append("cep", cep);
-        form.append("cidade", txidcidade.value);
+        form.append("cidade", cidade);
         form.append("telefone", telefone);
         form.append("celular", celular);
         form.append("email", email);
@@ -559,11 +586,23 @@ btsalvar.addEventListener("click", function (event) {
                 if (response.length > 0) {
                     alert(response);
                 } else {
-                    alert("Alteração salva com sucesso!");
+                    cpf_atual = cpf;
+                    login_orig = login;
+                    mostraDialogo(
+                        "<strong>Alteração salva com sucesso!</strong>" +
+                        "<br/>As alterações nos campos foram salvas com sucesso...",
+                        "success",
+                        2000
+                    );
                 }
             },
             error: function (error) {
-                alert("Ocorreu um problema ao se comunicar com o servidor..;");
+                mostraDialogo(
+                    "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                    "<br/>Um problema no servidor impediu sua comunicação...",
+                    "danger",
+                    2000
+                );
             }
         });
     }

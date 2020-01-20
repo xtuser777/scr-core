@@ -67,72 +67,6 @@ namespace scrlib.DAO
             return usuario;
         }
 
-        internal List<Usuario> GetByKey(string chave)
-        {
-            ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
-                                        from usuario 
-                                        inner join funcionario using (id)
-                                        inner join pessoa_fisica using(id)
-                                        where usuario.login like @chave 
-                                        or pessoa_fisica.nome like @chave1 
-                                        or pessoa_fisica.email like @chave2
-                                        order by id;";
-            ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
-            ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
-            ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return GetList(dt);
-            }
-
-            return null;
-        }
-        
-        internal List<Usuario> GetByAdm(DateTime admissao)
-        {
-            ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
-                                        from usuario 
-                                        inner join funcionario using (id)
-                                        where funcionario.admissao = @admissao
-                                        order by id;";
-            ComandoSQL.Parameters.AddWithValue("@admissao", admissao);
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return GetList(dt);
-            }
-
-            return null;
-        }
-        
-        internal List<Usuario> GetByKeyAndAdm(string chave, DateTime admissao)
-        {
-            ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
-                                        from usuario 
-                                        inner join funcionario using (id)
-                                        inner join pessoa_fisica using(id)
-                                        where (usuario.login like @chave 
-                                        or pessoa_fisica.nome like @chave1 
-                                        or pessoa_fisica.email like @chave2)
-                                        and funcionario.admissao = @admissao
-                                        order by id;";
-            ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
-            ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
-            ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
-            ComandoSQL.Parameters.AddWithValue("@admissao", admissao);
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return GetList(dt);
-            }
-
-            return null;
-        }
-
         internal List<Usuario> Get()
         {
             List<Usuario> usuarios = null;
@@ -217,6 +151,15 @@ namespace scrlib.DAO
             }
 
             return 0;
+        }
+
+        internal int Excluir(int id)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"delete from usuario where id = @id;";
+            ComandoSQL.Parameters.AddWithValue("@id", id);
+
+            return ExecutaComando();
         }
     }
 }

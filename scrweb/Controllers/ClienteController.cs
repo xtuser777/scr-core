@@ -1,5 +1,6 @@
 using System;
-using Microsoft.AspNetCore.Hosting.Internal;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using scrlib.ViewModels;
@@ -11,6 +12,8 @@ namespace scrweb.Controllers
     [ValidarUsuario]
     public class ClienteController : Controller
     {
+        private static List<ClienteViewModel> _clientes;
+        
         // GET
         public IActionResult Index()
         {
@@ -24,36 +27,57 @@ namespace scrweb.Controllers
 
         public IActionResult Detalhes(int id)
         {
-            HttpContext.Session.SetInt32("idcli", id);
+            HttpContext.Session.SetString("idcli", id.ToString());
 
             return View();
         }
 
         public JsonResult Obter()
         {
-            return Json(new cl.ClienteController().GetAll());
+            _clientes = new cl.ClienteController().GetAll();
+            return Json(_clientes);
         }
 
         public JsonResult ObterPorChave(string chave)
         {
-            return Json(new cl.ClienteController().GetByFilter(chave));
+            var filtrado = _clientes.FindAll(cli => cli.Tipo == 1
+                ? ((PessoaFisicaViewModel) cli.Pessoa).Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)
+                : ((PessoaJuridicaViewModel) cli.Pessoa).NomeFantasia.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)
+            );
+            
+            return Json(filtrado);
         }
 
         public JsonResult ObterPorCadastro(string cad)
         {
-            return Json(new cl.ClienteController().GetByCad(Convert.ToDateTime(cad)));
+            var filtrado = _clientes.FindAll(cli => cli.Cadastro.ToString("yyyy-MM-dd") == cad);
+            
+            return Json(filtrado);
         }
 
         public JsonResult ObterPorChaveCad(string chave, string cad)
         {
-            return Json(new cl.ClienteController().GetByFilterAndCad(chave, Convert.ToDateTime(cad)));
+            var filtrado = _clientes.FindAll(cli => cli.Tipo == 1
+                ? (((PessoaFisicaViewModel) cli.Pessoa).Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)) &&
+                  cli.Cadastro.ToString("yyyy-MM-dd") == cad
+                : (((PessoaJuridicaViewModel) cli.Pessoa).NomeFantasia.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)) &&
+                  cli.Cadastro.ToString("yyyy-MM-dd") == cad
+            );
+            
+            return Json(filtrado);
         }
 
         public JsonResult ObterDetalhes()
         {
-            var id = (int)HttpContext.Session.GetInt32("idcli");
+            var id = HttpContext.Session.GetString("idcli");
+
+            var cli = _clientes.Find(c => c.Id == Convert.ToInt32(id));
             
-            return Json(new cl.ClienteController().GetById(id));
+            return Json(cli);
         }
 
         public JsonResult ObterEstados()
@@ -65,6 +89,78 @@ namespace scrweb.Controllers
         public JsonResult ObterCidades(IFormCollection form)
         {
             return Json(new cl.CidadeController().GetByEstado(Convert.ToInt32(form["estado"])));
+        }
+
+        [HttpPost]
+        public JsonResult Ordenar(string col)
+        {
+            var ord = new List<ClienteViewModel>();
+
+            switch (col)
+            {
+                case "1":
+                    ord = _clientes.OrderBy(c => c.Id).ToList();
+                    break;
+                case "2":
+                    ord = _clientes.OrderByDescending(c => c.Id).ToList();
+                    break;
+                case "3":
+                    ord = _clientes.OrderBy(c =>
+                        c.Tipo == 1
+                            ? ((PessoaFisicaViewModel) c.Pessoa).Nome
+                            : ((PessoaJuridicaViewModel) c.Pessoa).NomeFantasia).ToList();
+                    break;
+                case "4":
+                    ord = _clientes.OrderByDescending(c =>
+                        c.Tipo == 1
+                            ? ((PessoaFisicaViewModel) c.Pessoa).Nome
+                            : ((PessoaJuridicaViewModel) c.Pessoa).NomeFantasia).ToList();
+                    break;
+                case "5":
+                    ord = _clientes.OrderBy(c =>
+                        c.Tipo == 1
+                            ? ((PessoaFisicaViewModel) c.Pessoa).Cpf
+                            : ((PessoaJuridicaViewModel) c.Pessoa).Cnpj).ToList();
+                    break;
+                case "6":
+                    ord = _clientes.OrderByDescending(c =>
+                        c.Tipo == 1
+                            ? ((PessoaFisicaViewModel) c.Pessoa).Cpf
+                            : ((PessoaJuridicaViewModel) c.Pessoa).Cnpj).ToList();
+                    break;
+                case "7":
+                    ord = _clientes.OrderBy(c => c.Cadastro).ToList();
+                    break;
+                case "8":
+                    ord = _clientes.OrderByDescending(c => c.Cadastro).ToList();
+                    break;
+                case "9":
+                    ord = _clientes.OrderBy(c => c.Tipo).ToList();
+                    break;
+                case "10":
+                    ord = _clientes.OrderByDescending(c => c.Tipo).ToList();
+                    break;
+                case "11":
+                    ord = _clientes.OrderBy(c => c.Pessoa.Email).ToList();
+                    break;
+                case "12":
+                    ord = _clientes.OrderByDescending(c => c.Pessoa.Email).ToList();
+                    break;
+            }
+
+            return Json(ord);
+        }
+
+        [HttpPost]
+        public JsonResult VerificarCpf(string cpf)
+        {
+            return Json(new cl.PessoaFisicaController().VerifyCpf(cpf));
+        }
+
+        [HttpPost]
+        public JsonResult VerificarCnpj(string cnpj)
+        {
+            return Json(new cl.PessoaJuridicaController().VerifyCnpj(cnpj));
         }
 
         [HttpPost]
@@ -382,13 +478,16 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int id)
         {
-            var res = new cl.ClienteController().Excluir(id);
+            var res = 0;
+            var cli = _clientes.Find(c => c.Id == id);
             
-            if (res == -10) return Json("Ocorreu um problema na comunicação com o banco de dados...");
-            if (res == -5) return Json("Valor passado por parâmetro está inválido...");
-            if (res < 0) return Json("Ocorreu um problema ao excluir o cliente...");
+            res = new cl.ClienteController().Excluir(id);
+            res = cli.Tipo == 1
+                ? new cl.PessoaFisicaController().Excluir(cli.Pessoa.Id)
+                : new cl.PessoaJuridicaController().Excluir(cli.Pessoa.Id);
+            res = new cl.EnderecoController().Excluir(cli.Pessoa.Endereco.Id);
             
-            return Json("Cliente excluído com êxito!");
+            return Json(res);
         }
     }
 }

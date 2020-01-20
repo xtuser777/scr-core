@@ -1,5 +1,6 @@
 var btFiltrar = document.getElementById('btFiltrar');
 var btVoltar = document.getElementById('btVoltar');
+var btExcluir = document.getElementById('btExcluir');
 var btDesativar = document.getElementById("btDesativar");
 var btReativar = document.getElementById("btReativar");
 var btDetalhes = document.getElementById('btDetalhes');
@@ -11,73 +12,18 @@ var tbFuncionarioBody = document.getElementById('tbFuncionariosBody');
 var cbord = document.getElementById('cbord');
 
 var nivel_atual = "";
-var funcs = [];
 
 function ordenarLista() {
     var ord = cbord.value;
 
-    switch (ord) {
-        case "1":
-            funcs.sort(function (a,b) {
-                return a.id - b.id;
-            });
-            carregarTabela(funcs);
-            break;
-        case "2":
-            funcs.sort(function (a,b) {
-                return b.id - a.id;
-            });
-            carregarTabela(funcs);
-            break;
-        case "3":
-            funcs.sort(function (a,b) {
-                return a.funcionario.pessoa.nome - b.funcionario.pessoa.nome;
-            });
-            carregarTabela(funcs);
-            break;
-        case "4":
-            funcs.sort(function (a,b) {
-                return b.funcionario.pessoa.nome - a.funcionario.pessoa.nome;
-            });
-            carregarTabela(funcs);
-            break;
-        case "5":
-            funcs.sort(function (a,b) {
-                return a.login - b.login;
-            });
-            carregarTabela(funcs);
-            break;
-        case "6":
-            funcs.sort(function (a,b) {
-                return b.login - a.login;
-            });
-            carregarTabela(funcs);
-            break;
-        case "7":
-            break;
-        case "8":
-            break;
-        case "9":
-            break;
-        case "10":
-            break;
-        case "11":
-            break;
-        case "12":
-            break;
-        case "13":
-            break;
-        case "14":
-            break;
-        case "15":
-            break;
-        case "16":
-            break;
-        case "17":
-            break;
-        case "18":
-            break;
-    }
+    $.ajax({
+        type: 'POST',
+        url: '/Funcionario/Ordenar',
+        async: false,
+        data: { col: ord },
+        success: function (response) { carregarTabela(response) },
+        error: function () { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
+    });
 }
 
 cbord.addEventListener("change", function (event) {
@@ -174,7 +120,6 @@ function get(url_i) {
 
 function obterFuncionarios() {
     var data = get("/Funcionario/Obter");
-    funcs = data;
     carregarTabela(data);
 }
 
@@ -254,6 +199,61 @@ btFiltrar.addEventListener("click", function (event)
     }
 });
 
+btVoltar.addEventListener("click", function (event) {
+    window.location.href = "../../inicio/index";
+});
+
+btExcluir.addEventListener("click", function (event) {
+    var selecionados = tbFuncionario.getElementsByClassName("selecionado");
+    var selecionado = selecionados[0];
+    if (selecionado != null && selecionado !== "") {
+        selecionado = selecionado.getElementsByTagName("td");
+        var id = selecionado[0].innerHTML;
+        nivel_atual = selecionado[3].innerHTML;
+        
+        if (verificarAdmin() === true) {
+            alert("Não é possível excluir o último administrador.");
+        } else {
+            bootbox.confirm({
+                message: "Confirma o excluir deste funcionário?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/Funcionario/Excluir',
+                            data: {id: id},
+                            success: function (result) {
+                                if (result > 0) {
+                                    obterFuncionarios();
+                                } else {
+                                    alert("Ocorreu um problema ao excluir o funcionário...");
+                                }
+                            },
+                            error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                                alert("Status: " + txtStatus);
+                                alert("Error: " + errorThrown);
+                                $("#divLoading").hide(300);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    } else {
+        alert("Selecione pelo menos um Funcionário!");
+    }
+});
+
 btDesativar.addEventListener("click", function (event) {
     var selecionados = tbFuncionario.getElementsByClassName("selecionado");
     var selecionado = selecionados[0];
@@ -291,7 +291,7 @@ btDesativar.addEventListener("click", function (event) {
                                     if (result > 0) {
                                         obterFuncionarios();
                                     } else {
-                                        alert(result);
+                                        alert("Ocorreu um problema ao desativar o funcionário...");
                                     }
                                 },
                                 error: function (XMLHttpRequest, txtStatus, errorThrown) {
@@ -343,7 +343,7 @@ btReativar.addEventListener("click", function (event) {
                                     obterFuncionarios();
                                 }
                                 else {
-                                    alert(result);
+                                    alert("Ocorreu um problema ao reativar este funcionário...");
                                 }
                             },
                             error: function (XMLHttpRequest, txtStatus, errorThrown) {

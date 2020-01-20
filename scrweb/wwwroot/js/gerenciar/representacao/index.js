@@ -5,23 +5,20 @@ var btDetalhes = document.getElementById('btDetalhes');
 var btNovo = document.getElementById('btNovo');
 var txFiltro = document.getElementById('txFiltro');
 var dtFiltroCad = document.getElementById('dtFiltroCad');
-var tbClientes = document.getElementById('tbClientes');
-var tbClientesBody = document.getElementById('tbClientesBody');
+var tbRepresentacoes = document.getElementById('tbRepresentacoes');
+var tbRepresentacoesBody = document.getElementById('tbRepresentacoesBody');
 var cbord = document.getElementById('cbord');
-
-var clientes = [];
 
 cbord.addEventListener("change", function (event) {
     var ord = cbord.value;
     
     $.ajax({
         type: 'POST',
-        url: '/Cliente/Ordenar',
+        url: '/Representacao/Ordenar',
         async: false,
         data: { col : ord },
         success: function (response) { carregarTabela(response); },
         error: function () { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
-        
     });
 });
 
@@ -37,12 +34,12 @@ function carregarTabela(lista) {
         row.appendChild(cell0);
 
         var cell1 = document.createElement("td");
-        var cellText1 = document.createTextNode((lista[i].tipo === 1) ? lista[i].pessoa.nome : lista[i].pessoa.nomeFantasia );
+        var cellText1 = document.createTextNode(lista[i].pessoa.nomeFantasia);
         cell1.appendChild(cellText1);
         row.appendChild(cell1);
 
         var cell2 = document.createElement("td");
-        var cellText2 = document.createTextNode((lista[i].tipo === 1) ? lista[i].pessoa.cpf : lista[i].pessoa.cnpj );
+        var cellText2 = document.createTextNode(lista[i].pessoa.cnpj);
         cell2.appendChild(cellText2);
         row.appendChild(cell2);
 
@@ -52,7 +49,7 @@ function carregarTabela(lista) {
         row.appendChild(cell3);
 
         var cell4 = document.createElement("td");
-        var cellText4 = document.createTextNode((lista[i].tipo === 1) ? 'Física' : 'Jurídica');
+        var cellText4 = document.createTextNode(lista[i].unidade);
         cell4.appendChild(cellText4);
         row.appendChild(cell4);
 
@@ -61,10 +58,10 @@ function carregarTabela(lista) {
         cell5.appendChild(cellText5);
         row.appendChild(cell5);
 
-        tbClientesBody.appendChild(row);
+        tbRepresentacoesBody.appendChild(row);
     }
 
-    var itensTabela = tbClientesBody.getElementsByTagName("tr");
+    var itensTabela = tbRepresentacoesBody.getElementsByTagName("tr");
 
     for (var i = 0; i < itensTabela.length; i++) {
         var item = itensTabela[i];
@@ -75,8 +72,8 @@ function carregarTabela(lista) {
 }
 
 function limparTabela() {
-    for (var i = tbClientesBody.childElementCount - 1; i >= 0; i--) {
-        tbClientesBody.children.item(i).remove();
+    for (var i = tbRepresentacoesBody.childElementCount - 1; i >= 0; i--) {
+        tbRepresentacoesBody.children.item(i).remove();
     }
 }
 
@@ -94,16 +91,15 @@ function get(url_i) {
     return res;
 }
 
-function obterClientes() {
-    var data = get("/Cliente/Obter");
-    clientes = data;
+function obterRepresentacoes() {
+    var data = get("/Representacao/Obter");
     carregarTabela(data);
 }
 
-document.addEventListener("ready", obterClientes());
+document.addEventListener("ready", obterRepresentacoes());
 
 function selecionarItem(item) {
-    var itens = tbClientesBody.getElementsByTagName("tr");
+    var itens = tbRepresentacoesBody.getElementsByTagName("tr");
     for(var i = 0; i < itens.length; i++)
     {
         var item_ = itens[i];
@@ -117,12 +113,12 @@ btFiltrar.addEventListener("click", function (event) {
     var cadastro = dtFiltroCad.value;
 
     if (filtro === "" && cadastro === "") {
-        obterClientes();
+        obterRepresentacoes();
     } else {
         if (filtro !== "" && cadastro !== "") {
             $.ajax({
                 type: 'POST',
-                url: '/Cliente/ObterPorChaveCad',
+                url: '/Representacao/ObterPorChaveCad',
                 data: { chave: filtro, cad: cadastro },
                 success: function (response) {
                     if (response != null && response !== ""){
@@ -137,7 +133,7 @@ btFiltrar.addEventListener("click", function (event) {
             if (filtro !== "") {
                 $.ajax({
                     type: 'POST',
-                    url: '/Cliente/ObterPorChave',
+                    url: '/Representacao/ObterPorChave',
                     data: { chave: filtro },
                     success: function (response) {
                         if (response != null && response !== ""){
@@ -152,7 +148,7 @@ btFiltrar.addEventListener("click", function (event) {
                 if (cadastro !== ""){
                     $.ajax({
                         type: 'POST',
-                        url: '/Cliente/ObterPorCadastro',
+                        url: '/Representacao/ObterPorCadastro',
                         data: { cad: cadastro },
                         success: function (response) {
                             if (response != null && response !== ""){
@@ -174,14 +170,14 @@ btVoltar.addEventListener("click", function (event) {
 });
 
 btExcluir.addEventListener("click", function (event) {
-    var selecionados = tbClientes.getElementsByClassName("selecionado");
+    var selecionados = tbRepresentacoes.getElementsByClassName("selecionado");
     var selecionado = selecionados[0];
     if (selecionado != null && selecionado !== "") {
         selecionado = selecionado.getElementsByTagName("td");
         var id = selecionado[0].innerHTML;
         
         bootbox.confirm({
-            message: "Confirma a exclusão deste cliente?",
+            message: "Confirma a exclusão desta representação?",
             buttons: {
                 confirm: {
                     label: 'Sim',
@@ -196,7 +192,7 @@ btExcluir.addEventListener("click", function (event) {
                 if (result) {
                     $.ajax({
                         type: 'POST',
-                        url: '/Cliente/Excluir',
+                        url: '/Representacao/Excluir',
                         data: {id: id},
                         success: function (result) {
                             if (result > 0) {
@@ -214,22 +210,22 @@ btExcluir.addEventListener("click", function (event) {
             }
         });
     } else {
-        alert("Selecione pelo menos um Cliente!");
+        alert("Selecione pelo menos uma Representação!");
     }
 });
 
 btDetalhes.addEventListener("click", function (event) {
-    var selecionados = tbClientes.getElementsByClassName("selecionado");
+    var selecionados = tbRepresentacoes.getElementsByClassName("selecionado");
     var selecionado = selecionados[0];
     if (selecionado != null && selecionado !== "") {
         selecionado = selecionado.getElementsByTagName("td");
         var id = selecionado[0].innerHTML;
-        window.location.href = "../../Cliente/Detalhes/"+id;
+        window.location.href = "../../Representacoes/Detalhes/"+id;
     } else {
-        alert("Selecione pelo menos um Cliente!");
+        alert("Selecione pelo menos uma Representação!");
     }
 });
 
 btNovo.addEventListener("click", function (event) {
-    window.location.href = "../../gerenciar/cliente/novo";
+    window.location.href = "../../gerenciar/representacao/novo";
 });

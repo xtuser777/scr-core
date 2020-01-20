@@ -38,8 +38,8 @@ namespace scrlib.DAO
         internal List<Cliente> GetByFilter(string chave)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,cadastro,tipo,pessoa_fisica,pessoa_juridica 
-                                        from cliente 
+            ComandoSQL.CommandText = @"select c.id,c.cadastro,c.tipo,c.pessoa_fisica,c.pessoa_juridica 
+                                        from cliente c
                                         inner join pessoa using (id)
                                         inner join pessoa_fisica using (id)
                                         inner join pessoa_juridica using (id)

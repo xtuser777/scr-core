@@ -1,26 +1,25 @@
-
 @{
-    ViewBag.Title = "Gerenciar Clientes";
+    ViewBag.Title = "Gerenciar Representações";
     Layout = "_Layout";
 }
 
 @section Scripts {
     <script type="text/javascript" src="~/lib/bootbox/bootbox.min.js"></script>
-    <script type="text/javascript" src="~/js/gerenciar/cliente/index.js"></script>
+    <script type="text/javascript" src="~/js/gerenciar/representacao/index.js"></script>
 }
 
 <!-- Card titulo pagina -->
 <div class="card-title">
     <div class="card-title-container" style="text-align: center;">
         <h4>
-            <b>SCR - Gerenciar Clientes</b>
+            <b>SCR - Gerenciar Representações</b>
         </h4>
     </div>
 </div>
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 200px;">Filtragem de Clientes</div>
+    <div class="fieldset-card-legend" style="width: 200px;">Filtragem de Representações</div>
 
     <div class="fieldset-card-container">
         <div class="row">
@@ -43,7 +42,7 @@
 </div>
 
 <div class="fieldset-card" style="margin-bottom: 40px;">
-    <div class="fieldset-card-legend" style="width: 200px;">Clientes Cadastrados</div>
+    <div class="fieldset-card-legend" style="width: 200px;">Representações Cadastradas</div>
 
     <div class="fieldset-card-container">
         <div class="row" style="margin-bottom: 10px;">
@@ -52,33 +51,33 @@
                 <select id="cbord" class="form-control input-sm">
                     <option value="1">REGISTRO (CRESCENTE)</option>
                     <option value="2">REGISTRO (DECRESCENTE)</option>
-                    <option value="3">NOME (CRESCENTE)</option>
-                    <option value="4">NOME (DECRESCENTE)</option>
-                    <option value="5">CPF/CNPJ (CRESCENTE)</option>
-                    <option value="6">CPF/CNPJ (DECRESCENTE)</option>
+                    <option value="3">NOME FANTASIA (CRESCENTE)</option>
+                    <option value="4">NOME FANTASIA (DECRESCENTE)</option>
+                    <option value="5">CNPJ (CRESCENTE)</option>
+                    <option value="6">CNPJ (DECRESCENTE)</option>
                     <option value="7">CADASTRO (CRESCENTE)</option>
                     <option value="8">CADASTRO (DECRESCENTE)</option>
-                    <option value="9">TIPO (CRESCENTE)</option>
-                    <option value="10">TIPO (DECRESCENTE)</option>
+                    <option value="9">UNIDADE (CRESCENTE)</option>
+                    <option value="10">UNIDADE (DECRESCENTE)</option>
                     <option value="11">EMAIL (CRESCENTE)</option>
                     <option value="12">EMAIL (DECRESCENTE)</option>
                 </select>
             </div>
         </div>
         
-        <table id="tbClientes" class="table table-responsive" style="width: 100%;">
+        <table id="tbRepresentacoes" class="table table-responsive" style="width: 100%;">
             <thead>
             <tr>
                 <th class="hidden">ID</th>
-                <th style="width: 40%;">NOME/NOME FANTASIA</th>
-                <th style="width: 16%;">CPF/CNPJ</th>
+                <th style="width: 40%;">NOME FANTASIA</th>
+                <th style="width: 16%;">CNPJ</th>
                 <th style="width: 10%;">CADASTRO</th>
-                <th style="width: 10%;">TIPO</th>
+                <th style="width: 10%;">UNIDADE</th>
                 <th>EMAIL</th>
             </tr>
             </thead>
         
-            <tbody id="tbClientesBody">
+            <tbody id="tbRepresentacoesBody">
             </tbody>
         </table>
     </div>

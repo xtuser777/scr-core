@@ -56,6 +56,9 @@ namespace scrweb
                 routes.MapRoute(name: "cliente", template: "/gerenciar/cliente/index", defaults: new { controller = "Cliente", action = "Index" });
                 routes.MapRoute(name: "cliente_novo", template: "/gerenciar/cliente/novo", defaults: new { controller = "Cliente", action = "Novo" });
                 routes.MapRoute(name: "cliente_detalhes", template: "/gerenciar/cliente/detalhes", defaults: new { controller = "Cliente", action = "Detalhes" });
+                routes.MapRoute(name: "representacao", template: "/gerenciar/representacao/index", defaults: new { controller = "Representacao", action = "Index" });
+                routes.MapRoute(name: "representacao_novo", template: "/gerenciar/representacao/novo", defaults: new { controller = "Representacao", action = "Novo" });
+                routes.MapRoute(name: "representacao_detalhes", template: "/gerenciar/representacao/detalhes", defaults: new { controller = "Representacao", action = "Detalhes" });
             });
         }
     }

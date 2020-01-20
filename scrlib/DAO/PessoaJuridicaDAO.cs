@@ -38,6 +38,17 @@ namespace scrlib.DAO
             return null;
         }
 
+        internal int CountCnpj(string cnpj)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select count(id) as cnt from pessoa_juridica where cnpj = @cnpj;";
+            ComandoSQL.Parameters.AddWithValue("@cnpj", cnpj);
+
+            var dt = ExecutaSelect();
+
+            return dt != null && dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["cnt"]) : -10;
+        }
+
         internal int Gravar(PessoaJuridica p)
         {
             ComandoSQL.Parameters.Clear();

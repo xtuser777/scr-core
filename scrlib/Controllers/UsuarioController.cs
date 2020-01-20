@@ -46,106 +46,22 @@ namespace scrlib.Controllers
             }
             return uvm;
         }
-
-        public List<UsuarioViewModel> GetByKey(string chave)
-        {
-            List<UsuarioViewModel> uvms = new List<UsuarioViewModel>();
-            var usuarios = new Usuario().GetByKey(chave);
-            if (usuarios != null && usuarios.Count > 0)
-            {
-                uvms = usuarios.Select(usuario => new UsuarioViewModel()
-                {
-                    Id = usuario.Id,
-                    Login = usuario.Login,
-                    Senha = usuario.Senha,
-                    Ativo = usuario.Ativo,
-                    Funcionario = new FuncionarioController().GetById(usuario.Funcionario),
-                    Nivel = new NivelController().GetById(usuario.Nivel)
-                }).ToList();
-            }
-
-            return uvms;
-        }
         
-        public List<UsuarioViewModel> GetByAdm(DateTime admissao)
-        {
-            List<UsuarioViewModel> uvms = new List<UsuarioViewModel>();
-            var usuarios = new Usuario().GetByAdm(admissao);
-            if (usuarios != null && usuarios.Count > 0)
-            {
-                uvms = usuarios.Select(usuario => new UsuarioViewModel()
-                {
-                    Id = usuario.Id,
-                    Login = usuario.Login,
-                    Senha = usuario.Senha,
-                    Ativo = usuario.Ativo,
-                    Funcionario = new FuncionarioController().GetById(usuario.Funcionario),
-                    Nivel = new NivelController().GetById(usuario.Nivel)
-                }).ToList();
-            }
-
-            return uvms;
-        }
-        
-        public List<UsuarioViewModel> GetByKeyAndAdm(string chave, DateTime admissao)
-        {
-            List<UsuarioViewModel> uvms = new List<UsuarioViewModel>();
-            var usuarios = new Usuario().GetByKeyAndAdm(chave,admissao);
-            if (usuarios != null && usuarios.Count > 0)
-            {
-                uvms = usuarios.Select(usuario => new UsuarioViewModel()
-                {
-                    Id = usuario.Id,
-                    Login = usuario.Login,
-                    Senha = usuario.Senha,
-                    Ativo = usuario.Ativo,
-                    Funcionario = new FuncionarioController().GetById(usuario.Funcionario),
-                    Nivel = new NivelController().GetById(usuario.Nivel)
-                }).ToList();
-            }
-
-            return uvms;
-        }
-
-        /*public List<UsuarioViewModel> GetByFilters(string nome, string login, int nivel, string cpf, DateTime admissao,
-            int tipo, Boolean? ativo, string email)
-        {
-            List<UsuarioViewModel> uvms = new List<UsuarioViewModel>();
-            var usuarios = new Usuario().GetByFilters(nome, login, nivel, cpf, admissao, tipo, ativo, email);
-            if (usuarios != null && usuarios.Count > 0)
-            {
-                uvms = usuarios.Select(usuario => new UsuarioViewModel()
-                {
-                    Id = usuario.Id,
-                    Login = usuario.Login,
-                    Senha = usuario.Senha,
-                    Funcionario = new FuncionarioController().GetById(usuario.Funcionario),
-                    Nivel = new NivelController().GetById(usuario.Nivel)
-                }).ToList();
-            }
-
-            return uvms;
-        }*/
-
         public List<UsuarioViewModel> Get()
         {
             List<UsuarioViewModel> uvms = null;
             var usuarios = new Usuario().Get();
             if (usuarios != null && usuarios.Count > 0)
             {
-                uvms = new List<UsuarioViewModel>();
-                foreach (Usuario usuario in usuarios)
+                uvms = usuarios.Select(usuario => new UsuarioViewModel()
                 {
-                    uvms.Add(new UsuarioViewModel()
-                    {
-                        Id = usuario.Id,
-                        Login = usuario.Login,
-                        Senha = usuario.Senha,
-                        Ativo = usuario.Ativo,
-                        Funcionario = new FuncionarioController().GetById(usuario.Funcionario),
-                        Nivel = new NivelController().GetById(usuario.Nivel)
-                    });
-                }
+                    Id = usuario.Id,
+                    Login = usuario.Login,
+                    Senha = usuario.Senha,
+                    Ativo = usuario.Ativo,
+                    Funcionario = new FuncionarioController().GetById(usuario.Funcionario),
+                    Nivel = new NivelController().GetById(usuario.Nivel)
+                }).ToList();
             }
             return uvms;
         }
@@ -184,6 +100,11 @@ namespace scrlib.Controllers
         public bool IsLastAdmin()
         {
             return new Usuario().IsLastAdmin();
+        }
+
+        public int Excluir(int id)
+        {
+            return new Usuario().Excluir(id);
         }
     }
 }

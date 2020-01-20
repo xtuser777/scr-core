@@ -1,59 +1,50 @@
-
 @{
-    ViewBag.Title = "Meus Dados";
+    ViewBag.Title = "Detalhes da Representação";
     Layout = "_Layout";
 }
 
 @section Scripts{ 
     <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-    <script type="text/javascript" src="~/js/gerenciar/funcionario/dados.js" asp-append-version="true"></script>
+    <script type="text/javascript" src="~/js/gerenciar/cliente/detalhes.js" asp-append-version="true"></script>
 }
 
 <!-- Card titulo pagina -->
 <div class="card-title">
     <div class="card-title-container" style="text-align: center;">
-        <h4><b>SCR - Dados do Funcionário</b></h4>
+        <h4><b>SCR - Detalhes da Representação</b></h4>
     </div>
 </div>
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 130px;">Dados do Funcionário</div>
+    <div class="fieldset-card-legend" style="width: 130px;">Dados da Representação</div>
     <div class="fieldset-card-container">
-        <form class="form-inline">
-            <div class="row">
-                <div class="col-sm-12">
-                    <label for="txNome">Nome (Obrigatório):</label>
-                    <input type="text" id="txNome" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msNome" class="label label-danger hidden"></span>
-                </div>
+        <div class="row">
+            <div class="col-sm-12">
+                <label for="txRazaoSocial">Razão Social (Obrigatório):</label>
+                <input type="text" id="txRazaoSocial" class="form-control input-sm" style="width: 100%;" />
+                <span id="msRazaoSocial" class="label label-danger hidden"></span>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-9">
+                <label for="txNomeFantasia">Nome Fantasia (Obrigatório):</label>
+                <input type="text" id="txNomeFantasia" class="form-control input-sm" style="width: 100%;" />
+                <span id="msNomeFantasia" class="label label-danger hidden"></span>
             </div>
 
-            <div class="row">
-                <div class="col-sm-4">
-                    <label for="txRg">RG (Obrigatório):</label>
-                    <input type="text" id="txRg" class="form-control input-sm" style="width: 100%;" maxlength="30" />
-                    <span id="msRg" class="label label-danger hidden"></span>
-                </div>
-
-                <div class="col-sm-4">
-                    <label for="txCpf">CPF (Obrigatório):</label>
-                    <input type="text" id="txCpf" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msCpf" class="label label-danger hidden"></span>
-                </div>
-                
-                <div class="col-sm-4">
-                    <label for="dtNasc">Nascimento (Obrigatório):</label>
-                    <input type="date" id="dtNasc" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msNasc" class="label label-danger hidden"></span>
-                </div>
+            <div class="col-sm-3">
+                <label for="txCnpj">CNPJ (Obrigatório):</label>
+                <input type="text" id="txCnpj" class="form-control input-sm" style="width: 100%;" />
+                <span id="msCnpj" class="label label-danger hidden"></span>
             </div>
-        </form>
+        </div>
     </div>
 </div>
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 188px;">Dados de contato do funcionario</div>
+    <div class="fieldset-card-legend" style="width: 188px;">Dados de contato da representação</div>
     <div class="fieldset-card-container">
         <form class="form-inline">
             <div class="row">
@@ -69,6 +60,8 @@
                     <span id="msNumero" class="label label-danger hidden"></span>
                 </div>
             </div>
+
+            <div style="height: 7px;"></div>
 
             <div class="row">
                 <div class="col-sm-6">
@@ -88,7 +81,7 @@
                 <div class="col-sm-4">
                     <label for="cbestado">Estado (Obrigatório):</label>
                     <select id="cbestado" class="form-control input-sm" style="width: 100%;">
-                        <option value="0">SELECIONE</option>
+                        <option value="0">SELECIONAR</option>
                     </select>
                     <span id="msEstado" class="label label-danger hidden"></span>
                 </div>
@@ -96,7 +89,7 @@
                 <div class="col-sm-5">
                     <label for="cbcidade">Cidade (Obrigatório):</label>
                     <select id="cbcidade" class="form-control input-sm" style="width: 100%;">
-                        <option value="0">SELECIONE</option>
+                        <option value="0">SELECIONAR</option>
                     </select>
                     <span id="msCidade" class="label label-danger hidden"></span>
                 </div>
@@ -131,45 +124,9 @@
                     <label for="txEmail">E-Mail (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon">@@</div>
-                        <input type="text" id="txEmail" class="form-control input-sm" value="" />
+                        <input type="text" id="txEmail" class="form-control input-sm" />
                     </div>
                     <span id="msEmail" class="label label-danger hidden"></span>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div id="auth" class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 140px;">Dados de autenticação</div>
-    <div class="fieldset-card-container">
-        <form class="form-inline">
-            <div class="row">
-                <div class="col-sm-4">
-                    <label for="txLogin">Login (Obrigatório):</label>
-                    <div class="input-group" style="width: 100%;">
-                        <div class="input-group-addon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
-                        <input type="text" name="txLogin" id="txLogin" class="form-control input-sm" value="" />
-                    </div>
-                    <span id="msLogin" class="label label-danger hidden"></span>
-                </div>
-                
-                <div class="col-sm-4">
-                    <label for="txSenha">Senha (Obrigatório):</label>
-                    <div class="input-group" style="width: 100%;">
-                        <div class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></div>
-                        <input type="password" name="txSenha" id="txSenha" class="form-control input-sm" value="" />
-                    </div>
-                    <span id="msSenha" class="label label-danger hidden"></span>
-                </div>
-
-                <div class="col-sm-4">
-                    <label for="txConfSenha">Confirmar Senha (Obrigatório):</label>
-                    <div class="input-group" style="width: 100%;">
-                        <div class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></div>
-                        <input type="password" name="txConfSenha" id="txConfSenha" class="form-control input-sm" value="" />
-                    </div>
-                    <span id="msConfSenha" class="label label-danger hidden"></span>
                 </div>
             </div>
         </form>
@@ -183,9 +140,7 @@
 
     <div class="col-sm-6"></div>
 
-    <div class="col-sm-2">
-        
-    </div>
+    <div class="col-sm-2"></div>
 
     <div class="col-sm-2">
         <button id="btSalvar" class="btn btn-success" style="width: 100%;">SALVAR</button>

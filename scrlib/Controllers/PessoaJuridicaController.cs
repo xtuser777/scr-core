@@ -25,6 +25,11 @@ namespace scrlib.Controllers
             };
         }
 
+        public bool VerifyCnpj(string cnpj)
+        {
+            return new PessoaJuridica().VerifyCnpj(cnpj);
+        }
+
         public int Gravar(PessoaJuridicaViewModel pvm)
         {
             return new PessoaJuridica()

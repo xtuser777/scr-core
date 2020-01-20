@@ -31,12 +31,12 @@ namespace scrlib.Models
 
         internal PessoaJuridica GetById(int id)
         {
-            if (id > 0)
-            {
-                return new PessoaJuridicaDAO().GetById(id);
-            }
+            return id > 0 ? new PessoaJuridicaDAO().GetById(id) : null;
+        }
 
-            return null;
+        internal bool VerifyCnpj(string cnpj)
+        {
+            return !string.IsNullOrEmpty(cnpj) && new PessoaJuridicaDAO().CountCnpj(cnpj) > 0;
         }
 
         internal int Gravar()

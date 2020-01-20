@@ -26,6 +26,11 @@ namespace scrlib.Controllers
             };
         }
 
+        public bool VerifyCpf(string cpf)
+        {
+            return new PessoaFisica().VerifyCpf(cpf);
+        }
+
         public int Gravar(PessoaFisicaViewModel pvm)
         {
             return new PessoaFisica()
