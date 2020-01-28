@@ -1,0 +1,294 @@
+@using scrlib.ViewModels
+@{ ViewBag.Title = "Vincular Tipos de Caminhão"; Layout = "_Layout"; }
+
+@section Scripts 
+{
+    <script type="text/javascript" src="~/lib/bootbox/bootbox.min.js"></script>
+    <script type="text/javascript">
+        function preencherTabela(dados) {
+            var txt = "";
+            $.each(dados, function () {
+                txt += 
+                    '<tr>\
+                        <td class="hidden">' + this.id + '</td>\
+                        <td>' + this.tipo.descricao + '</td>\
+                        <td>' + this.tipo.eixos + '</td>\
+                        <td>' + this.tipo.capacidade + '</td>\
+                        <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.produto.id + ','+ this.tipo.id +')"></a></td>\
+                    </tr>';
+            });
+            $("#tbody_vinculos").html(txt);
+        }
+
+        function get(url_i) {
+            let res;
+            $.ajax({
+                type: 'GET',
+                url: url_i,
+                async: false,
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function (result) {res = result;},
+                error: function (err) {alert(err.d);}
+            });
+            return res;
+        }
+
+        function obterVinculos() {
+            var dados = get("/ProdutoTipoCaminhao/Obter");
+
+            preencherTabela(dados);
+        }
+
+        $(document).ready(function (event) {
+            obterVinculos();
+        });
+
+        function filtrarVinculos() {
+            var filtro = $("#filtro").val();
+            
+            if (filtro === "") {
+                obterTipos();
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/ProdutoTipoCaminhao/ObterPorFiltro",
+                    data: {filtro: filtro},
+                    async: false,
+                    success: function (result) {
+                        preencherTabela(result);
+                    },
+                    error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                        mostraDialogo(
+                            "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                            "<br/>" + errorThrown,
+                            "danger",
+                            2000
+                        );
+                    }
+                });
+            }
+        }
+
+        function ordenarVinculos() {
+            var ord = $("#cbord").val();
+
+            $.ajax({
+                type: "POST",
+                url: "/ProdutoTipoCaminhao/Ordenar",
+                data: {ord: ord},
+                async: false,
+                success: function (result) {
+                    preencherTabela(result);
+                },
+                error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                    mostraDialogo(
+                        "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                        "<br/>"+errorThrown,
+                        "danger",
+                        2000
+                    );
+                }
+            });
+        }
+
+        function excluir(p,t) {
+            bootbox.confirm({
+                message: "Confirma a exclusão deste registro?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/ProdutoTipoCaminhao/Excluir',
+                            data: { produto: p, tipo: t},
+                            success: function (result) {
+                                if (result === "") {
+                                    obterVinculos();
+                                }
+                                else {
+                                    mostraDialogo(
+                                        "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                                        "<br/>"+result,
+                                        "danger",
+                                        2000
+                                    );
+                                }
+                            },
+                            error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                                mostraDialogo(
+                                    "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                                    "<br/>"+errorThrown,
+                                    "danger",
+                                    2000
+                                );
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        function verificarTipo(tipo) {
+            var res = true;
+
+            $.ajax({
+                type: "POST",
+                url: "/ProdutoTipoCaminhao/VerificarTipo",
+                data: { tipo: tipo },
+                async: false,
+                success: function (result) {
+                    res = result;
+                }, 
+                error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                    mostraDialogo(
+                        "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                        "<br/>"+errorThrown,
+                        "danger",
+                        2000
+                    );
+                }
+            });
+
+            return res;
+        }
+
+        function adicionarTipo() {
+            var tipo = $("#select_tipo").val();
+            
+            if (tipo !== "0") {
+                if (verificarTipo(tipo) === false) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/ProdutoTipoCaminhao/Gravar",
+                        data: {tipo: tipo},
+                        async: false,
+                        success: function (result) {
+                            if (result === "") {
+                                obterVinculos();
+                                mostraDialogo(
+                                    "Tipo de caminhão adicionado com sucesso!",
+                                    "success",
+                                    2000
+                                );
+                            } else {
+                                mostraDialogo(
+                                    result,
+                                    "danger",
+                                    2000
+                                );
+                            }
+                        },
+                        error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                            mostraDialogo(
+                                "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                                "<br/>" + errorThrown,
+                                "danger",
+                                2000
+                            );
+                        }
+                    });
+                } else {
+                    mostraDialogo(
+                        "<strong>Este vínculo já existe!</strong>",
+                        "info",
+                        2000
+                    );
+                }
+            }
+        }
+    </script>
+}
+
+<!-- Card titulo pagina -->
+<div class="card-title">
+    <div class="card-title-container" style="text-align: center;">
+        <h4>
+            <b>SCR - Produto - Vincular Tipos de Caminhão</b>
+        </h4>
+    </div>
+</div>
+<!-- Fim card titulo pagina -->
+
+<div class="fieldset-card">
+    <div class="fieldset-card-legend" style="width: 220px;">Filtragem de Vínculos</div>
+
+    <div class="fieldset-card-container">
+        <div class="row">
+            <div class="col-sm-10">
+                <label for="filtro">Filtro:</label>
+                <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
+            </div>
+
+            <div class="col-sm-2">
+                <label for="filtrar">&nbsp;</label>
+                <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrarVinculos();">FILTRAR</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="fieldset-card" style="margin-bottom: 40px;">
+    <div class="fieldset-card-legend" style="width: 200px;">Vínculos Cadastrados</div>
+
+    <div class="fieldset-card-container">
+        <div class="row">
+            <div class="col-sm-12">
+                <label for="cbord">Ordenar por:</label>
+                <select name="cbord" id="cbord" class="form-control input-sm" onchange="ordenarVinculos();">
+                    <option value="1">REGISTRO (CRESCENTE)</option>
+                    <option value="2">REGISTRO (DECRESCENTE)</option>
+                    <option value="3">DESCRIÇÃO (CRESCENTE)</option>
+                    <option value="4">DESCRIÇÃO (DECRESCENTE)</option>
+                    <option value="5">EIXOS (CRESCENTE)</option>
+                    <option value="6">EIXOS (DECRESCENTE)</option>
+                    <option value="7">CAPACIDADE (CRESCENTE)</option>
+                    <option value="8">CAPACIDADE (DECRESCENTE)</option>
+                </select>
+            </div>
+        </div>
+                
+        <div class="row" style="margin-bottom: 10px;">
+            <div class="col-sm-10">
+                <label for="select_tipo">Tipos para adição:</label>
+                <select id="select_tipo" class="form-control input-sm">
+                    <option value="0">SELECIONE</option>
+                    @foreach (var tipo in (List<TipoCaminhaoViewModel>) ViewBag.Tipos)
+                    {
+                        <option value="@tipo.Id">@tipo.Descricao</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-sm-2">
+                <label for="add">&nbsp;</label>
+                <a role="button" id="add" class="btn btn-success btn-sm" style="width: 100%;" href="javascript:adicionarTipo();">ADICIONAR</a>
+            </div>
+        </div>
+        
+        <table id="table_vinculos" class="table table-responsive" style="width: 100%;">
+            <thead>
+            <tr>
+                <th class="hidden">ID</th>
+                <th style="width: 40%;">DESCRIÇÃO</th>
+                <th style="width: 16%;">EIXOS</th>
+                <th style="width: 10%;">CAPACIDADE</th>
+                <th style="width: 2%;">&nbsp;</th>
+                <th style="width: 2%;">&nbsp;</th>
+            </tr>
+            </thead>
+        
+            <tbody id="tbody_vinculos">
+            </tbody>
+        </table>
+    </div>
+</div>

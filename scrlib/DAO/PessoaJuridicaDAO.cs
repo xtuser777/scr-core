@@ -29,13 +29,10 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select * from pessoa_juridica where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return GetObject(dt.Rows[0]);
-            }
-
-            return null;
+            
+            var dt = ExecutaSelect(); 
+            
+            return (dt != null && dt.Rows.Count > 0) ? GetObject(dt.Rows[0]) : null;
         }
 
         internal int CountCnpj(string cnpj)
@@ -52,8 +49,8 @@ namespace scrlib.DAO
         internal int Gravar(PessoaJuridica p)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"insert into pessoa_juridica(id,razao_social,nome_fantasia,cnpj,tipo,telefone,celular,email,endereco) 
-            values((select count(id)+1 from pessoa),@razao_social,@nome_fantasia,@cnpj,@tipo,@telefone,@celular,@email,@endereco) returning id;";
+            ComandoSQL.CommandText = @"insert into pessoa_juridica(razao_social,nome_fantasia,cnpj,tipo,telefone,celular,email,endereco) 
+            values(@razao_social,@nome_fantasia,@cnpj,@tipo,@telefone,@celular,@email,@endereco) returning id;";
             ComandoSQL.Parameters.AddWithValue("@razao_social", p.RazaoSocial);
             ComandoSQL.Parameters.AddWithValue("@nome_fantasia", p.NomeFantasia);
             ComandoSQL.Parameters.AddWithValue("@cnpj", p.Cnpj);
@@ -63,14 +60,9 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@email", p.Email);
             ComandoSQL.Parameters.AddWithValue("@endereco", p.Endereco);
             
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return Convert.ToInt32(dt.Rows[0]["id"]);
-            }
-
-            return -1;
+            return (dt != null && dt.Rows.Count > 0) ? Convert.ToInt32(dt.Rows[0]["id"]) : -10;
         }
 
         internal int Alterar(PessoaJuridica p)

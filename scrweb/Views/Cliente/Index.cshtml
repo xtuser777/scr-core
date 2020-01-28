@@ -6,7 +6,180 @@
 
 @section Scripts {
     <script type="text/javascript" src="~/lib/bootbox/bootbox.min.js"></script>
-    <script type="text/javascript" src="~/js/gerenciar/cliente/index.js"></script>
+    <script type="text/javascript">
+        function preencherTabela(dados) {
+            var txt = "";
+            $.each(dados, function () {
+                var nome = (this.tipo === 1) ? this.pessoa.nome : this.pessoa.nomeFantasia;
+                var doc = (this.tipo === 1) ? this.pessoa.cpf : this.pessoa.cnpj;
+                var tipo = (this.tipo === 1) ? "Física" : "Jurídica";
+                txt +=
+                    '<tr>\
+                        <td class="hidden">' + this.id + '</td>\
+                        <td>' + nome + '</td>\
+                        <td>' + doc + '</td>\
+                        <td>' + FormatarData(this.cadastro) + '</td>\
+                        <td>'+ tipo +'</td>\
+                        <td>'+ this.pessoa.email +'</td>\
+                        <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
+                        <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
+                    </tr>';
+            });
+            $("#tbody_clientes").html(txt);
+        }
+        
+        function ordenarClientes() {
+            var ord = $("#cbord").val();
+            
+            $.ajax({
+                type: 'POST',
+                url: '/Cliente/Ordenar',
+                async: false,
+                data: { col : ord },
+                success: function (response) { preencherTabela(response); },
+                error: function () { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
+            });
+        }
+        
+        function get(url_i) {
+            let res;
+            $.ajax({
+                type: 'GET',
+                url: url_i,
+                async: false,
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function (result) {res = result;},
+                error: function (err) {alert(err.d);}
+            });
+            return res;
+        }
+        
+        function obterClientes() {
+            var data = get("/Cliente/Obter");
+            preencherTabela(data);
+        }
+        
+        $(document).ready(function (event) {
+            obterClientes();
+        });
+        
+        function filtrarClientes() {
+            var filtro = $("#filtro").val();
+            var cadastro = $("#filtro_cad").val();
+        
+            if (filtro === "" && cadastro === "") {
+                obterClientes();
+            } else {
+                if (filtro !== "" && cadastro !== "") {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Cliente/ObterPorChaveCad',
+                        data: { chave: filtro, cad: cadastro },
+                        success: function (response) {
+                            if (response != null && response !== ""){
+                                preencherTabela(response);
+                            }
+                        },
+                        error: function () {
+                            alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                        }
+                    });
+                } else {
+                    if (filtro !== "") {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/Cliente/ObterPorChave',
+                            data: { chave: filtro },
+                            success: function (response) {
+                                if (response != null && response !== ""){
+                                    preencherTabela(response);
+                                }
+                            },
+                            error: function () {
+                                alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                            }
+                        });
+                    } else {
+                        if (cadastro !== ""){
+                            $.ajax({
+                                type: 'POST',
+                                url: '/Cliente/ObterPorCadastro',
+                                data: { cad: cadastro },
+                                success: function (response) {
+                                    if (response != null && response !== ""){
+                                        preencherTabela(response);
+                                    }
+                                },
+                                error: function () {
+                                    alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        function excluir(id) {
+                
+            bootbox.confirm({
+                message: "Confirma a exclusão deste cliente?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/Cliente/Excluir',
+                            data: {id: id},
+                            success: function (result) {
+                                if (result > 0) {
+                                    obterClientes();
+                                } else {
+                                    alert("Ocorreu um problema ao excluir este cliente...");
+                                }
+                            },
+                            error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                                alert("Status: " + txtStatus);
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        
+        function alterar(id) {
+            $.ajax({
+                type: 'POST',
+                url: '/Cliente/Enviar',
+                data: { id: id },
+                success: function (result) {
+                    if (result.length > 0) alert(result);
+                    else {
+                        window.location.href = "../../gerenciar/cliente/detalhes";
+                    }
+                },
+                error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                    mostraDialogo(
+                        "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                        "<br/>"+errorThrown,
+                        "danger",
+                        2000
+                    );
+                }
+            });
+        }
+    </script>
 }
 
 <!-- Card titulo pagina -->
@@ -25,18 +198,18 @@
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-8">
-                <label for="txFiltro">Filtro:</label>
-                <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por nome e email..." />
+                <label for="filtro">Filtro:</label>
+                <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por nome e email..." />
             </div>
             
             <div class="col-sm-2">
-                <label for="dtFiltroCad">Filtro Cadastro:</label>
-                <input type="date" id="dtFiltroCad" class="form-control input-sm" style="width: 100%;" />
+                <label for="filtro_cad">Filtro Cadastro:</label>
+                <input type="date" id="filtro_cad" class="form-control input-sm" style="width: 100%;" />
             </div>
 
             <div class="col-sm-2">
-                <label for="btFiltrar">&nbsp;</label>
-                <button id="btFiltrar" class="btn btn-primary btn-sm" style="width: 100%;">FILTRAR</button>
+                <label for="filtrar">&nbsp;</label>
+                <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrarClientes();">FILTRAR</button>
             </div>
         </div>
     </div>
@@ -47,9 +220,9 @@
 
     <div class="fieldset-card-container">
         <div class="row" style="margin-bottom: 10px;">
-            <div class="col-sm-12">
+            <div class="col-sm-10">
                 <label for="cbord">Ordenar por:</label>
-                <select id="cbord" class="form-control input-sm">
+                <select id="cbord" class="form-control input-sm" onchange="ordenarClientes();">
                     <option value="1">REGISTRO (CRESCENTE)</option>
                     <option value="2">REGISTRO (DECRESCENTE)</option>
                     <option value="3">NOME (CRESCENTE)</option>
@@ -64,9 +237,14 @@
                     <option value="12">EMAIL (DECRESCENTE)</option>
                 </select>
             </div>
+            
+            <div class="col-sm-2">
+                <label for="novo">&nbsp;</label>
+                <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/gerenciar/cliente/novo">NOVO</a>
+            </div>
         </div>
         
-        <table id="tbClientes" class="table table-responsive" style="width: 100%;">
+        <table id="table_clientes" class="table table-responsive" style="width: 100%;">
             <thead>
             <tr>
                 <th class="hidden">ID</th>
@@ -75,31 +253,13 @@
                 <th style="width: 10%;">CADASTRO</th>
                 <th style="width: 10%;">TIPO</th>
                 <th>EMAIL</th>
+                <th style="width: 2%;">&nbsp;</th>
+                <th style="width: 2%;">&nbsp;</th>
             </tr>
             </thead>
         
-            <tbody id="tbClientesBody">
+            <tbody id="tbody_clientes">
             </tbody>
         </table>
-    </div>
-</div>
-
-<div class="panel-actions">
-    <div class="row">
-        <div class="col-sm-3">
-            <button id="btVoltar" class="btn btn-default btn-sm" style="width: 100%;">VOLTAR</button>
-        </div>
-
-        <div class="col-sm-3">
-            <button id="btExcluir" class="btn btn-danger btn-sm" style="width: 100%;">EXCLUIR</button>
-        </div>
-
-        <div class="col-sm-3">
-            <button id="btDetalhes" class="btn btn-info btn-sm" style="width: 100%;">DETALHES</button>
-        </div>
-
-        <div class="col-sm-3">
-            <button id="btNovo" class="btn btn-success btn-sm" style="width: 100%;">NOVO</button>
-        </div>
     </div>
 </div>

@@ -34,7 +34,7 @@ var erros = 0;
 var cnpj_atual = "";
 var idendereco = 0;
 var idpessoa = 0;
-var idcliente = 0;
+var idrepresentacao = 0;
 
 function limparEstados() {
     for (var i = cbestado.childElementCount - 1; i > 0; i--) {
@@ -113,13 +113,12 @@ function get(url_i) {
 }
 
 $(document).ready(function () {
-    $(txcpf).mask('000.000.000-00', {reverse: false});
     $(txcnpj).mask('00.000.000/0000-00', {reverse: false});
     $(txcep).mask('00.000-000', {reverse: false});
     $(txtel).mask('(00) 0000-0000', {reverse: false});
     $(txcel).mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/Cliente/ObterEstados');
+    lista_estados = get('/Representacao/ObterEstados');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
@@ -130,11 +129,11 @@ $(document).ready(function () {
         }
     }
 
-    var response = get("/Cliente/ObterDetalhes");
+    var response = get("/Representacao/ObterDetalhes");
     if (response != null && response !== "") {
         idendereco = response.pessoa.endereco.id;
         idpessoa = response.pessoa.id;
-        idcliente = response.id;
+        idrepresentacao = response.id;
         
         txrazaosocial.value = response.pessoa.razaoSocial;
         txnomefantasia.value = response.pessoa.nomeFantasia;
@@ -178,7 +177,7 @@ btvoltar.addEventListener("click", function (event) {
 function verificarCnpj(cnpj) {
     $.ajax({
         type: 'POST',
-        url: '/Funcionario/VerificarCnpj',
+        url: '/Representacao/VerificarCnpj',
         data: { cnpj: cnpj },
         async: false,
         success: function (response) {
@@ -442,11 +441,10 @@ btsalvar.addEventListener("click", function (event) {
         var form = new FormData();
         form.append("endereco", idendereco);
         form.append("pessoa", idpessoa);
-        form.append("cliente", idcliente);
+        form.append("representacao", idrepresentacao);
         form.append("razaosocial", razaosocial);
         form.append("nomefantasia", nomefantasia);
         form.append("cnpj", cnpj);
-        form.append("tipo", tipo);
         form.append("rua", rua);
         form.append("numero", numero);
         form.append("bairro", bairro);
@@ -459,7 +457,7 @@ btsalvar.addEventListener("click", function (event) {
 
         $.ajax({
             type: 'POST',
-            url: '/Cliente/Alterar',
+            url: '/Representacao/Alterar',
             data: form,
             contentType: false,
             processData: false,

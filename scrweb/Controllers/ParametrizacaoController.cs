@@ -30,6 +30,17 @@ namespace scrweb.Controllers
         {
             return Json(new cl.ParametrizacaoController().Get());
         }
+        
+        public JsonResult ObterEstados()
+        {
+            return Json(new cl.EstadoController().Get());
+        }
+
+        [HttpPost]
+        public JsonResult ObterCidades(IFormCollection form)
+        {
+            return Json(new cl.CidadeController().GetByEstado(Convert.ToInt32(form["estado"])));
+        }
 
         private string GravarLogotipo(ref bool err)
         {

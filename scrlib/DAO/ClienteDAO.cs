@@ -35,57 +35,6 @@ namespace scrlib.DAO
             return dt != null && dt.Rows.Count > 0 ? GetObject(dt.Rows[0]) : null;
         }
 
-        internal List<Cliente> GetByFilter(string chave)
-        {
-            ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select c.id,c.cadastro,c.tipo,c.pessoa_fisica,c.pessoa_juridica 
-                                        from cliente c
-                                        inner join pessoa using (id)
-                                        inner join pessoa_fisica using (id)
-                                        inner join pessoa_juridica using (id)
-                                        where pessoa_fisica.nome like @chave 
-                                        or pessoa_juridica.nome_fantasia like @chave
-                                        or pessoa.email like @chave;";
-            ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
-
-            var dt = ExecutaSelect();
-
-            return dt != null && dt.Rows.Count > 0 ? GetList(dt) : null;
-        }
-
-        internal List<Cliente> GetByCad(DateTime cadastro)
-        {
-            ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,cadastro,tipo,pessoa_fisica,pessoa_juridica 
-                                        from cliente 
-                                        where cliente.cadastro = @cad;";
-            ComandoSQL.Parameters.AddWithValue("@cad", cadastro);
-
-            var dt = ExecutaSelect();
-
-            return dt != null && dt.Rows.Count > 0 ? GetList(dt) : null;
-        }
-
-        internal List<Cliente> GetByFilterAndCad(string chave, DateTime cadastro)
-        {
-            ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,cadastro,tipo,pessoa_fisica,pessoa_juridica 
-                                        from cliente 
-                                        inner join pessoa using (id)
-                                        inner join pessoa_fisica using (id)
-                                        inner join pessoa_juridica using (id)
-                                        where (pessoa_fisica.nome like @chave 
-                                        or pessoa_juridica.nome_fantasia like @chave
-                                        or pessoa.email like @chave)
-                                        and cliente.cadastro = @cad;";
-            ComandoSQL.Parameters.AddWithValue("@chave", "%"+chave+"%");
-            ComandoSQL.Parameters.AddWithValue("@cad", cadastro);
-
-            var dt = ExecutaSelect();
-
-            return dt != null && dt.Rows.Count > 0 ? GetList(dt) : null;
-        }
-
         internal List<Cliente> GetAll()
         {
             ComandoSQL.Parameters.Clear();

@@ -13,6 +13,11 @@ namespace scrweb.Controllers
     public class ClienteController : Controller
     {
         private static List<ClienteViewModel> _clientes;
+
+        public ClienteController()
+        {
+            _clientes = new cl.ClienteController().GetAll();
+        }
         
         // GET
         public IActionResult Index()
@@ -27,17 +32,23 @@ namespace scrweb.Controllers
 
         public IActionResult Detalhes(int id)
         {
-            HttpContext.Session.SetString("idcli", id.ToString());
-
             return View();
+        }
+
+        [HttpPost]
+        public JsonResult Enviar(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return Json("Parâmetro inválido...");
+            HttpContext.Session.SetString("idcli", id);
+            return Json("");
         }
 
         public JsonResult Obter()
         {
-            _clientes = new cl.ClienteController().GetAll();
             return Json(_clientes);
         }
 
+        [HttpPost]
         public JsonResult ObterPorChave(string chave)
         {
             var filtrado = _clientes.FindAll(cli => cli.Tipo == 1
@@ -50,6 +61,7 @@ namespace scrweb.Controllers
             return Json(filtrado);
         }
 
+        [HttpPost]
         public JsonResult ObterPorCadastro(string cad)
         {
             var filtrado = _clientes.FindAll(cli => cli.Cadastro.ToString("yyyy-MM-dd") == cad);
@@ -57,6 +69,7 @@ namespace scrweb.Controllers
             return Json(filtrado);
         }
 
+        [HttpPost]
         public JsonResult ObterPorChaveCad(string chave, string cad)
         {
             var filtrado = _clientes.FindAll(cli => cli.Tipo == 1

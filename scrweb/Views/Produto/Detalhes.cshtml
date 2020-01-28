@@ -1,0 +1,205 @@
+@using scrlib.ViewModels
+@{ ViewBag.Title = "Detalhes do Produto"; Layout = "_Layout"; }
+
+@section Scripts
+{
+    <script type="text/javascript">
+        var _produto = 0;
+
+        function get(url_i) {
+            let res;
+            $.ajax({
+                type: 'GET',
+                url: url_i,
+                async: false,
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function (result) {res = result;},
+                error: function (err) {alert(err.d);}
+            });
+            return res;
+        }
+
+        $(document).ready(function (event) {
+            var dados = get("/Produto/ObterDetalhes");
+            if (dados !== "") {
+                _produto = dados.id;
+                $("#desc").val(dados.descricao);
+                $("#medida").val(dados.medida);
+                $("#preco").val(dados.preco);
+                $("#preco_out").val(dados.precoOut);
+                $("#representacao").val(dados.representacao.id);
+            }
+        });
+
+        function gravar() {
+            var desc = $("#desc").val();
+            var medida = $("#medida").val();
+            var preco = $("#preco").val();
+            var preco_out = $("#preco_out").val();
+            var rep = $("#representacao").val();
+
+            var erros = 0;
+
+            if (desc === "") {
+                erros++;
+                $("#msdesc").html('<span class="label label-danger">A descrição do produto precisa ser preenchida!</span>');
+            } else {
+                $("#msdesc").html('');
+            }
+
+            if (medida === "") {
+                erros++;
+                $("#msmedida").html('<span class="label label-danger">A unidade de medida precisa ser preenchida!</span>');
+            } else {
+                $("#msmedida").html('');
+            }
+
+            if (preco === "" || preco === "0") {
+                erros++;
+                $("#mspreco").html('<span class="label label-danger">O preço deve ser preenchido!</span>');
+            } else {
+                $("#mspreco").html('');
+            }
+
+            if (rep === "0") {
+                erros++;
+                $("#msrep").html('<span class="label label-danger">A representação precia ser selecionada!</span>');
+            } else {
+                $("#msrep").html('');
+            }
+            
+            if (erros === 0) {
+                var form = new FormData();
+                form.append("produto", _produto);
+                form.append("desc", desc);
+                form.append("medida", medida);
+                form.append("preco", preco);
+                form.append("preco_out", preco_out);
+                form.append("representacao", rep);
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Produto/Alterar",
+                    data: form,
+                    contentType: false,
+                    processData: false,
+                    async: false,
+                    success: function(response) {
+                        if (response === "") {
+                            mostraDialogo(
+                                "<strong>Alterações salvas com sucesso!</strong>" +
+                                "<br />As alterações do produto foram salvas com sucesso no banco de dados.",
+                                "success",
+                                2000
+                            );
+                        } else {
+                            mostraDialogo(
+                                "<strong>Problemas ao salvar as alterações...</strong>" +
+                                "<br/>response",
+                                "danger",
+                                2000
+                            );
+                        }
+                    },
+                    error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                        mostraDialogo(
+                            "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                            "<br/>"+errorThrown,
+                            "danger",
+                            2000
+                        );
+                    }
+                });
+            } else {
+                $("#desc").val(desc);
+                $("#medida").val(medida);
+                $("#preco").val(preco);
+                $("#preco_out").val(preco_out);
+                $("#representacao").val(rep);
+            }
+        }
+
+        function limpar() {
+            $("input[type='text']").val("");
+            $("#preco").val("0");
+            $("#preco_out").val("0");
+            $("#representacao").val("0");
+        }
+    </script>
+}
+
+<!-- Card titulo pagina -->
+<div class="card-title">
+    <div class="card-title-container" style="text-align: center;">
+        <h4><b>SCR - Detalhes do Produto</b></h4>
+    </div>
+</div>
+<!-- Fim card titulo pagina -->
+
+<div class="fieldset-card">
+    <div class="fieldset-card-legend" style="width: 130px;">Dados do Produto</div>
+    <div class="fieldset-card-container">
+        <div class="row">
+            <div class="col-sm-7">
+                <label for="desc">Descrição (Obrigatório):</label>
+                <input type="text" id="desc" class="form-control input-sm" style="width: 100%;" value="" />
+                <div id="msdesc"></div>
+            </div>
+
+            <div class="col-sm-5">
+                <label for="representacao">Representação (Obrigatório):</label>
+                <select id="representacao" class="form-control input-sm">
+                    <option value="0">SELECIONE</option>
+                    @foreach (var rep in (List<RepresentacaoViewModel>) ViewBag.Representacoes)
+                    {
+                        <option value="@rep.Id">@rep.Pessoa.NomeFantasia (@rep.Unidade)</option>
+                    }
+                </select>
+                <div id="msrep"></div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-4">
+                <label for="medida">Medida (Obrigatório):</label>
+                <input type="text" id="medida" class="form-control input-sm" style="width: 100%;" placeholder="Exemplo: Kg, Sacos de X Kg..." value="" />
+                <div id="msmedida"></div>
+            </div>
+            
+            <div class="col-sm-4">
+                <label for="preco">Preço (Obrigatório):</label>
+                <div class="input-group">
+                    <div class="input-group-addon">R$</div>
+                    <input type="text" id="preco" class="form-control input-sm" style="width: 100%;" value=""/>
+                </div>
+                <div id="mspreco"></div>
+            </div>
+            
+            <div class="col-sm-4">
+                <label for="preco_out">Preço fora do estado:</label>
+                <div class="input-group">
+                    <div class="input-group-addon">R$</div>
+                    <input type="text" id="preco_out" class="form-control input-sm" style="width: 100%;" value=""/>
+                </div>
+                <div id="mspo"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-sm-2">
+        <a role="button" class="btn btn-default" style="width: 100%;" href="/gerenciar/produto/index">VOLTAR</a>
+    </div>
+
+    <div class="col-sm-6"></div>
+
+    <div class="col-sm-2">
+        <button id="limpar" class="btn btn-primary" style="width: 100%;" onclick="limpar();">LIMPAR</button>
+    </div>
+
+    <div class="col-sm-2">
+        <button id="salvar" class="btn btn-success" style="width: 100%;" onclick="gravar();">SALVAR</button>
+    </div>
+</div>

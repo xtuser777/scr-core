@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace scrlib.DAO
@@ -24,57 +25,37 @@ namespace scrlib.DAO
 
         private List<Endereco> GetList(DataTable dt)
         {
-            List<Endereco> enderecos = new List<Endereco>();
-            foreach (DataRow row in dt.Rows)
-            {
-                enderecos.Add(GetObject(row));
-            }
-            
-            return enderecos;
+            return (from DataRow row in dt.Rows select GetObject(row)).ToList();
         }
 
         internal Endereco GetById(int id)
         {
-            Endereco endereco = null;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,rua,numero,bairro,complemento,cep,cidade 
                                         from endereco 
                                         where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
             
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                endereco = GetObject(dt.Rows[0]);
-            }
-            
-            return endereco;
+            return (dt != null && dt.Rows.Count > 0) ? GetObject(dt.Rows[0]) : null;
         }
 
         internal List<Endereco> Get()
         {
-            List<Endereco> enderecos = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,rua,numero,bairro,complemento,cep,cidade 
-                                        from endereco;";
+            ComandoSQL.CommandText = @"select id,rua,numero,bairro,complemento,cep,cidade from endereco;";
             
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                enderecos = GetList(dt);
-            }
-            
-            return enderecos;
+            return (dt != null && dt.Rows.Count > 0) ? GetList(dt) : null;
         }
 
         internal int Gravar(Endereco e)
         {
-            int res = -1;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"insert into endereco(id,rua,numero,bairro,complemento,cep,cidade) 
-                                        values((select count(id)+1 from endereco),@rua,@numero,@bairro,@complemento,@cep,@cidade) returning id;";
+            ComandoSQL.CommandText = @"insert into endereco(rua,numero,bairro,complemento,cep,cidade) 
+                                        values(@rua,@numero,@bairro,@complemento,@cep,@cidade) returning id;";
             ComandoSQL.Parameters.AddWithValue("@rua", e.Rua);
             ComandoSQL.Parameters.AddWithValue("@numero", e.Numero);
             ComandoSQL.Parameters.AddWithValue("@bairro", e.Bairro);
@@ -82,19 +63,13 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@cep", e.Cep);
             ComandoSQL.Parameters.AddWithValue("@cidade", e.Cidade);
             
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                res = Convert.ToInt32(dt.Rows[0]["id"]);
-            }
-            
-            return res;
+            return dt != null && dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["id"]) : -10;
         }
 
         internal int Alterar(Endereco e)
         {
-            int res = -1;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"update endereco 
                                         set rua = @rua,
@@ -111,20 +86,17 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@cep", e.Cep);
             ComandoSQL.Parameters.AddWithValue("@cidade", e.Cidade);
             ComandoSQL.Parameters.AddWithValue("@id", e.Id);
-            
-            res = ExecutaComando();
-            return res;
+
+            return ExecutaComando();
         }
 
         internal int Excluir(int id)
         {
-            int res = -1;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"delete from endereco where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
-            
-            res = ExecutaComando();
-            return res;
+
+            return ExecutaComando();
         }
     }
 }

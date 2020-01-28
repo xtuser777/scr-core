@@ -1,8 +1,3 @@
-var txtipo = document.getElementById("txtipo");
-var txnome = document.getElementById("txNome");
-var dtNasc = document.getElementById("dtNasc");
-var txrg = document.getElementById("txRg");
-var txcpf = document.getElementById("txCpf");
 var txrazaosocial = document.getElementById("txRazaoSocial");
 var txnomefantasia = document.getElementById("txNomeFantasia");
 var txcnpj = document.getElementById("txCnpj");
@@ -20,10 +15,6 @@ var txemail = document.getElementById("txEmail");
 var btsalvar = document.getElementById("btSalvar");
 var btvoltar = document.getElementById("btVoltar");
 
-var msNome = document.getElementById("msNome");
-var msNasc = document.getElementById("msNasc");
-var msRg = document.getElementById("msRg");
-var msCpf = document.getElementById("msCpf");
 var msRazaoSocial = document.getElementById("msRazaoSocial");
 var msNomeFantasia = document.getElementById("msNomeFantasia");
 var msCnpj = document.getElementById("msCnpj");
@@ -37,18 +28,9 @@ var msTelefone = document.getElementById("msTelefone");
 var msCelular = document.getElementById("msCelular");
 var msEmail = document.getElementById("msEmail");
 
-var fisica = document.getElementById("fisica");
-var juridica = document.getElementById("juridica");
-
-let _tipo = 0;
 var lista_estados = [];
 var lista_cidades = [];
 var erros = 0;
-var cpf_atual = "";
-var cnpj_atual = "";
-var idendereco = 0;
-var idpessoa = 0;
-var idcliente = 0;
 
 function limparEstados() {
     for (var i = cbestado.childElementCount - 1; i > 0; i--) {
@@ -62,7 +44,7 @@ function carregarCidades() {
 
     $.ajax({
         type: 'POST',
-        url: '/Cliente/ObterCidades',
+        url: '/Representacao/ObterCidades',
         data: form,
         contentType: false,
         processData: false,
@@ -82,7 +64,7 @@ function carregarCidades() {
     if (lista_cidades !== "") {
         for (var i = 0; i < lista_cidades.length; i++) {
             var option = document.createElement("option");
-            option.value = lista_cidades[i].id; 
+            option.value = lista_cidades[i].id;
             option.text = lista_cidades[i].nome;
             cbcidade.appendChild(option);
         }
@@ -127,79 +109,31 @@ function get(url_i) {
 }
 
 $(document).ready(function () {
-    $(txcpf).mask('000.000.000-00', {reverse: false});
     $(txcnpj).mask('00.000.000/0000-00', {reverse: false});
     $(txcep).mask('00.000-000', {reverse: false});
     $(txtel).mask('(00) 0000-0000', {reverse: false});
     $(txcel).mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/Cliente/ObterEstados');
+    lista_estados = get('/Representacao/ObterEstados');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
             var option = document.createElement("option");
-            option.value = lista_estados[i].id; 
+            option.value = lista_estados[i].id;
             option.text = lista_estados[i].nome;
             cbestado.appendChild(option);
         }
     }
 
-    var response = get("/Cliente/ObterDetalhes");
+    var response = get("/Representacao/ObterDetalhes");
     if (response != null && response !== "") {
-        idendereco = response.pessoa.endereco.id;
-        idpessoa = response.pessoa.id;
-        idcliente = response.id;
-
-        _tipo = response.tipo;
-        txtipo.value = _tipo === 1 ? "PESSOA FÍSICA" : "PESSOA JURÍDICA";
-        txtipo.readOnly = true;
-        
-        if (_tipo === 1) {
-            txnome.value = response.pessoa.nome;
-            dtNasc.value = FormatarDataIso(response.pessoa.nascimento);
-            txrg.value = response.pessoa.rg;
-            txcpf.value = response.pessoa.cpf;
-            cpf_atual = response.pessoa.cpf;
-        } else {
-            txrazaosocial.value = response.pessoa.razaoSocial;
-            txnomefantasia.value = response.pessoa.nomeFantasia;
-            txcnpj.value = response.pessoa.cnpj;
-            cnpj_atual = response.pessoa.cnpj;
-        }
-        txrua.value = response.pessoa.endereco.rua;
-        txnumero.value = response.pessoa.endereco.numero;
-        txbairro.value = response.pessoa.endereco.bairro;
-        txcomplemento.value = response.pessoa.endereco.complemento;
-        txcep.value = response.pessoa.endereco.cep;
-        cbestado.value = response.pessoa.endereco.cidade.estado.id;
-        carregarCidades();
-        cbcidade.value = response.pessoa.endereco.cidade.id;
-        txtel.value = response.pessoa.telefone;
-        txcel.value = response.pessoa.celular;
-        txemail.value = response.pessoa.email;
-    }
-
-    if (_tipo === 1) {
-        if (!juridica.classList.contains("hidden"))
-            juridica.classList.add("hidden");
-        if (fisica.classList.contains("hidden"))
-            fisica.classList.remove("hidden");
-    } else {
-        if (juridica.classList.contains("hidden"))
-            juridica.classList.remove("hidden");
-        if (!fisica.classList.contains("hidden"))
-            fisica.classList.add("hidden");
+        txrazaosocial.value = response.pessoa.razaoSocial;
+        txnomefantasia.value = response.pessoa.nomeFantasia;
+        txcnpj.value = response.pessoa.cnpj;
     }
 });
 
 function limparCampos() {
-    txnome.value = "";
-    dtNasc.value = "";
-    txrg.value = "";
-    txcpf.value = "";
-    txrazaosocial.value = "";
-    txnomefantasia.value = "";
-    txcnpj.value = "";
     txrua.value = "";
     txnumero.value = "";
     txbairro.value = "";
@@ -214,96 +148,8 @@ function limparCampos() {
 
 btvoltar.addEventListener("click", function (event) {
     limparCampos();
-    window.location.href = "../../gerenciar/cliente/index";
+    window.location.href = "../../gerenciar/representacao/index";
 });
-
-function verificarCpf(cpf) {
-    $.ajax({
-        type: 'POST',
-        url: '/Funcionario/VerificarCpf',
-        data: { cpf: cpf },
-        async: false,
-        success: function (response) {
-            if (response === true && cpf !== cpf_atual) {
-                erros++;
-                msCpf.innerHTML = "O CPF informado já existe no cadastro...";
-                msCpf.classList.remove("hidden");
-            } else {
-                if (msCpf.classList.contains("hidden") === false) { msCpf.classList.add("hidden"); }
-            }
-        },
-        error: function () {
-            mostraDialogo(
-                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
-                "<br/>Um problema no servidor impediu sua comunicação...",
-                "danger",
-                2000
-            );
-        }
-    });
-}
-
-function verificarCnpj(cnpj) {
-    $.ajax({
-        type: 'POST',
-        url: '/Funcionario/VerificarCnpj',
-        data: { cnpj: cnpj },
-        async: false,
-        success: function (response) {
-            if (response === true && cpf !== cpf_atual) {
-                erros++;
-                msCnpj.innerHTML = "O CNPJ informado já existe no cadastro...";
-                msCnpj.classList.remove("hidden");
-            } else {
-                if (msCnpj.classList.contains("hidden") === false) { msCnpj.classList.add("hidden"); }
-            }
-        },
-        error: function () {
-            mostraDialogo(
-                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
-                "<br/>Um problema no servidor impediu sua comunicação...",
-                "danger",
-                2000
-            );
-        }
-    });
-}
-
-function validarCpf(cpf) {
-    cpf = cpf.replace(/[^\d]+/g, '');
-    if (cpf === '') {
-        return false;
-    }
-    // Elimina CPFs invalidos conhecidos	
-    if (cpf.length != 11 || cpf == "00000000000" || cpf == "11111111111" || cpf == "22222222222" || cpf == "33333333333" || cpf == "44444444444" || cpf == "55555555555" || cpf == "66666666666" || cpf == "77777777777" || cpf == "88888888888" || cpf == "99999999999") {
-        return false;
-    }
-    // Valida 1o digito	
-    add = 0;
-    for (i = 0; i < 9; i++) {
-        add += parseInt(cpf.charAt(i)) * (10 - i);
-    }
-    rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
-        rev = 0;
-    }
-    if (rev != parseInt(cpf.charAt(9))) {
-        return false;
-    }
-    // Valida 2o digito	
-    add = 0;
-    for (i = 0; i < 10; i++) {
-        add += parseInt(cpf.charAt(i)) * (11 - i);
-    }
-    rev = 11 - (add % 11);
-    if (rev == 10 || rev == 11) {
-        rev = 0;
-    }
-    if (rev != parseInt(cpf.charAt(10))) {
-        return false;
-    }
-    return true;
-}
 
 function validarCNPJ(cnpj) {
 
@@ -379,17 +225,9 @@ function validacaoEmail(email) {
 }
 
 btsalvar.addEventListener("click", function (event) {
-    if (_tipo === 1) {
-        var nome = txnome.value;
-        var nasc = dtNasc.value;
-        var rg = txrg.value;
-        var cpf = txcpf.value;
-    } else {
-        var razaosocial = txrazaosocial.value;
-        var nomefantasia = txnomefantasia.value;
-        var cnpj = txcnpj.value;
-    }
-    var tipo = _tipo.toString();
+    var razaosocial = txrazaosocial.value;
+    var nomefantasia = txnomefantasia.value;
+    var cnpj = txcnpj.value;
     var rua = txrua.value;
     var numero = txnumero.value;
     var bairro = txbairro.value;
@@ -400,100 +238,44 @@ btsalvar.addEventListener("click", function (event) {
     var celular = txcel.value;
     var email = txemail.value;
 
-    var dataNasc = new Date(nasc);
     erros = 0;
 
-    if (_tipo === 1) {
-        if (nome.length === 0) {
-            erros++;
-            msNome.innerHTML = "O Nome precisa ser preenchido!";
-            msNome.classList.remove("hidden");
-        } else
-        if (nome.length < 3) {
-            erros++;
-            msNome.innerHTML = "O Nome informado é inválido...";
-            msNome.classList.remove("hidden");
-        } else {
-            if (msNome.classList.contains("hidden") === false) {
-                msNome.classList.add("hidden");
-            }
-        }
-
-        if (nasc.length === 0) {
-            erros++;
-            msNasc.innerHTML = "A data de admissão precisa ser preenchida!";
-            msNasc.classList.remove("hidden");
-        } else
-        if (dataNasc >= Date.now()) {
-            erros++;
-            msNasc.innerHTML = "A data de admissão informada é inválida...";
-            msNasc.classList.remove("hidden");
-        } else {
-            if (msNasc.classList.contains("hidden") === false) {
-                msNasc.classList.add("hidden");
-            }
-        }
-
-        if (rg.length === 0) {
-            erros++;
-            msRg.innerHTML = "O RG precisa ser preenchido!";
-            msRg.classList.remove("hidden");
-        } else {
-            if (msRg.classList.contains("hidden") === false) {
-                msRg.classList.add("hidden");
-            }
-        }
-
-        if (cpf.length === 0) {
-            erros++;
-            msCpf.innerHTML = "O CPF precisa ser preenchido!";
-            msCpf.classList.remove("hidden");
-        } else
-        if (!validarCpf(cpf)) {
-            erros++;
-            msCpf.innerHTML = "O CPF informado é inválido...";
-            msCpf.classList.remove("hidden");
-        } else {
-            verificarCpf(cpf);
-        }
+    if (razaosocial.length === 0) {
+        erros++;
+        msRazaoSocial.innerHTML = "A Razão Social precisa ser preenchida!";
+        msRazaoSocial.classList.remove("hidden");
+    } else
+    if (razaosocial.length < 3) {
+        erros++;
+        msRazaoSocial.innerHTML = "A Razão Social informada é inválida...";
+        msRazaoSocial.classList.remove("hidden");
     } else {
-        if (razaosocial.length === 0) {
-            erros++;
-            msRazaoSocial.innerHTML = "A Razão Social precisa ser preenchida!";
-            msRazaoSocial.classList.remove("hidden");
-        } else
-        if (razaosocial.length < 3) {
-            erros++;
-            msRazaoSocial.innerHTML = "A Razão Social informada é inválida...";
-            msRazaoSocial.classList.remove("hidden");
-        } else {
-            if (msRazaoSocial.classList.contains("hidden") === false) {
-                msRazaoSocial.classList.add("hidden");
-            }
+        if (msRazaoSocial.classList.contains("hidden") === false) {
+            msRazaoSocial.classList.add("hidden");
         }
+    }
 
-        if (nomefantasia.length === 0) {
-            erros++;
-            msNomeFantasia.innerHTML = "O Nome Fantasia precisa ser preenchido!";
-            msNomeFantasia.classList.remove("hidden");
-        } else {
-            if (msNomeFantasia.classList.contains("hidden") === false) {
-                msNomeFantasia.classList.add("hidden");
-            }
+    if (nomefantasia.length === 0) {
+        erros++;
+        msNomeFantasia.innerHTML = "O Nome Fantasia precisa ser preenchido!";
+        msNomeFantasia.classList.remove("hidden");
+    } else {
+        if (msNomeFantasia.classList.contains("hidden") === false) {
+            msNomeFantasia.classList.add("hidden");
         }
+    }
 
-        if (cnpj.length === 0) {
-            erros++;
-            msCnpj.innerHTML = "O CNPJ precisa ser preenchido!";
-            msCnpj.classList.remove("hidden");
-        } else
-        if (!validarCNPJ(cnpj)) {
-            erros++;
-            msCnpj.innerHTML = "O CNPJ informado é inválido...";
-            msCnpj.classList.remove("hidden");
-        } else {
-            verificarCnpj(cnpj);
-        }
+    if (cnpj.length === 0) {
+        erros++;
+        msCnpj.innerHTML = "O CNPJ precisa ser preenchido!";
+        msCnpj.classList.remove("hidden");
+    } else
+    if (!validarCNPJ(cnpj)) {
+        erros++;
+        msCnpj.innerHTML = "O CNPJ informado é inválido...";
+        msCnpj.classList.remove("hidden");
+    } else {
+        if (msCnpj.classList.contains("hidden") === false) { msCnpj.classList.add("hidden"); }
     }
 
     if (rua.length === 0) {
@@ -608,20 +390,9 @@ btsalvar.addEventListener("click", function (event) {
 
     if (erros === 0) {
         var form = new FormData();
-        form.append("endereco", idendereco);
-        form.append("pessoa", idpessoa);
-        form.append("cliente", idcliente);
-        if (_tipo === 1) {
-            form.append("nome", nome);
-            form.append("nasc", nasc);
-            form.append("rg", rg);
-            form.append("cpf", cpf);
-        } else {
-            form.append("razaosocial", razaosocial);
-            form.append("nomefantasia", nomefantasia);
-            form.append("cnpj", cnpj);
-        }
-        form.append("tipo", tipo);
+        form.append("razaosocial", razaosocial);
+        form.append("nomefantasia", nomefantasia);
+        form.append("cnpj", cnpj);
         form.append("rua", rua);
         form.append("numero", numero);
         form.append("bairro", bairro);
@@ -634,7 +405,7 @@ btsalvar.addEventListener("click", function (event) {
 
         $.ajax({
             type: 'POST',
-            url: '/Cliente/Alterar',
+            url: '/Representacao/Gravar',
             data: form,
             contentType: false,
             processData: false,
@@ -647,14 +418,9 @@ btsalvar.addEventListener("click", function (event) {
                         2000
                     );
                 } else {
-                    if (_tipo === 1) {
-                        cpf_atual = cpf;
-                    } else {
-                        cnpj_atual = cnpj;
-                    }
                     mostraDialogo(
-                        "<strong>Alteração realizada com sucesso!</strong>" +
-                        "<br />A alteração feita nos campos do cliente foram salvos com sucesso!",
+                        "<strong>Unidade adicionada com sucesso!</strong>" +
+                        "<br />A nova unidade foi salva com sucesso!",
                         "success",
                         2000
                     );
