@@ -1,0 +1,91 @@
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using scrlib.Models;
+
+namespace scrlib.DAO
+{
+    internal class TipoCaminhaoDAO : Banco
+    {
+        private TipoCaminhao GetObject(DataRow row)
+        {
+            return new TipoCaminhao()
+            {
+                Id = Convert.ToInt32(row["id"]),
+                Descricao = row["descricao"].ToString(),
+                Eixos = Convert.ToInt32(row["eixos"]),
+                Capacidade = Convert.ToDecimal(row["capacidade"])
+            };
+        }
+
+        private List<TipoCaminhao> GetList(DataTable table)
+        {
+            return (from DataRow row in table.Rows select GetObject(row)).ToList();
+        }
+
+        internal TipoCaminhao GetById(int id)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select id,descricao,capacidade,eixos from tipo_caminhao where id = @id;";
+            ComandoSQL.Parameters.AddWithValue("@id", id);
+
+            var table = ExecutaSelect();
+
+            return table != null && table.Rows.Count > 0 ? GetObject(table.Rows[0]) : null;
+        }
+
+        internal List<TipoCaminhao> GetAll()
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"select id,descricao,capacidade,eixos from tipo_caminhao;";
+
+            var table = ExecutaSelect();
+            
+            return table != null && table.Rows.Count > 0 ? GetList(table) : null;
+        }
+
+        internal int Gravar(TipoCaminhao tc)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"
+                insert into tipo_caminhao(descricao,eixos,capacidade)
+                values(@des,@eix,@cap) returning id;
+            ";
+            ComandoSQL.Parameters.AddWithValue("@des", tc.Descricao);
+            ComandoSQL.Parameters.AddWithValue("@eix", tc.Eixos);
+            ComandoSQL.Parameters.AddWithValue("@cap", tc.Capacidade);
+
+            var table = ExecutaSelect();
+
+            return table != null && table.Rows.Count > 0 ? Convert.ToInt32(table.Rows[0]["id"]) : -10;
+        }
+
+        internal int Alterar(TipoCaminhao tc)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"
+                update tipo_caminhao 
+                set descricao = @des,
+                eixos = @eix,
+                capacidade = @cap
+                where id = @id;
+            ";
+            ComandoSQL.Parameters.AddWithValue("@des", tc.Descricao);
+            ComandoSQL.Parameters.AddWithValue("@eix", tc.Eixos);
+            ComandoSQL.Parameters.AddWithValue("@cap", tc.Capacidade);
+            ComandoSQL.Parameters.AddWithValue("@id", tc.Id);
+
+            return ExecutaComando();
+        }
+
+        internal int Excluir(int id)
+        {
+            ComandoSQL.Parameters.Clear();
+            ComandoSQL.CommandText = @"delete from tipo_caminhao where id = @id;";
+            ComandoSQL.Parameters.AddWithValue("@id", id);
+
+            return ExecutaComando();
+        }
+    }
+}

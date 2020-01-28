@@ -45,7 +45,7 @@ function carregarCidades() {
 
     $.ajax({
         type: 'POST',
-        url: '/Cliente/ObterCidades',
+        url: '/Representacao/ObterCidades',
         data: form,
         contentType: false,
         processData: false,
@@ -110,13 +110,12 @@ function get(url_i) {
 }
 
 $(document).ready(function () {
-    $(txcpf).mask('000.000.000-00', {reverse: false});
     $(txcnpj).mask('00.000.000/0000-00', {reverse: false});
     $(txcep).mask('00.000-000', {reverse: false});
     $(txtel).mask('(00) 0000-0000', {reverse: false});
     $(txcel).mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/Cliente/ObterEstados');
+    lista_estados = get('/Representacao/ObterEstados');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
@@ -158,7 +157,7 @@ btvoltar.addEventListener("click", function (event) {
 function verificarCnpj(cnpj) {
     $.ajax({
         type: 'POST',
-        url: '/Funcionario/VerificarCnpj',
+        url: '/Representacao/VerificarCnpj',
         data: { cnpj: cnpj },
         async: false,
         success: function (response) {
@@ -435,7 +434,7 @@ btsalvar.addEventListener("click", function (event) {
 
         $.ajax({
             type: 'POST',
-            url: '/Cliente/Gravar',
+            url: '/Representacao/Gravar',
             data: form,
             contentType: false,
             processData: false,

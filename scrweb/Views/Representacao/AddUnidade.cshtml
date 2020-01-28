@@ -1,17 +1,17 @@
 @{
-    ViewBag.Title = "Detalhes da Representação";
+    ViewBag.Title = "Adicionar Unidade";
     Layout = "_Layout";
 }
 
 @section Scripts{ 
     <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-    <script type="text/javascript" src="~/js/gerenciar/representacao/detalhes.js" asp-append-version="true"></script>
+    <script type="text/javascript" src="~/js/gerenciar/representacao/addunidade.js" asp-append-version="true"></script>
 }
 
 <!-- Card titulo pagina -->
 <div class="card-title">
     <div class="card-title-container" style="text-align: center;">
-        <h4><b>SCR - Detalhes da Representação</b></h4>
+        <h4><b>SCR - Adicionar Unidade da Representação</b></h4>
     </div>
 </div>
 <!-- Fim card titulo pagina -->
@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <label for="txRazaoSocial">Razão Social (Obrigatório):</label>
-                <input type="text" id="txRazaoSocial" class="form-control input-sm" style="width: 100%;" />
+                <input type="text" id="txRazaoSocial" class="form-control input-sm" style="width: 100%;" readonly="readonly" />
                 <span id="msRazaoSocial" class="label label-danger hidden"></span>
             </div>
         </div>
@@ -30,13 +30,13 @@
         <div class="row">
             <div class="col-sm-9">
                 <label for="txNomeFantasia">Nome Fantasia (Obrigatório):</label>
-                <input type="text" id="txNomeFantasia" class="form-control input-sm" style="width: 100%;" />
+                <input type="text" id="txNomeFantasia" class="form-control input-sm" style="width: 100%;" readonly="readonly" />
                 <span id="msNomeFantasia" class="label label-danger hidden"></span>
             </div>
 
             <div class="col-sm-3">
                 <label for="txCnpj">CNPJ (Obrigatório):</label>
-                <input type="text" id="txCnpj" class="form-control input-sm" style="width: 100%;" />
+                <input type="text" id="txCnpj" class="form-control input-sm" style="width: 100%;" readonly="readonly" />
                 <span id="msCnpj" class="label label-danger hidden"></span>
             </div>
         </div>

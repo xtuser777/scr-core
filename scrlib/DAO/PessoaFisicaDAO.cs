@@ -32,12 +32,8 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@id", id);
             
             var dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return GetObject(dt.Rows[0]);
-            }
-
-            return null;
+            
+            return (dt != null && dt.Rows.Count > 0) ? GetObject(dt.Rows[0]) : null;
         }
 
         internal int CountCpf(string cpf)
@@ -54,8 +50,8 @@ namespace scrlib.DAO
         internal int Gravar(PessoaFisica p)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"insert into pessoa_fisica(id,nome,rg,cpf,nascimento,tipo,telefone,celular,email,endereco) 
-            values ((select count(id)+1 from pessoa),@nome,@rg,@cpf,@nascimento,@tipo,@telefone,@celular,@email,@endereco) returning id;";
+            ComandoSQL.CommandText = @"insert into pessoa_fisica(nome,rg,cpf,nascimento,tipo,telefone,celular,email,endereco) 
+            values (@nome,@rg,@cpf,@nascimento,@tipo,@telefone,@celular,@email,@endereco) returning id;";
             ComandoSQL.Parameters.AddWithValue("@nome", p.Nome);
             ComandoSQL.Parameters.AddWithValue("@rg", p.Rg);
             ComandoSQL.Parameters.AddWithValue("@cpf", p.Cpf);
@@ -66,14 +62,9 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@email", p.Email);
             ComandoSQL.Parameters.AddWithValue("@endereco", p.Endereco);
             
-            DataTable dt = ExecutaSelect();
+            var dt = ExecutaSelect();
             
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return Convert.ToInt32(dt.Rows[0]["id"]);
-            }
-            
-            return -1;
+            return (dt != null && dt.Rows.Count > 0) ? Convert.ToInt32(dt.Rows[0]["id"]) : -1;
         }
 
         internal int Alterar(PessoaFisica p)

@@ -24,33 +24,22 @@ namespace scrlib.DAO
 
         private List<Usuario> GetList(DataTable dt)
         {
-            List<Usuario> usuarios = new List<Usuario>();
-            foreach (DataRow row in dt.Rows)
-            {
-                usuarios.Add(GetObject(row));
-            }
-            return usuarios;
+            return (from DataRow row in dt.Rows select GetObject(row)).ToList();
         }
 
         internal Usuario GetById(int id)
         {
-            Usuario usuario = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
-                                        from usuario 
-                                        where id = @id;";
+            ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo from usuario  where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                usuario = GetObject(dt.Rows[0]);
-            }
-            return usuario;
+            
+            var dt = ExecutaSelect();
+            
+            return (dt != null && dt.Rows.Count > 0) ? GetObject(dt.Rows[0]) : null;
         }
 
         internal Usuario Autenticar(string login, string senha)
         {
-            Usuario usuario = null;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
                                         from usuario 
@@ -59,51 +48,42 @@ namespace scrlib.DAO
                                         and ativo = true;";
             ComandoSQL.Parameters.AddWithValue("@login", login);
             ComandoSQL.Parameters.AddWithValue("@senha", senha);
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                usuario = GetObject(dt.Rows[0]);
-            }
-            return usuario;
+            
+            var dt = ExecutaSelect();
+            
+            return (dt != null && dt.Rows.Count > 0) ? GetObject(dt.Rows[0]) : null;
         }
 
         internal List<Usuario> Get()
         {
-            List<Usuario> usuarios = null;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"select id,login,senha,funcionario,nivel,ativo 
                                         from usuario
                                         order by id;";
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                usuarios = GetList(dt);
-            }
-            return usuarios;
+            
+            var dt = ExecutaSelect();
+            
+            return (dt != null && dt.Rows.Count > 0) ?  GetList(dt) : null;
         }
 
         internal int Gravar(Usuario u)
         {
-            int res = -1;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"insert into usuario(id,login,senha,funcionario,nivel,ativo) 
-                                        values((select count(id)+1 from usuario),@login,@senha,@funcionario,@nivel,@ativo) returning id;";
+            ComandoSQL.CommandText = @"insert into usuario(login,senha,funcionario,nivel,ativo) 
+                                        values(@login,@senha,@funcionario,@nivel,@ativo) returning id;";
             ComandoSQL.Parameters.AddWithValue("@login", u.Login);
             ComandoSQL.Parameters.AddWithValue("@senha", u.Senha);
             ComandoSQL.Parameters.AddWithValue("@funcionario", u.Funcionario);
             ComandoSQL.Parameters.AddWithValue("@nivel", u.Nivel);
             ComandoSQL.Parameters.AddWithValue("@ativo", u.Ativo);
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                res = Convert.ToInt32(dt.Rows[0]["id"]);
-            }
-            return res;
+            
+            var dt = ExecutaSelect();
+            
+            return (dt != null && dt.Rows.Count > 0) ? Convert.ToInt32(dt.Rows[0]["id"]) : -10;
         }
 
         internal int Alterar(Usuario u)
         {
-            int res = -1;
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"update usuario 
                                         set login = @login,
@@ -118,8 +98,8 @@ namespace scrlib.DAO
             ComandoSQL.Parameters.AddWithValue("@nivel", u.Nivel);
             ComandoSQL.Parameters.AddWithValue("@ativo", u.Ativo);
             ComandoSQL.Parameters.AddWithValue("@id", u.Id);
-            res = ExecutaComando();
-            return res;
+
+            return ExecutaComando();
         }
 
         internal int LoginCount(string login)

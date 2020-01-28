@@ -40,21 +40,6 @@ namespace scrlib.Models
             return id > 0 ? new ClienteDAO().GetById(id) : null;
         }
 
-        internal List<Cliente> GetByFilter(string chave)
-        {
-            return !string.IsNullOrEmpty(chave) ? new ClienteDAO().GetByFilter(chave) : null;
-        }
-
-        internal List<Cliente> GetByCad(DateTime cadastro)
-        {
-            return new ClienteDAO().GetByCad(cadastro);
-        }
-
-        internal List<Cliente> GetByFilterCad(string chave, DateTime cadastro)
-        {
-            return !string.IsNullOrEmpty(chave) ? new ClienteDAO().GetByFilterAndCad(chave, cadastro) : null;
-        }
-
         internal List<Cliente> GetAll()
         {
             return new ClienteDAO().GetAll();

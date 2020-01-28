@@ -38,6 +38,7 @@ namespace scrweb.Controllers
             return Json(_clientes);
         }
 
+        [HttpPost]
         public JsonResult ObterPorChave(string chave)
         {
             var filtrado = _clientes.FindAll(cli => cli.Tipo == 1
@@ -50,6 +51,7 @@ namespace scrweb.Controllers
             return Json(filtrado);
         }
 
+        [HttpPost]
         public JsonResult ObterPorCadastro(string cad)
         {
             var filtrado = _clientes.FindAll(cli => cli.Cadastro.ToString("yyyy-MM-dd") == cad);
@@ -57,6 +59,7 @@ namespace scrweb.Controllers
             return Json(filtrado);
         }
 
+        [HttpPost]
         public JsonResult ObterPorChaveCad(string chave, string cad)
         {
             var filtrado = _clientes.FindAll(cli => cli.Tipo == 1

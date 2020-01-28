@@ -1,5 +1,6 @@
 var btFiltrar = document.getElementById('btFiltrar');
 var btVoltar = document.getElementById('btVoltar');
+var btAddUnid = document.getElementById('btAddUnid');
 var btExcluir = document.getElementById("btExcluir");
 var btDetalhes = document.getElementById('btDetalhes');
 var btNovo = document.getElementById('btNovo');
@@ -169,6 +170,35 @@ btVoltar.addEventListener("click", function (event) {
     window.location.href = '../../inicio/index';
 });
 
+btAddUnid.addEventListener("click", function (event) {
+    var selecionados = tbRepresentacoes.getElementsByClassName("selecionado");
+    var selecionado = selecionados[0];
+    if (selecionado != null && selecionado !== "") {
+        selecionado = selecionado.getElementsByTagName("td");
+        var id = selecionado[0].innerHTML;
+
+        $.ajax({
+            type: 'POST',
+            url: '/Representacao/Enviar',
+            data: {id: id},
+            async: false,
+            success: function (response) {
+                if (response.length > 0) {
+                    alert(response);
+                } else {
+                    window.location.href = "../../gerenciar/representacao/addunidade";
+                }
+            },
+            erros: function (XMLHttpRequest, txtStatus, errorThrown) {
+                alert("Status: " + txtStatus);
+                alert("Error: " + errorThrown);
+            }
+        })
+    } else {
+        alert("Selecione pelo menos uma Representação!");
+    }
+});
+
 btExcluir.addEventListener("click", function (event) {
     var selecionados = tbRepresentacoes.getElementsByClassName("selecionado");
     var selecionado = selecionados[0];
@@ -220,7 +250,24 @@ btDetalhes.addEventListener("click", function (event) {
     if (selecionado != null && selecionado !== "") {
         selecionado = selecionado.getElementsByTagName("td");
         var id = selecionado[0].innerHTML;
-        window.location.href = "../../Representacoes/Detalhes/"+id;
+        
+        $.ajax({
+            type: 'POST',
+            url: '/Representacao/Enviar',
+            data: {id: id},
+            async: false,
+            success: function (response) {
+                if (response.length > 0) {
+                    mostraDialogo(
+                        "Ocorreu um problema ao enviar as informações da representação...",
+                        "danger",
+                        2000
+                    );
+                } else {
+                    window.location.href = "../../gerenciar/representacao/detalhes";
+                }
+            }
+        })
     } else {
         alert("Selecione pelo menos uma Representação!");
     }

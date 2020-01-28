@@ -31,10 +31,6 @@ var msEmail = document.getElementById("msEmail");
 var lista_estados = [];
 var lista_cidades = [];
 var erros = 0;
-var cnpj_atual = "";
-var idendereco = 0;
-var idpessoa = 0;
-var idrepresentacao = 0;
 
 function limparEstados() {
     for (var i = cbestado.childElementCount - 1; i > 0; i--) {
@@ -48,7 +44,7 @@ function carregarCidades() {
 
     $.ajax({
         type: 'POST',
-        url: '/Cliente/ObterCidades',
+        url: '/Representacao/ObterCidades',
         data: form,
         contentType: false,
         processData: false,
@@ -68,7 +64,7 @@ function carregarCidades() {
     if (lista_cidades !== "") {
         for (var i = 0; i < lista_cidades.length; i++) {
             var option = document.createElement("option");
-            option.value = lista_cidades[i].id; 
+            option.value = lista_cidades[i].id;
             option.text = lista_cidades[i].nome;
             cbcidade.appendChild(option);
         }
@@ -123,7 +119,7 @@ $(document).ready(function () {
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
             var option = document.createElement("option");
-            option.value = lista_estados[i].id; 
+            option.value = lista_estados[i].id;
             option.text = lista_estados[i].nome;
             cbestado.appendChild(option);
         }
@@ -131,32 +127,13 @@ $(document).ready(function () {
 
     var response = get("/Representacao/ObterDetalhes");
     if (response != null && response !== "") {
-        idendereco = response.pessoa.endereco.id;
-        idpessoa = response.pessoa.id;
-        idrepresentacao = response.id;
-        
         txrazaosocial.value = response.pessoa.razaoSocial;
         txnomefantasia.value = response.pessoa.nomeFantasia;
         txcnpj.value = response.pessoa.cnpj;
-        cnpj_atual = response.pessoa.cnpj;
-        txrua.value = response.pessoa.endereco.rua;
-        txnumero.value = response.pessoa.endereco.numero;
-        txbairro.value = response.pessoa.endereco.bairro;
-        txcomplemento.value = response.pessoa.endereco.complemento;
-        txcep.value = response.pessoa.endereco.cep;
-        cbestado.value = response.pessoa.endereco.cidade.estado.id;
-        carregarCidades();
-        cbcidade.value = response.pessoa.endereco.cidade.id;
-        txtel.value = response.pessoa.telefone;
-        txcel.value = response.pessoa.celular;
-        txemail.value = response.pessoa.email;
     }
 });
 
 function limparCampos() {
-    txrazaosocial.value = "";
-    txnomefantasia.value = "";
-    txcnpj.value = "";
     txrua.value = "";
     txnumero.value = "";
     txbairro.value = "";
@@ -173,32 +150,6 @@ btvoltar.addEventListener("click", function (event) {
     limparCampos();
     window.location.href = "../../gerenciar/representacao/index";
 });
-
-function verificarCnpj(cnpj) {
-    $.ajax({
-        type: 'POST',
-        url: '/Representacao/VerificarCnpj',
-        data: { cnpj: cnpj },
-        async: false,
-        success: function (response) {
-            if (response === true && cpf !== cpf_atual) {
-                erros++;
-                msCnpj.innerHTML = "O CNPJ informado já existe no cadastro...";
-                msCnpj.classList.remove("hidden");
-            } else {
-                if (msCnpj.classList.contains("hidden") === false) { msCnpj.classList.add("hidden"); }
-            }
-        },
-        error: function () {
-            mostraDialogo(
-                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
-                "<br/>Um problema no servidor impediu sua comunicação...",
-                "danger",
-                2000
-            );
-        }
-    });
-}
 
 function validarCNPJ(cnpj) {
 
@@ -324,7 +275,7 @@ btsalvar.addEventListener("click", function (event) {
         msCnpj.innerHTML = "O CNPJ informado é inválido...";
         msCnpj.classList.remove("hidden");
     } else {
-        verificarCnpj(cnpj);
+        if (msCnpj.classList.contains("hidden") === false) { msCnpj.classList.add("hidden"); }
     }
 
     if (rua.length === 0) {
@@ -439,9 +390,6 @@ btsalvar.addEventListener("click", function (event) {
 
     if (erros === 0) {
         var form = new FormData();
-        form.append("endereco", idendereco);
-        form.append("pessoa", idpessoa);
-        form.append("representacao", idrepresentacao);
         form.append("razaosocial", razaosocial);
         form.append("nomefantasia", nomefantasia);
         form.append("cnpj", cnpj);
@@ -457,7 +405,7 @@ btsalvar.addEventListener("click", function (event) {
 
         $.ajax({
             type: 'POST',
-            url: '/Representacao/Alterar',
+            url: '/Representacao/Gravar',
             data: form,
             contentType: false,
             processData: false,
@@ -470,10 +418,9 @@ btsalvar.addEventListener("click", function (event) {
                         2000
                     );
                 } else {
-                    cnpj_atual = cnpj;
                     mostraDialogo(
-                        "<strong>Alteração realizada com sucesso!</strong>" +
-                        "<br />A alteração feita nos campos do cliente foram salvos com sucesso!",
+                        "<strong>Unidade adicionada com sucesso!</strong>" +
+                        "<br />A nova unidade foi salva com sucesso!",
                         "success",
                         2000
                     );
