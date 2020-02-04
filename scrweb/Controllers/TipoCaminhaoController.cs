@@ -123,13 +123,10 @@ namespace scrweb.Controllers
             {
                 case -10:
                     return Json("Um problema foi detectado ao executar o comando SQL.");
-                    break;
                 case -5:
                     return Json("Um ou mais campos inválidos...");
-                    break;
                 default:
                     return Json("");
-                    break;
             }
         }
 

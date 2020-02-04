@@ -1,11 +1,399 @@
-@{
-    ViewBag.Title = "Nova Representação";
-    Layout = "_Layout";
-}
+@{ ViewBag.Title = "Nova Representação"; Layout = "_Layout"; }
 
-@section Scripts{ 
+@section Scripts
+{ 
     <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
-    <script type="text/javascript" src="~/js/gerenciar/representacao/novo.js" asp-append-version="true"></script>
+    <script type="text/javascript">
+        var cbestado = document.getElementById("cbestado");
+        var cbcidade = document.getElementById("cbcidade");
+        
+        var lista_estados = [];
+        var lista_cidades = [];
+        var erros = 0;
+        
+        function limparEstados() {
+            for (var i = cbestado.childElementCount - 1; i > 0; i--) {
+                cbestado.children.item(i).remove();
+            }
+        }
+        
+        function carregarCidades() {
+            var form = new FormData();
+            form.append("estado", cbestado.value);
+        
+            $.ajax({
+                type: 'POST',
+                url: '/Representacao/ObterCidades',
+                data: form,
+                contentType: false,
+                processData: false,
+                async: false,
+                success: function (response) {lista_cidades = response;},
+                error: function (err) {
+                    mostraDialogo(
+                        "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                        "<br/>Um problema no servidor impediu sua comunicação...",
+                        "danger",
+                        2000
+                    );
+                }
+            });
+        
+            limparCidades();
+            if (lista_cidades !== "") {
+                for (var i = 0; i < lista_cidades.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = lista_cidades[i].id; 
+                    option.text = lista_cidades[i].nome;
+                    cbcidade.appendChild(option);
+                }
+            }
+        }
+        
+        function onCbEstadoChange() {
+            if (cbestado.value === "0") {
+                limparCidades();
+                cbcidade.disabled = true;
+            } else {
+                carregarCidades();
+                cbcidade.disabled = false;
+            }
+        }
+        
+        function limparCidades() {
+            for (var i = cbcidade.childElementCount - 1; i > 0; i--) {
+                cbcidade.children.item(i).remove();
+            }
+        }
+        
+        function get(url_i) {
+            let res;
+            $.ajax({
+                type: 'GET',
+                url: url_i,
+                async: false,
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function (result) {res = result;},
+                error: function (err) {
+                    mostraDialogo(
+                        "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                        "<br/>Um problema no servidor impediu sua comunicação...",
+                        "danger",
+                        2000
+                    );
+                }
+            });
+            return res;
+        }
+        
+        $(document).ready(function () {
+            $("#cnpj").mask('00.000.000/0000-00', {reverse: false});
+            $("#cep").mask('00.000-000', {reverse: false});
+            $("#tel").mask('(00) 0000-0000', {reverse: false});
+            $("#cel").mask('(00) 00000-0000', {reverse: false});
+        
+            lista_estados = get('/Representacao/ObterEstados');
+            limparEstados();
+            if (lista_estados !== "") {
+                for (var i = 0; i < lista_estados.length; i++) {
+                    var option = document.createElement("option");
+                    option.value = lista_estados[i].id;
+                    option.text = lista_estados[i].nome;
+                    cbestado.appendChild(option);
+                }
+            }
+            
+            cbcidade.disabled = true;
+        });
+        
+        function limparCampos() {
+            $("#razao_social").val("");
+            $("#nome_fantasia").val("");
+            $("#cnpj").val("");
+            $("#rua").val("");
+            $("#numero").val("");
+            $("#bairro").val("");
+            $("#complemento").val("");
+            $("#cep").val("");
+            cbestado.value = "0";
+            cbcidade.value = "0";
+            $("#tel").val("");
+            $("#cel").val("");
+            $("#email").val("");
+        }
+        
+        function verificarCnpj(cnpj) {
+            $.ajax({
+                type: 'POST',
+                url: '/Representacao/VerificarCnpj',
+                data: { cnpj: cnpj },
+                async: false,
+                success: function (response) {
+                    if (response === true) {
+                        erros++;
+                        $("#mscnpj").html('<span class="label label-danger">O CNPJ informado já existe no cadastro...</span>');
+                    } else {
+                        $("#mscnpj").html('');
+                    }
+                },
+                error: function () {
+                    mostraDialogo(
+                        "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                        "<br/>Um problema no servidor impediu sua comunicação...",
+                        "danger",
+                        2000
+                    );
+                }
+            });
+        }
+        
+        function validarCNPJ(cnpj) {
+        
+            cnpj = cnpj.replace(/[^\d]+/g,'');
+        
+            if(cnpj === '') return false;
+        
+            if (cnpj.length !== 14)
+                return false;
+        
+            // Elimina CNPJs invalidos conhecidos
+            if (cnpj === "00000000000000" ||
+                cnpj === "11111111111111" ||
+                cnpj === "22222222222222" ||
+                cnpj === "33333333333333" ||
+                cnpj === "44444444444444" ||
+                cnpj === "55555555555555" ||
+                cnpj === "66666666666666" ||
+                cnpj === "77777777777777" ||
+                cnpj === "88888888888888" ||
+                cnpj === "99999999999999")
+                return false;
+        
+            // Valida DVs
+            tamanho = cnpj.length - 2;
+            numeros = cnpj.substring(0,tamanho);
+            digitos = cnpj.substring(tamanho);
+            soma = 0;
+            pos = tamanho - 7;
+            for (i = tamanho; i >= 1; i--) {
+                soma += numeros.charAt(tamanho - i) * pos--;
+                if (pos < 2)
+                    pos = 9;
+            }
+            resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+            if (resultado.toString().charAt(0) !== digitos.charAt(0))
+                return false;
+        
+            tamanho = tamanho + 1;
+            numeros = cnpj.substring(0,tamanho);
+            soma = 0;
+            pos = tamanho - 7;
+            for (i = tamanho; i >= 1; i--) {
+                soma += numeros.charAt(tamanho - i) * pos--;
+                if (pos < 2)
+                    pos = 9;
+            }
+            resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
+            if (resultado.toString().charAt(0) !== digitos.charAt(1))
+                return false;
+        
+            return true;
+        }
+        
+        function validacaoEmail(email) {
+            usuario = email.substring(0, email.indexOf("@@"));
+            dominio = email.substring(email.indexOf("@@")+ 1, email.length);
+            if (
+                (usuario.length >=1) &&
+                (dominio.length >=3) &&
+                (usuario.search("@@")===-1) &&
+                (dominio.search("@@")===-1) &&
+                (usuario.search(" ")===-1) &&
+                (dominio.search(" ")===-1) &&
+                (dominio.search(".")!==-1) &&
+                (dominio.indexOf(".") >=1)&&
+                (dominio.lastIndexOf(".") < dominio.length - 1)
+            ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        
+        function gravar() {
+            var razaosocial = $("#razao_social").val();
+            var nomefantasia = $("#nome_fantasia").val();
+            var cnpj = $("#cnpj").val();
+            var rua = $("#rua").val();
+            var numero = $("#numero").val();
+            var bairro = $("#bairro").val();
+            var complemento = $("#complemento").val();
+            var cep = $("#cep").val();
+            let cidade = cbcidade.value;
+            var telefone = $("#tel").val();
+            var celular = $("#cel").val();
+            var email = $("#email").val();
+        
+            if (razaosocial.length === 0) {
+                erros++;
+                $("#msrs").html('<span class="label label-danger">A Razão Social precisa ser preenchida!</span>');
+            } else
+            if (razaosocial.length < 3) {
+                erros++;
+                $("#msrs").html('<span class="label label-danger">A Razão Social informada é inválida...</span>');
+            } else {
+                $("#msrs").html('');
+            }
+        
+            if (nomefantasia.length === 0) {
+                erros++;
+                $("#msnf").html('<span class="label label-danger">O Nome Fantasia precisa ser preenchido!</span>');
+            } else {
+                $("#msnf").html('');
+            }
+        
+            if (cnpj.length === 0) {
+                erros++;
+                $("#mscnpj").html('<span class="label label-danger">O CNPJ precisa ser preenchido!</span>');
+            } else
+            if (!validarCNPJ(cnpj)) {
+                erros++;
+                $("#mscnpj").html('<span class="label label-danger">O CNPJ informado é inválido...</span>');
+            } else {
+                verificarCnpj(cnpj);
+            }
+        
+            if (rua.length === 0) {
+                erros++;
+                $("#msrua").html('<span class="label label-danger">A Rua precisa ser preenchida!</span>');
+            } else {
+                $("#msrua").html('');
+            }
+        
+            if (numero.length === 0) {
+                erros++;
+                $("#msnumero").html('<span class="label label-danger">O Número precisa ser preenchido!</span>');
+            } else {
+                $("#msnumero").html('');
+            }
+        
+            if (bairro.length === 0) {
+                erros++;
+                $("#msbairro").html('<span class="label label-danger">O Bairro precisa ser preenchido!</span>');
+            } else {
+                $("#msbairro").html('');
+            }
+        
+            if (cep.length === 0) {
+                erros++;
+                $("#mscep").html('<span class="label label-danger">O CEP precisa ser preenchido!</span>');
+            } else
+            if (cep.length < 10) {
+                erros++;
+                $("#mscep").html('<span class="label label-danger">O CEP informado é inválido...</span>');
+            } else {
+                $("#mscep").html('');
+            }
+        
+            if (cbestado.value === "0") {
+                erros++;
+                $("#msestado").html('<span class="label label-danger">O Estado precisa ser selecionado!</span>');
+            } else {
+                $("#msestado").html('');
+            }
+        
+            if (cbcidade.value === "0") {
+                erros++;
+                $("#mscidade").html('<span class="label label-danger">A Cidade precisa ser selecionada!</span>');
+            } else {
+                $("#mscidade").html('');
+            }
+        
+            if (telefone.length === 0) {
+                erros++;
+                $("#mstel").html('<span class="label label-danger">O Telefone precisa ser preenchido!</span>');
+            } else
+            if (telefone.length < 14) {
+                erros++;
+                $("#mstel").html('<span class="label label-danger">O Telefone informado possui tamanho inválido...</span>');
+            } else {
+                $("#mstel").html('');
+            }
+        
+            if (celular.length === 0) {
+                erros++;
+                $("#mscel").html('<span class="label label-danger">O Celular precisa ser preenchido!</span>');
+            } else
+            if (celular.length < 15) {
+                erros++;
+                $("#mscel").html('<span class="label label-danger">O Celular informado possui tamanho inválido...</span>');
+            } else {
+                $("#mscel").html('');
+            }
+        
+            if (email.length === 0) {
+                erros++;
+                $("#msemail").html('<span class="label label-danger">O Email precisa ser preenchido!</span>');
+            } else
+            if (validacaoEmail(email) === false) {
+                erros++;
+                $("#msemail").html('<span class="label label-danger">O Email informado é inválido...</span>');
+            } else {
+                $("#msemail").html('');
+            }
+            
+            if (erros === 0) {
+                var form = new FormData();
+                form.append("razaosocial", razaosocial);
+                form.append("nomefantasia", nomefantasia);
+                form.append("cnpj", cnpj);
+                form.append("rua", rua);
+                form.append("numero", numero);
+                form.append("bairro", bairro);
+                form.append("complemento", complemento);
+                form.append("cep", cep);
+                form.append("cidade", cidade);
+                form.append("telefone", telefone);
+                form.append("celular", celular);
+                form.append("email", email);
+        
+                $.ajax({
+                    type: 'POST',
+                    url: '/Representacao/Gravar',
+                    data: form,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.length > 0) {
+                            mostraDialogo(
+                                "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                                "<br/>"+response,
+                                "danger",
+                                2000
+                            );
+                        } else {
+                            mostraDialogo(
+                                "<strong>Cliente cadastrado com sucesso!</strong>" +
+                                "<br/>O novo cliente foi salvo com sucesso no sistema...",
+                                "success",
+                                2000
+                            );
+                            limparCampos();
+                        }
+                    },
+                    error: function (http, status, thrown) {
+                        mostraDialogo(
+                            "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
+                            "<br/>"+thrown,
+                            "danger",
+                            2000
+                        );
+                    }
+                });
+            }
+        }
+    </script>
 }
 
 <!-- Card titulo pagina -->
@@ -21,23 +409,23 @@
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-12">
-                <label for="txRazaoSocial">Razão Social (Obrigatório):</label>
-                <input type="text" id="txRazaoSocial" class="form-control input-sm" style="width: 100%;" />
-                <span id="msRazaoSocial" class="label label-danger hidden"></span>
+                <label for="razao_social">Razão Social (Obrigatório):</label>
+                <input type="text" id="razao_social" class="form-control input-sm" style="width: 100%;" />
+                <div id="msrs"></div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-9">
-                <label for="txNomeFantasia">Nome Fantasia (Obrigatório):</label>
-                <input type="text" id="txNomeFantasia" class="form-control input-sm" style="width: 100%;" />
-                <span id="msNomeFantasia" class="label label-danger hidden"></span>
+                <label for="nome_fantasia">Nome Fantasia (Obrigatório):</label>
+                <input type="text" id="nome_fantasia" class="form-control input-sm" style="width: 100%;" />
+                <div id="msnf"></div>
             </div>
 
             <div class="col-sm-3">
-                <label for="txCnpj">CNPJ (Obrigatório):</label>
-                <input type="text" id="txCnpj" class="form-control input-sm" style="width: 100%;" />
-                <span id="msCnpj" class="label label-danger hidden"></span>
+                <label for="cnpj">CNPJ (Obrigatório):</label>
+                <input type="text" id="cnpj" class="form-control input-sm" style="width: 100%;" />
+                <div id="mscnpj"></div>
             </div>
         </div>
     </div>
@@ -49,15 +437,15 @@
         <form class="form-inline">
             <div class="row">
                 <div class="col-sm-9">
-                    <label for="txRua">Rua (Obrigatório):</label>
-                    <input type="text" name="txRua" id="txRua" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msRua" class="label label-danger hidden"></span>
+                    <label for="rua">Rua (Obrigatório):</label>
+                    <input type="text" id="rua" class="form-control input-sm" style="width: 100%;" />
+                    <div id="msrua"></div>
                 </div>
 
                 <div class="col-sm-3">
-                    <label for="txNumero">Número (Obrigatório):</label>
-                    <input type="text" name="txNumero" id="txNumero" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msNumero" class="label label-danger hidden"></span>
+                    <label for="numero">Número (Obrigatório):</label>
+                    <input type="text" id="numero" class="form-control input-sm" style="width: 100%;" />
+                    <div id="msnumero"></div>
                 </div>
             </div>
 
@@ -65,25 +453,24 @@
 
             <div class="row">
                 <div class="col-sm-6">
-                    <label for="txBairro">Bairro (Obrigatório):</label>
-                    <input type="text" name="txBairro" id="txBairro" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msBairro" class="label label-danger hidden"></span>
+                    <label for="bairro">Bairro (Obrigatório):</label>
+                    <input type="text" id="bairro" class="form-control input-sm" style="width: 100%;" />
+                    <div id="msbairro"></div>
                 </div>
 
                 <div class="col-sm-6">
-                    <label for="txComplemento">Complemento:</label>
-                    <input type="text" name="txComplemento" id="txComplemento" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msComplemento" class="label label-danger hidden"></span>
+                    <label for="complemento">Complemento:</label>
+                    <input type="text" id="complemento" class="form-control input-sm" style="width: 100%;" />
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-4">
                     <label for="cbestado">Estado (Obrigatório):</label>
-                    <select id="cbestado" class="form-control input-sm" style="width: 100%;">
+                    <select id="cbestado" class="form-control input-sm" style="width: 100%;" onchange="onCbEstadoChange();">
                         <option value="0">SELECIONAR</option>
                     </select>
-                    <span id="msEstado" class="label label-danger hidden"></span>
+                    <div id="msestado"></div>
                 </div>
 
                 <div class="col-sm-5">
@@ -91,42 +478,42 @@
                     <select id="cbcidade" class="form-control input-sm" style="width: 100%;">
                         <option value="0">SELECIONAR</option>
                     </select>
-                    <span id="msCidade" class="label label-danger hidden"></span>
+                    <div id="mscidade"></div>
                 </div>
 
                 <div class="col-sm-3">
-                    <label for="txCep">CEP (Obrigatório):</label>
-                    <input type="text" name="txCep" id="txCep" class="form-control input-sm" style="width: 100%;" />
-                    <span id="msCep" class="label label-danger hidden"></span>
+                    <label for="cep">CEP (Obrigatório):</label>
+                    <input type="text" id="cep" class="form-control input-sm" style="width: 100%;" />
+                    <div id="mscep"></div>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-3">
-                    <label for="txTel">Telefone (Obrigatório):</label>
+                    <label for="tel">Telefone (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span></div>
-                        <input type="text" id="txTel" class="form-control input-sm" />
+                        <input type="text" id="tel" class="form-control input-sm" />
                     </div>
-                    <span id="msTelefone" class="label label-danger hidden"></span>
+                    <div id="mstel"></div>
                 </div>
 
                 <div class="col-sm-3">
-                    <label for="txCel">Celular (Obrigatório):</label>
+                    <label for="cel">Celular (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></div>
-                        <input type="text" id="txCel" class="form-control input-sm" />
+                        <input type="text" id="cel" class="form-control input-sm" />
                     </div>
-                    <span id="msCelular" class="label label-danger hidden"></span>
+                    <div id="mscel"></div>
                 </div>
 
                 <div class="col-sm-6">
-                    <label for="txEmail">E-Mail (Obrigatório):</label>
+                    <label for="email">E-Mail (Obrigatório):</label>
                     <div class="input-group" style="width: 100%;">
                         <div class="input-group-addon">@@</div>
-                        <input type="text" id="txEmail" class="form-control input-sm" />
+                        <input type="text" id="email" class="form-control input-sm" />
                     </div>
-                    <span id="msEmail" class="label label-danger hidden"></span>
+                    <div id="msemail"></div>
                 </div>
             </div>
         </form>
@@ -135,17 +522,17 @@
 
 <div class="row">
     <div class="col-sm-2">
-        <button id="btVoltar" class="btn btn-default" style="width: 100%;">VOLTAR</button>
+        <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/gerenciar/representacao/index">VOLTAR</a>
     </div>
 
     <div class="col-sm-6"></div>
 
     <div class="col-sm-2">
-        <button id="btLimpar" class="btn btn-primary" style="width: 100%;">LIMPAR</button>
+        <button id="limpar" class="btn btn-primary" style="width: 100%;" onclick="limparCampos();">LIMPAR</button>
     </div>
 
     <div class="col-sm-2">
-        <button id="btSalvar" class="btn btn-success" style="width: 100%;">SALVAR</button>
+        <button id="salvar" class="btn btn-success" style="width: 100%;" onclick="gravar();">SALVAR</button>
     </div>
 </div>
 

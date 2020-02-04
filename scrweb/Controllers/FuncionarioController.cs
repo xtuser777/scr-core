@@ -13,6 +13,11 @@ namespace scrweb.Controllers
     public class FuncionarioController : Controller
     {
         private static List<UsuarioViewModel> _funcs;
+
+        public FuncionarioController()
+        {
+            _funcs = new UsuarioController().Get();
+        }
         
         public IActionResult Index()
         {
@@ -24,11 +29,17 @@ namespace scrweb.Controllers
             return View();
         }
 
-        public IActionResult Detalhes(int id)
+        public IActionResult Detalhes()
         {
-            HttpContext.Session.SetString("idfunc", id.ToString());
-            
             return View();
+        }
+        
+        [HttpPost]
+        public JsonResult Enviar(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return Json("Parâmetro inválido...");
+            HttpContext.Session.SetString("idfunc", id);
+            return Json("");
         }
 
         public ActionResult Dados()
@@ -38,7 +49,6 @@ namespace scrweb.Controllers
 
         public JsonResult Obter()
         {
-            _funcs = new UsuarioController().Get();
             return Json(_funcs);
         }
 

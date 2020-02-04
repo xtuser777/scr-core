@@ -244,14 +244,12 @@
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-6">
-                <div class="col-sm-4">
-                    <label for="filtro">Filtro:</label>
+                <label for="filtro">Filtro:</label>
                 <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por descrição..." />
             </div>
                 
             <div class="col-sm-4">
-                <div class="col-sm-6">
-                    <label for="representacao">Representação:</label>
+                <label for="representacao">Representação:</label>
                 <select id="representacao" class="form-control input-sm">
                     <option value="0">SELECIONE</option>
                     @foreach (var rep in (List<RepresentacaoViewModel>) ViewBag.Representacoes)

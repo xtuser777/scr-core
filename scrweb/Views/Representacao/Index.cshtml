@@ -5,7 +5,199 @@
 
 @section Scripts {
     <script type="text/javascript" src="~/lib/bootbox/bootbox.min.js"></script>
-    <script type="text/javascript" src="~/js/gerenciar/representacao/index.js"></script>
+    <script type="text/javascript">
+        function ordenarRepresentacoes() {
+            var ord = $("#cbord").val();
+            
+            $.ajax({
+                type: 'POST',
+                url: '/Representacao/Ordenar',
+                async: false,
+                data: { col : ord },
+                success: function (response) { preencherTabela(response); },
+                error: function () { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
+            });
+        }
+        
+        function preencherTabela(dados) {
+            var txt = "";
+            $.each(dados, function () {
+                txt += 
+                    '<tr>\
+                        <td class="hidden">' + this.id + '</td>\
+                        <td>' + this.pessoa.nomeFantasia + '</td>\
+                        <td>' + this.pessoa.cnpj + '</td>\
+                        <td>' + FormatarData(this.cadastro) + '</td>\
+                        <td>' + this.unidade + '</td>\
+                        <td>'+ this.pessoa.email +'</td>\
+                        <td><a role="button" class="glyphicon glyphicon-plus" data-toggle="tooltip" data-placement="top" title="ADICIONAR UNIDADE" href="javascript:adicionarUnidade('+ this.id +')"></a></td>\
+                        <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
+                        <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
+                    </tr>';
+            });
+            $("#tbody_representacoes").html(txt);
+        }
+        
+        function get(url_i) {
+            let res;
+            $.ajax({
+                type: 'GET',
+                url: url_i,
+                async: false,
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function (result) {res = result;},
+                error: function (err) {alert(err.d);}
+            });
+            return res;
+        }
+        
+        function obterRepresentacoes() {
+            var data = get("/Representacao/Obter");
+            preencherTabela(data);
+        }
+        
+        $(document).ready(function(event) {
+            obterRepresentacoes();
+        });
+        
+        function filtrarRepresentacoes() {
+            var filtro = $("#filtro").val();
+            var cadastro = $("#filtro_cad").val();
+        
+            if (filtro === "" && cadastro === "") {
+                obterRepresentacoes();
+            } else {
+                if (filtro !== "" && cadastro !== "") {
+                    $.ajax({
+                        type: 'POST',
+                        url: '/Representacao/ObterPorChaveCad',
+                        data: { chave: filtro, cad: cadastro },
+                        success: function (response) {
+                            if (response != null && response !== ""){
+                                preencherTabela(response);
+                            }
+                        },
+                        error: function () {
+                            alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                        }
+                    });
+                } else {
+                    if (filtro !== "") {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/Representacao/ObterPorChave',
+                            data: { chave: filtro },
+                            success: function (response) {
+                                if (response != null && response !== ""){
+                                    preencherTabela(response);
+                                }
+                            },
+                            error: function () {
+                                alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                            }
+                        });
+                    } else {
+                        if (cadastro !== ""){
+                            $.ajax({
+                                type: 'POST',
+                                url: '/Representacao/ObterPorCadastro',
+                                data: { cad: cadastro },
+                                success: function (response) {
+                                    if (response != null && response !== ""){
+                                        preencherTabela(response);
+                                    }
+                                },
+                                error: function () {
+                                    alert("Ocorreu um erro ao comunicar-se com o servidor...");
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+        
+        function adicionarUnidade(id) {
+            $.ajax({
+                type: 'POST',
+                url: '/Representacao/Enviar',
+                data: {id: id},
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        alert(response);
+                    } else {
+                        window.location.href = "../../gerenciar/representacao/addunidade";
+                    }
+                },
+                erros: function (XMLHttpRequest, txtStatus, errorThrown) {
+                    alert("Status: " + txtStatus);
+                    alert("Error: " + errorThrown);
+                }
+            });
+        }
+        
+        function excluir(id) {
+            bootbox.confirm({
+                message: "Confirma a exclusão desta representação?",
+                buttons: {
+                    confirm: {
+                        label: 'Sim',
+                        className: 'btn-success'
+                    },
+                    cancel: {
+                        label: 'Não',
+                        className: 'btn-danger'
+                    }
+                },
+                callback: function (result) {
+                    if (result) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '/Representacao/Excluir',
+                            data: {id: id},
+                            success: function (result) {
+                                if (result.length > 0) {
+                                    mostraDialogo(
+                                        "<strong>"+result+"</strong>",
+                                        "danger",
+                                        2000
+                                    );
+                                } else {
+                                    obterRepresentacoes();
+                                }
+                            },
+                            error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                                alert("Status: " + txtStatus);
+                                alert("Error: " + errorThrown);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+        
+        function alterar(id) {
+            $.ajax({
+                type: 'POST',
+                url: '/Representacao/Enviar',
+                data: {id: id},
+                async: false,
+                success: function (response) {
+                    if (response.length > 0) {
+                        mostraDialogo(
+                            "Ocorreu um problema ao enviar as informações da representação...",
+                            "danger",
+                            2000
+                        );
+                    } else {
+                        window.location.href = "../../gerenciar/representacao/detalhes";
+                    }
+                }
+            });
+        }
+    </script>
 }
 
 <!-- Card titulo pagina -->
@@ -24,18 +216,18 @@
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-8">
-                <label for="txFiltro">Filtro:</label>
-                <input type="text" id="txFiltro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por nome e email..." />
+                <label for="filtro">Filtro:</label>
+                <input type="text" id="filtro" class="form-control input-sm" style="width: 100%;" placeholder="Filtrar por nome e email..." />
             </div>
             
             <div class="col-sm-2">
-                <label for="dtFiltroCad">Filtro Cadastro:</label>
-                <input type="date" id="dtFiltroCad" class="form-control input-sm" style="width: 100%;" />
+                <label for="filtro_cad">Filtro Cadastro:</label>
+                <input type="date" id="filtro_cad" class="form-control input-sm" style="width: 100%;" />
             </div>
 
             <div class="col-sm-2">
-                <label for="btFiltrar">&nbsp;</label>
-                <button id="btFiltrar" class="btn btn-primary btn-sm" style="width: 100%;">FILTRAR</button>
+                <label for="filtrar">&nbsp;</label>
+                <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrarRepresentacoes();">FILTRAR</button>
             </div>
         </div>
     </div>
@@ -46,9 +238,9 @@
 
     <div class="fieldset-card-container">
         <div class="row" style="margin-bottom: 10px;">
-            <div class="col-sm-12">
+            <div class="col-sm-10">
                 <label for="cbord">Ordenar por:</label>
-                <select id="cbord" class="form-control input-sm">
+                <select id="cbord" class="form-control input-sm" onchange="ordenarRepresentacoes();">
                     <option value="1">REGISTRO (CRESCENTE)</option>
                     <option value="2">REGISTRO (DECRESCENTE)</option>
                     <option value="3">NOME FANTASIA (CRESCENTE)</option>
@@ -63,9 +255,14 @@
                     <option value="12">EMAIL (DECRESCENTE)</option>
                 </select>
             </div>
+            
+            <div class="col-sm-2">
+                <label for="novo">&nbsp;</label>
+                <a role="button" id="novo" class="btn btn-success" style="width: 100%;" href="/gerenciar/representacao/novo">NOVO</a>
+            </div>
         </div>
         
-        <table id="tbRepresentacoes" class="table table-responsive" style="width: 100%;">
+        <table id="table_representacoes" class="table table-responsive" style="width: 100%;">
             <thead>
             <tr>
                 <th class="hidden">ID</th>
@@ -74,37 +271,14 @@
                 <th style="width: 10%;">CADASTRO</th>
                 <th style="width: 20%;">UNIDADE</th>
                 <th>EMAIL</th>
+                <th style="width: 2%;"></th>
+                <th style="width: 2%;"></th>
+                <th style="width: 2%;"></th>
             </tr>
             </thead>
         
-            <tbody id="tbRepresentacoesBody">
+            <tbody id="tbody_representacoes">
             </tbody>
         </table>
-    </div>
-</div>
-
-<div class="panel-actions">
-    <div class="row">
-        <div class="col-sm-2">
-            <button id="btVoltar" class="btn btn-default btn-sm" style="width: 100%;">VOLTAR</button>
-        </div>
-        
-        <div class="col-sm-2"></div>
-        
-        <div class="col-sm-2">
-            <button id="btAddUnid" class="btn btn-primary btn-sm" style="width: 100%;">ADD UNIDADE</button>
-        </div>
-
-        <div class="col-sm-2">
-            <button id="btExcluir" class="btn btn-danger btn-sm" style="width: 100%;">EXCLUIR</button>
-        </div>
-
-        <div class="col-sm-2">
-            <button id="btDetalhes" class="btn btn-info btn-sm" style="width: 100%;">DETALHES</button>
-        </div>
-
-        <div class="col-sm-2">
-            <button id="btNovo" class="btn btn-success btn-sm" style="width: 100%;">NOVO</button>
-        </div>
     </div>
 </div>
