@@ -215,7 +215,7 @@ namespace scrlib.DAO
             {
                 retorno = Convert.ToDouble(_comandoSQL.ExecuteScalar());
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 retorno = -9999;
                 //throw new Exception("Erro ao executar o comando SQL: ", ex);

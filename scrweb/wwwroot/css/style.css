@@ -16,7 +16,7 @@ table tr.selecionado td {
 }
 
 label {
-    font-size: 10pt;
+    font-size: 9pt;
 }
 
 .dropdown:hover {
@@ -88,10 +88,21 @@ label {
 }
 
 .fieldset-card-legend {
-    font-size: 9pt;
+    font-size: 10pt;
     font-weight: bold;
+    width: 380px;
+    text-align: center;
     margin:0 auto;
     margin-bottom: 7px;
+}
+
+.fieldset-card-legend-obg {
+    font-size: 8pt;
+    color: red;
+    width: 380px;
+    text-align: center;
+    margin: 0 auto;
+    margin-top: 8px;
 }
 
 .table-container {

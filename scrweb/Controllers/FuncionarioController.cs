@@ -103,22 +103,19 @@ namespace scrweb.Controllers
 
         public JsonResult ObterEstados()
         {
-            var estados = new EstadoController().Get();
-            return Json(estados);
+            return Json(new EstadoController().Get());
         }
 
         [HttpPost]
         public JsonResult ObterCidades(IFormCollection form)
         {
-            var cidades = new CidadeController().GetByEstado(Convert.ToInt32(form["estado"]));
-            return Json(cidades);
+            return Json(new CidadeController().GetByEstado(Convert.ToInt32(form["estado"])));
         }
 
         [HttpGet]
         public JsonResult ObterNiveis()
         {
-            var niveis = new NivelController().Get();
-            return Json(niveis);
+            return Json(new NivelController().Get());
         }
 
         [HttpPost]
@@ -457,12 +454,18 @@ namespace scrweb.Controllers
         public JsonResult Excluir(int id)
         {
             var res = 0;
-            res = new scrlib.Controllers.UsuarioController().Excluir(id);
-            res = new scrlib.Controllers.FuncionarioController().Excluir(id);
-            res = new scrlib.Controllers.PessoaFisicaController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Id);
-            res = new scrlib.Controllers.EnderecoController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Endereco.Id);
             
-            return Json(res);
+            res = new scrlib.Controllers.UsuarioController().Excluir(id);
+            if (res <= 0) return Json("Ocorreu um problema ao excluir o usuário...");
+            
+            res = new scrlib.Controllers.FuncionarioController().Excluir(id);
+            if (res <= 0) return Json("Ocorreu um problema ao excluir o funcionário...");
+            
+            res = new scrlib.Controllers.PessoaFisicaController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Id);
+            if (res <= 0) return Json("Ocorreu um problema ao excluir a pessoa...");
+            
+            res = new scrlib.Controllers.EnderecoController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Endereco.Id);
+            return Json(res <= 0 ? "Ocorreu um problema ao excluir o endereço..." : "");
         }
 
         [HttpPost]

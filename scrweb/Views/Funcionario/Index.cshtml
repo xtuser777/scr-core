@@ -157,10 +157,15 @@
                                 url: '/Funcionario/Excluir',
                                 data: {id: id},
                                 success: function (result) {
-                                    if (result > 0) {
-                                        obterFuncionarios();
+                                    if (result.length > 0) {
+                                        mostraDialogo(
+                                            "<strong>Ocorreu um problema ao excluir o funcionário...</strong>\
+                                            <br/>"+result,
+                                            "danger",
+                                            2000
+                                        );
                                     } else {
-                                        alert("Ocorreu um problema ao excluir o funcionário...");
+                                        obterFuncionarios();
                                     }
                                 },
                                 error: function (XMLHttpRequest, txtStatus, errorThrown) {
