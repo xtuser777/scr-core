@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using scrweb.Filters;
-using scrlib.Controllers;
-using scrlib.ViewModels;
+using scrweb.ViewModels;
 using Microsoft.AspNetCore.Http;
+using scrweb.ModelControllers;
 
 namespace scrweb.Controllers
 {
@@ -16,7 +16,7 @@ namespace scrweb.Controllers
 
         public FuncionarioController()
         {
-            _funcs = new UsuarioController().Get();
+            _funcs = new UsuarioModelController().Get();
         }
         
         public IActionResult Index()
@@ -98,30 +98,30 @@ namespace scrweb.Controllers
         {
             var id = HttpContext.Session.GetString("id");
             
-            return Json(new UsuarioController().GetById(Convert.ToInt32(id)));
+            return Json(new UsuarioModelController().GetById(Convert.ToInt32(id)));
         }
 
         public JsonResult ObterEstados()
         {
-            return Json(new EstadoController().Get());
+            return Json(new EstadoModelController().Get());
         }
 
         [HttpPost]
         public JsonResult ObterCidades(IFormCollection form)
         {
-            return Json(new CidadeController().GetByEstado(Convert.ToInt32(form["estado"])));
+            return Json(new CidadeModelController().GetByEstado(Convert.ToInt32(form["estado"])));
         }
 
         [HttpGet]
         public JsonResult ObterNiveis()
         {
-            return Json(new NivelController().Get());
+            return Json(new NivelModelController().Get());
         }
 
         [HttpPost]
         public JsonResult VerificaLogin(string login)
         {
-            return Json(new UsuarioController().VerificarLogin(login) == true ? "true" : "false");
+            return Json(new UsuarioModelController().VerificarLogin(login) == true ? "true" : "false");
         }
 
         [HttpPost]
@@ -193,7 +193,7 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult VerificarCpf(string cpf)
         {
-            return Json(new scrlib.Controllers.PessoaFisicaController().VerifyCpf(cpf));
+            return Json(new PessoaFisicaModelController().VerifyCpf(cpf));
         }
 
         [HttpPost]
@@ -230,7 +230,7 @@ namespace scrweb.Controllers
             DateTime.TryParse(nasc, out DateTime dataNasc);
             DateTime.TryParse(adm, out DateTime dataAdm);
 
-            int res1 = new EnderecoController().Gravar(new EnderecoViewModel()
+            int res1 = new EnderecoModelController().Gravar(new EnderecoViewModel()
             {
                 Id = 0,
                 Rua = rua,
@@ -238,12 +238,12 @@ namespace scrweb.Controllers
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new CidadeController().GetById(cidade1)
+                Cidade = new CidadeModelController().GetById(cidade1)
             });
 
             if (res1 > 0)
             {
-                int res2 = new PessoaFisicaController().Gravar(new PessoaFisicaViewModel()
+                int res2 = new PessoaFisicaModelController().Gravar(new PessoaFisicaViewModel()
                 {
                     Id = 0,
                     Nome = nome,
@@ -254,37 +254,37 @@ namespace scrweb.Controllers
                     Telefone = telefone,
                     Celular = celular,
                     Email = email,
-                    Endereco = new EnderecoController().GetById(res1)
+                    Endereco = new EnderecoModelController().GetById(res1)
                 });
 
                 if (res2 > 0)
                 {
-                    int res3 = new scrlib.Controllers.FuncionarioController().Gravar(new FuncionarioViewModel()
+                    int res3 = new FuncionarioModelController().Gravar(new FuncionarioViewModel()
                     {
                         Id = 0,
                         Tipo = tipo1,
                         Admissao = dataAdm,
                         Demissao = null,
-                        Pessoa = new PessoaFisicaController().GetById(res2)
+                        Pessoa = new PessoaFisicaModelController().GetById(res2)
                     });
 
                     if (res3 > 0 && tipo1 == 1)
                     {
-                        int res4 = new UsuarioController().Gravar(new UsuarioViewModel()
+                        int res4 = new UsuarioModelController().Gravar(new UsuarioViewModel()
                         {
                             Id = 0,
                             Login = login,
                             Senha = senha,
                             Ativo = true,
-                            Funcionario = new scrlib.Controllers.FuncionarioController().GetById(res3),
-                            Nivel = new NivelController().GetById(nivel1)
+                            Funcionario = new FuncionarioModelController().GetById(res3),
+                            Nivel = new NivelModelController().GetById(nivel1)
                         });
 
                         if (res4 <= 0)
                         {
-                            new scrlib.Controllers.FuncionarioController().Excluir(res3);
-                            new PessoaFisicaController().Excluir(res2);
-                            new EnderecoController().Excluir(res1);
+                            new FuncionarioModelController().Excluir(res3);
+                            new PessoaFisicaModelController().Excluir(res2);
+                            new EnderecoModelController().Excluir(res1);
                             return Json("Ocorreu um problema ao gravar o usuário.");
                         }
                         return Json("");
@@ -292,32 +292,32 @@ namespace scrweb.Controllers
                     
                     if (res3 > 0 && tipo1 == 2)
                     {
-                        int res4 = new UsuarioController().Gravar(new UsuarioViewModel()
+                        int res4 = new UsuarioModelController().Gravar(new UsuarioViewModel()
                         {
                             Id = 0,
                             Login = "",
                             Senha = "",
                             Ativo = true,
-                            Funcionario = new scrlib.Controllers.FuncionarioController().GetById(res3),
-                            Nivel = new NivelController().GetById(3)
+                            Funcionario = new FuncionarioModelController().GetById(res3),
+                            Nivel = new NivelModelController().GetById(3)
                         });
 
                         if (res4 <= 0)
                         {
-                            new scrlib.Controllers.FuncionarioController().Excluir(res3);
-                            new PessoaFisicaController().Excluir(res2);
-                            new EnderecoController().Excluir(res1);
+                            new FuncionarioModelController().Excluir(res3);
+                            new PessoaFisicaModelController().Excluir(res2);
+                            new EnderecoModelController().Excluir(res1);
                             return Json("Ocorreu um problema ao gravar o usuário.");
                         }
                         return Json("");
                     }
                     
-                    new PessoaFisicaController().Excluir(res2);
-                    new EnderecoController().Excluir(res1);
+                    new PessoaFisicaModelController().Excluir(res2);
+                    new EnderecoModelController().Excluir(res1);
                     return Json("Ocorreu um problema ao gravar o funcionário.");
                 }
                 
-                new EnderecoController().Excluir(res1);
+                new EnderecoModelController().Excluir(res1);
                 return Json("Ocorreu um problema ao gravar a pessoa.");
             }
             
@@ -368,7 +368,7 @@ namespace scrweb.Controllers
             DateTime.TryParse(adm, out DateTime dataAdm);
             bool.TryParse(ativo, out var ativo1);
 
-            int res1 = new EnderecoController().Alterar(new EnderecoViewModel()
+            int res1 = new EnderecoModelController().Alterar(new EnderecoViewModel()
             {
                 Id = endereco,
                 Rua = rua,
@@ -376,12 +376,12 @@ namespace scrweb.Controllers
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new CidadeController().GetById(cidade1)
+                Cidade = new CidadeModelController().GetById(cidade1)
             });
 
             if (res1 > 0)
             {
-                int res2 = new PessoaFisicaController().Alterar(new PessoaFisicaViewModel()
+                int res2 = new PessoaFisicaModelController().Alterar(new PessoaFisicaViewModel()
                 {
                     Id = pessoa,
                     Nome = nome,
@@ -392,30 +392,30 @@ namespace scrweb.Controllers
                     Telefone = telefone,
                     Celular = celular,
                     Email = email,
-                    Endereco = new EnderecoController().GetById(endereco)
+                    Endereco = new EnderecoModelController().GetById(endereco)
                 });
 
                 if (res2 > 0)
                 {
-                    int res3 = new scrlib.Controllers.FuncionarioController().Alterar(new FuncionarioViewModel()
+                    int res3 = new FuncionarioModelController().Alterar(new FuncionarioViewModel()
                     {
                         Id = func,
                         Tipo = tipo1,
                         Admissao = dataAdm,
                         Demissao = null,
-                        Pessoa = new PessoaFisicaController().GetById(pessoa)
+                        Pessoa = new PessoaFisicaModelController().GetById(pessoa)
                     });
 
                     if (res3 > 0 && tipo1 == 1)
                     {
-                        int res4 = new UsuarioController().Alterar(new UsuarioViewModel()
+                        int res4 = new UsuarioModelController().Alterar(new UsuarioViewModel()
                         {
                             Id = usu,
                             Login = login,
                             Senha = senha,
                             Ativo = ativo1,
-                            Funcionario = new scrlib.Controllers.FuncionarioController().GetById(func),
-                            Nivel = new NivelController().GetById(nivel1)
+                            Funcionario = new FuncionarioModelController().GetById(func),
+                            Nivel = new NivelModelController().GetById(nivel1)
                         });
 
                         return Json(res4 > 0 ? "" : "Ocorreu um problema ao gravar o usuário.");
@@ -423,14 +423,14 @@ namespace scrweb.Controllers
                     
                     if (res3 > 0 && tipo1 == 2)
                     {
-                        int res4 = new UsuarioController().Alterar(new UsuarioViewModel()
+                        int res4 = new UsuarioModelController().Alterar(new UsuarioViewModel()
                         {
                             Id = usu,
                             Login = "",
                             Senha = "",
                             Ativo = ativo1,
-                            Funcionario = new scrlib.Controllers.FuncionarioController().GetById(func),
-                            Nivel = new NivelController().GetById(3)
+                            Funcionario = new FuncionarioModelController().GetById(func),
+                            Nivel = new NivelModelController().GetById(3)
                         });
 
                         return Json(res4 > 0 ? "" : "Ocorreu um problema ao gravar o usuário.");
@@ -447,7 +447,7 @@ namespace scrweb.Controllers
 
         public JsonResult IsLastAdmin()
         {
-            return Json(new UsuarioController().IsLastAdmin());
+            return Json(new UsuarioModelController().IsLastAdmin());
         }
         
         [HttpPost]
@@ -455,29 +455,29 @@ namespace scrweb.Controllers
         {
             var res = 0;
             
-            res = new scrlib.Controllers.UsuarioController().Excluir(id);
+            res = new UsuarioModelController().Excluir(id);
             if (res <= 0) return Json("Ocorreu um problema ao excluir o usuário...");
             
-            res = new scrlib.Controllers.FuncionarioController().Excluir(id);
+            res = new FuncionarioModelController().Excluir(id);
             if (res <= 0) return Json("Ocorreu um problema ao excluir o funcionário...");
             
-            res = new scrlib.Controllers.PessoaFisicaController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Id);
+            res = new PessoaFisicaModelController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Id);
             if (res <= 0) return Json("Ocorreu um problema ao excluir a pessoa...");
             
-            res = new scrlib.Controllers.EnderecoController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Endereco.Id);
+            res = new EnderecoModelController().Excluir(_funcs.Find(u => u.Id == id).Funcionario.Pessoa.Endereco.Id);
             return Json(res <= 0 ? "Ocorreu um problema ao excluir o endereço..." : "");
         }
 
         [HttpPost]
         public JsonResult Desativar(int id)
         {
-            return Json(new scrlib.Controllers.FuncionarioController().Desativar(id));
+            return Json(new FuncionarioModelController().Desativar(id));
         }
 
         [HttpPost]
         public JsonResult Reativar(int id)
         {
-            return Json(new scrlib.Controllers.FuncionarioController().Reativar(id));
+            return Json(new FuncionarioModelController().Reativar(id));
         }
     }
 }

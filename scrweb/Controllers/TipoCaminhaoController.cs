@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrlib.ViewModels;
+using scrweb.ViewModels;
 using scrweb.Filters;
-using cl = scrlib.Controllers;
+using scrweb.ModelControllers;
 
 namespace scrweb.Controllers
 {
@@ -17,7 +17,7 @@ namespace scrweb.Controllers
 
         public TipoCaminhaoController()
         {
-            _tipos = new cl.TipoCaminhaoController().GetAll();
+            _tipos = new TipoCaminhaoModelController().GetAll();
         }
         
         // GET
@@ -111,7 +111,7 @@ namespace scrweb.Controllers
             int.TryParse(eixos, out var eixosi);
             decimal.TryParse(capacidade, out var cap);
             
-            var res = new cl.TipoCaminhaoController().Gravar(new TipoCaminhaoViewModel()
+            var res = new TipoCaminhaoModelController().Gravar(new TipoCaminhaoViewModel()
             {
                 Id = 0,
                 Descricao = descricao,
@@ -142,7 +142,7 @@ namespace scrweb.Controllers
             int.TryParse(eixos, out var eixosi);
             decimal.TryParse(capacidade, out var cap);
             
-            var res = new cl.TipoCaminhaoController().Alterar(new TipoCaminhaoViewModel()
+            var res = new TipoCaminhaoModelController().Alterar(new TipoCaminhaoViewModel()
             {
                 Id = tipo_id,
                 Descricao = descricao,
@@ -156,7 +156,7 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int id)
         {
-            var res = new cl.TipoCaminhaoController().Exlcuir(id);
+            var res = new TipoCaminhaoModelController().Exlcuir(id);
             if (res <= 0) return Json("Problemas foram detectados ao excluir o tipo.");
             _tipos.Remove(_tipos.Find(t => t.Id == id));
             return Json("");

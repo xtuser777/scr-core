@@ -4,9 +4,9 @@ using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrlib.ViewModels;
+using scrweb.ViewModels;
 using scrweb.Filters;
-using cl = scrlib.Controllers;
+using scrweb.ModelControllers;
 
 namespace scrweb.Controllers
 {
@@ -28,18 +28,18 @@ namespace scrweb.Controllers
 
         public JsonResult Obter()
         {
-            return Json(new cl.ParametrizacaoController().Get());
+            return Json(new ParametrizacaoModelController().Get());
         }
         
         public JsonResult ObterEstados()
         {
-            return Json(new cl.EstadoController().Get());
+            return Json(new EstadoModelController().Get());
         }
 
         [HttpPost]
         public JsonResult ObterCidades(IFormCollection form)
         {
-            return Json(new cl.CidadeController().GetByEstado(Convert.ToInt32(form["estado"])));
+            return Json(new CidadeModelController().GetByEstado(Convert.ToInt32(form["estado"])));
         }
 
         private string GravarLogotipo(ref bool err)
@@ -119,7 +119,7 @@ namespace scrweb.Controllers
             
             int.TryParse(cidade, out var cidade1);
 
-            int res1 = new cl.ParametrizacaoController().Gravar(new ParametrizacaoViewModel()
+            int res1 = new ParametrizacaoModelController().Gravar(new ParametrizacaoViewModel()
             {
                 Id = 0,
                 RazaoSocial = razaoSocial,
@@ -130,7 +130,7 @@ namespace scrweb.Controllers
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new cl.CidadeController().GetById(cidade1),
+                Cidade = new CidadeModelController().GetById(cidade1),
                 Telefone = telefone,
                 Celular = celular,
                 Email = email,
@@ -163,7 +163,7 @@ namespace scrweb.Controllers
             
             int.TryParse(cidade, out var cidade1);
 
-            int res1 = new cl.ParametrizacaoController().Alterar(new ParametrizacaoViewModel()
+            int res1 = new ParametrizacaoModelController().Alterar(new ParametrizacaoViewModel()
             {
                 Id = 1,
                 RazaoSocial = razaoSocial,
@@ -174,7 +174,7 @@ namespace scrweb.Controllers
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new cl.CidadeController().GetById(cidade1),
+                Cidade = new CidadeModelController().GetById(cidade1),
                 Telefone = telefone,
                 Celular = celular,
                 Email = email,

@@ -18,7 +18,7 @@
                         <td>' + this.login + '</td>\
                         <td>' + this.nivel.descricao + '</td>\
                         <td>' + this.funcionario.pessoa.cpf + '</td>\
-                        <td>' + this.funcionario.admissao + '</td>\
+                        <td>' + FormatarData(this.funcionario.admissao) + '</td>\
                         <td>' + tipo + '</td>\
                         <td>' + ativo + '</td>\
                         <td>' + this.funcionario.pessoa.email + '</td>';
@@ -295,7 +295,7 @@
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 200px;">Filtragem de Funcionários</div>
+    <div class="fieldset-card-legend">Filtragem de Funcionários</div>
 
     <div class="fieldset-card-container">
         <div class="row">
@@ -318,7 +318,7 @@
 </div>
 
 <div class="fieldset-card" style="margin-bottom: 40px;">
-    <div class="fieldset-card-legend" style="width: 200px;">Funcionários Cadastrados</div>
+    <div class="fieldset-card-legend">Funcionários Cadastrados</div>
 
     <div class="fieldset-card-container">
         <div class="row" style="margin-bottom: 10px;">

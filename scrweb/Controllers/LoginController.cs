@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrlib.Controllers;
-using scrlib.ViewModels;
+using scrweb.ModelControllers;
+using scrweb.ViewModels;
 
 namespace scrweb.Controllers
 {
@@ -21,7 +21,7 @@ namespace scrweb.Controllers
         public JsonResult Autenticar(string login, string senha)
         {
             UsuarioViewModel usu = null;
-            usu = new UsuarioController().Autenticar(login, senha);
+            usu = new UsuarioModelController().Autenticar(login, senha);
             if (usu != null)
             {
                 HttpContext.Session.SetString("id", usu.Id.ToString());

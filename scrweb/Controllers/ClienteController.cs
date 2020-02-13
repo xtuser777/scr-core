@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrlib.ViewModels;
+using scrweb.ViewModels;
 using scrweb.Filters;
-using cl = scrlib.Controllers;
+using scrweb.ModelControllers;
 
 namespace scrweb.Controllers
 {
@@ -16,7 +16,7 @@ namespace scrweb.Controllers
 
         public ClienteController()
         {
-            _clientes = new cl.ClienteController().GetAll();
+            _clientes = new ClienteModelController().GetAll();
         }
         
         // GET
@@ -95,13 +95,13 @@ namespace scrweb.Controllers
 
         public JsonResult ObterEstados()
         {
-            return Json(new cl.EstadoController().Get());
+            return Json(new EstadoModelController().Get());
         }
 
         [HttpPost]
         public JsonResult ObterCidades(IFormCollection form)
         {
-            return Json(new cl.CidadeController().GetByEstado(Convert.ToInt32(form["estado"])));
+            return Json(new CidadeModelController().GetByEstado(Convert.ToInt32(form["estado"])));
         }
 
         [HttpPost]
@@ -167,13 +167,13 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult VerificarCpf(string cpf)
         {
-            return Json(new cl.PessoaFisicaController().VerifyCpf(cpf));
+            return Json(new PessoaFisicaModelController().VerifyCpf(cpf));
         }
 
         [HttpPost]
         public JsonResult VerificarCnpj(string cnpj)
         {
-            return Json(new cl.PessoaJuridicaController().VerifyCnpj(cnpj));
+            return Json(new PessoaJuridicaModelController().VerifyCnpj(cnpj));
         }
 
         [HttpPost]
@@ -202,7 +202,7 @@ namespace scrweb.Controllers
 
             DateTime.TryParse(nasc, out var nascimento);
 
-            var res1 = new cl.EnderecoController().Gravar(new EnderecoViewModel()
+            var res1 = new EnderecoModelController().Gravar(new EnderecoViewModel()
             {
                 Id = 0,
                 Rua = rua,
@@ -223,7 +223,7 @@ namespace scrweb.Controllers
             var res2 = 0;
             if (tipoi == 1)
             {
-                res2 = new cl.PessoaFisicaController().Gravar(new PessoaFisicaViewModel()
+                res2 = new PessoaFisicaModelController().Gravar(new PessoaFisicaViewModel()
                 {
                     Id = 0,
                     Nome = nome,
@@ -253,7 +253,7 @@ namespace scrweb.Controllers
             }
             else
             {
-                res2 = new cl.PessoaJuridicaController().Gravar(new PessoaJuridicaViewModel()
+                res2 = new PessoaJuridicaModelController().Gravar(new PessoaJuridicaViewModel()
                 {
                     Id = 0,
                     RazaoSocial = razaosocial,
@@ -283,11 +283,11 @@ namespace scrweb.Controllers
 
             if (res2 <= 0)
             {
-                new cl.EnderecoController().Excluir(res1);
+                new EnderecoModelController().Excluir(res1);
                 return Json("Ocorreu um problema ao gravar a pessoa...");
             }
                 
-            var res3 = new cl.ClienteController().Gravar(new ClienteViewModel()
+            var res3 = new ClienteModelController().Gravar(new ClienteViewModel()
             {
                 Id = 0,
                 Cadastro = DateTime.Now,
@@ -325,14 +325,14 @@ namespace scrweb.Controllers
             
             if (tipoi == 1)
             {
-                new cl.PessoaFisicaController().Excluir(res2);
+                new PessoaFisicaModelController().Excluir(res2);
             }
             else
             {
-                new cl.PessoaJuridicaController().Excluir(res2);
+                new PessoaJuridicaModelController().Excluir(res2);
             }
 
-            new cl.EnderecoController().Excluir(res1);
+            new EnderecoModelController().Excluir(res1);
                 
             return Json("Ocorreu um problema ao gravar o cliente...");
         }
@@ -370,7 +370,7 @@ namespace scrweb.Controllers
 
             DateTime.TryParse(nasc, out var nascimento);
 
-            var res1 = new cl.EnderecoController().Alterar(new EnderecoViewModel()
+            var res1 = new EnderecoModelController().Alterar(new EnderecoViewModel()
             {
                 Id = idendereco,
                 Rua = rua,
@@ -391,7 +391,7 @@ namespace scrweb.Controllers
             var res2 = 0;
             if (tipoi == 1)
             {
-                res2 = new cl.PessoaFisicaController().Alterar(new PessoaFisicaViewModel()
+                res2 = new PessoaFisicaModelController().Alterar(new PessoaFisicaViewModel()
                 {
                     Id = idpessoa,
                     Nome = nome,
@@ -421,7 +421,7 @@ namespace scrweb.Controllers
             }
             else
             {
-                res2 = new cl.PessoaJuridicaController().Alterar(new PessoaJuridicaViewModel()
+                res2 = new PessoaJuridicaModelController().Alterar(new PessoaJuridicaViewModel()
                 {
                     Id = idpessoa,
                     RazaoSocial = razaosocial,
@@ -451,7 +451,7 @@ namespace scrweb.Controllers
             
             if (res2 <= 0) return Json("Ocorreu um problema ao alterar a pessoa...");
                 
-            var res3 = new cl.ClienteController().Alterar(new ClienteViewModel()
+            var res3 = new ClienteModelController().Alterar(new ClienteViewModel()
             {
                 Id = idcliente,
                 Cadastro = DateTime.Now,
@@ -494,11 +494,11 @@ namespace scrweb.Controllers
             var res = 0;
             var cli = _clientes.Find(c => c.Id == id);
             
-            res = new cl.ClienteController().Excluir(id);
+            res = new ClienteModelController().Excluir(id);
             res = cli.Tipo == 1
-                ? new cl.PessoaFisicaController().Excluir(cli.Pessoa.Id)
-                : new cl.PessoaJuridicaController().Excluir(cli.Pessoa.Id);
-            res = new cl.EnderecoController().Excluir(cli.Pessoa.Endereco.Id);
+                ? new PessoaFisicaModelController().Excluir(cli.Pessoa.Id)
+                : new PessoaJuridicaModelController().Excluir(cli.Pessoa.Id);
+            res = new EnderecoModelController().Excluir(cli.Pessoa.Endereco.Id);
             
             return Json(res);
         }

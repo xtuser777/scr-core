@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrlib.ViewModels;
+using scrweb.ViewModels;
 using scrweb.Filters;
-using cl = scrlib.Controllers;
+using scrweb.ModelControllers;
 
 namespace scrweb.Controllers
 {
@@ -16,27 +16,27 @@ namespace scrweb.Controllers
 
         public ProdutoController()
         {
-            _produtos = new cl.ProdutoController().GetAll();
+            _produtos = new ProdutoModelController().GetAll();
         }
         
         // GET
         public IActionResult Index()
         {
-            ViewBag.Representacoes = new cl.RepresentacaoController().GetAll();
+            ViewBag.Representacoes = new RepresentacaoModelController().GetAll();
             
             return View();
         }
 
         public IActionResult Novo()
         {
-            ViewBag.Representacoes = new cl.RepresentacaoController().GetAll();
+            ViewBag.Representacoes = new RepresentacaoModelController().GetAll();
             
             return View();
         }
 
         public IActionResult Detalhes()
         {
-            ViewBag.Representacoes = new cl.RepresentacaoController().GetAll();
+            ViewBag.Representacoes = new RepresentacaoModelController().GetAll();
             
             return View();
         }
@@ -149,14 +149,14 @@ namespace scrweb.Controllers
             decimal.TryParse(preco, out var dpreco);
             decimal.TryParse(preco_out, out var dpreco_out);
 
-            var res = new cl.ProdutoController().Gravar(new ProdutoViewModel()
+            var res = new ProdutoModelController().Gravar(new ProdutoViewModel()
             {
                 Id = 0,
                 Descricao = descricao,
                 Medida = medida,
                 Preco = dpreco,
                 PrecoOut = dpreco_out,
-                Representacao = new cl.RepresentacaoController().GetById(rep)
+                Representacao = new RepresentacaoModelController().GetById(rep)
             });
 
             switch (res)
@@ -182,14 +182,14 @@ namespace scrweb.Controllers
             decimal.TryParse(preco, out var dpreco);
             decimal.TryParse(preco_out, out var dpreco_out);
 
-            var res = new cl.ProdutoController().Alterar(new ProdutoViewModel()
+            var res = new ProdutoModelController().Alterar(new ProdutoViewModel()
             {
                 Id = prod,
                 Descricao = descricao,
                 Medida = medida,
                 Preco = dpreco,
                 PrecoOut = dpreco_out,
-                Representacao = new cl.RepresentacaoController().GetById(rep)
+                Representacao = new RepresentacaoModelController().GetById(rep)
             });
 
             return Json(res <= 0 ? "Ocorreram problemas ao executar o comando SQL." : "");
@@ -198,7 +198,7 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int id)
         {
-            var res = new cl.ProdutoController().Excluir(id);
+            var res = new ProdutoModelController().Excluir(id);
             if (res <= 0) return Json("Ocorreram problemas ao executar o comando SQL.");
             _produtos.Remove(_produtos.Find(p => p.Id == id));
             return Json("");

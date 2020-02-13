@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrlib.ViewModels;
+using scrweb.ViewModels;
 using scrweb.Filters;
-using cl=scrlib.Controllers;
+using scrweb.ModelControllers;
 
 namespace scrweb.Controllers
 {
@@ -37,7 +37,7 @@ namespace scrweb.Controllers
 
         public JsonResult Obter()
         {
-            _representacoes = new cl.RepresentacaoController().GetAll();
+            _representacoes = new RepresentacaoModelController().GetAll();
             return Json(_representacoes);
         }
         
@@ -84,18 +84,18 @@ namespace scrweb.Controllers
         {
             var id = HttpContext.Session.GetString("idrep");
             
-            return Json(new cl.RepresentacaoController().GetById(Convert.ToInt32(id)));
+            return Json(new RepresentacaoModelController().GetById(Convert.ToInt32(id)));
         }
         
         public JsonResult ObterEstados()
         {
-            return Json(new cl.EstadoController().Get());
+            return Json(new EstadoModelController().Get());
         }
 
         [HttpPost]
         public JsonResult ObterCidades(IFormCollection form)
         {
-            return Json(new cl.CidadeController().GetByEstado(Convert.ToInt32(form["estado"])));
+            return Json(new CidadeModelController().GetByEstado(Convert.ToInt32(form["estado"])));
         }
         
         [HttpPost]
@@ -149,7 +149,7 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult VerificarCnpj(string cnpj)
         {
-            return Json(new cl.PessoaJuridicaController().VerifyCnpj(cnpj));
+            return Json(new PessoaJuridicaModelController().VerifyCnpj(cnpj));
         }
 
         [HttpPost]
@@ -170,9 +170,9 @@ namespace scrweb.Controllers
 
             int.TryParse(cidade, out var cid);
 
-            var city = new cl.CidadeController().GetById(cid);
+            var city = new CidadeModelController().GetById(cid);
             
-            var res1 = new cl.EnderecoController().Gravar(new EnderecoViewModel()
+            var res1 = new EnderecoModelController().Gravar(new EnderecoViewModel()
             {
                 Id = 0,
                 Rua = rua,
@@ -186,7 +186,7 @@ namespace scrweb.Controllers
             if (res1 == -10) return Json("Ocorreu um problema na execução do comando SQL.");
             if (res1 == -5) return Json("Ocorreu um problema: um ou mais campos inválidos...");
             
-            var res2 = new cl.PessoaJuridicaController().Gravar(new PessoaJuridicaViewModel()
+            var res2 = new PessoaJuridicaModelController().Gravar(new PessoaJuridicaViewModel()
             {
                 Id = 0,
                 RazaoSocial = razaosocial,
@@ -210,17 +210,17 @@ namespace scrweb.Controllers
 
             if (res2 == -10)
             {
-                new cl.EnderecoController().Excluir(res1);
+                new EnderecoModelController().Excluir(res1);
                 return Json("Ocorreu um problema na execução do comando SQL.");
             }
 
             if (res2 == -5)
             {
-                new cl.EnderecoController().Excluir(res1);
+                new EnderecoModelController().Excluir(res1);
                 return Json("Ocorreu um problema: um ou mais campos inválidos...");
             }
             
-            var res3 = new cl.RepresentacaoController().Gravar(new RepresentacaoViewModel()
+            var res3 = new RepresentacaoModelController().Gravar(new RepresentacaoViewModel()
             {
                 Id = 0,
                 Cadastro = DateTime.Now,
@@ -250,15 +250,15 @@ namespace scrweb.Controllers
             
             if (res3 == -10)
             {
-                new cl.PessoaJuridicaController().Excluir(res2);
-                new cl.EnderecoController().Excluir(res1);
+                new PessoaJuridicaModelController().Excluir(res2);
+                new EnderecoModelController().Excluir(res1);
                 return Json("Ocorreu um problema na execução do comando SQL.");
             }
 
             if (res3 == -5)
             {
-                new cl.PessoaJuridicaController().Excluir(res2);
-                new cl.EnderecoController().Excluir(res1);
+                new PessoaJuridicaModelController().Excluir(res2);
+                new EnderecoModelController().Excluir(res1);
                 return Json("Ocorreu um problema: um ou mais campos inválidos...");
             }
 
@@ -290,9 +290,9 @@ namespace scrweb.Controllers
             int.TryParse(representacao, out var rep);
             int.TryParse(cidade, out var cid);
 
-            var city = new cl.CidadeController().GetById(cid);
+            var city = new CidadeModelController().GetById(cid);
             
-            var res1 = new cl.EnderecoController().Alterar(new EnderecoViewModel()
+            var res1 = new EnderecoModelController().Alterar(new EnderecoViewModel()
             {
                 Id = end,
                 Rua = rua,
@@ -305,7 +305,7 @@ namespace scrweb.Controllers
 
             if (res1 < 0) return Json("Ocorreu um problema na alteração do endereço...");
             
-            var res2 = new cl.PessoaJuridicaController().Alterar(new PessoaJuridicaViewModel()
+            var res2 = new PessoaJuridicaModelController().Alterar(new PessoaJuridicaViewModel()
             {
                 Id = pes,
                 RazaoSocial = razaosocial,
@@ -329,7 +329,7 @@ namespace scrweb.Controllers
             
             if (res2 < 0) return Json("Ocorreu um problema na alteração da pessoa...");
             
-            var res3 = new cl.RepresentacaoController().Alterar(new RepresentacaoViewModel()
+            var res3 = new RepresentacaoModelController().Alterar(new RepresentacaoViewModel()
             {
                 Id = rep,
                 Cadastro = DateTime.Now,
@@ -363,13 +363,13 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int id)
         {
-            var res = new cl.RepresentacaoController().Excluir(id);
+            var res = new RepresentacaoModelController().Excluir(id);
             if (res < 0) return Json("Ocorreu um problema na exclusão da representação...");
             
-            res = new cl.PessoaJuridicaController().Excluir(_representacoes.Find(r => r.Id == id).Pessoa.Id);
+            res = new PessoaJuridicaModelController().Excluir(_representacoes.Find(r => r.Id == id).Pessoa.Id);
             if (res < 0) return Json("Ocorreu um problema na exclusão da pessoa...");
 
-            res = new cl.EnderecoController().Excluir(_representacoes.Find(r => r.Id == id).Pessoa.Endereco.Id);
+            res = new EnderecoModelController().Excluir(_representacoes.Find(r => r.Id == id).Pessoa.Endereco.Id);
             return Json(res < 0 ? "Ocorreu um problema na exclusão do endereço..." : "");
         }
     }
