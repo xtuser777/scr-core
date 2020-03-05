@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace scrweb.DAO
 {
@@ -15,16 +14,19 @@ namespace scrweb.DAO
                 Id = Convert.ToInt32(dr["id"]),
                 Descricao = dr["descricao"].ToString()
             };
+            
             return nivel;
         }
 
         private List<Nivel> GetList(DataTable dt)
         {
             List<Nivel> niveis = new List<Nivel>();
+            
             foreach (DataRow row in dt.Rows)
             {
                 niveis.Add(GetObject(row));
             }
+            
             return niveis;
         }
 
@@ -36,25 +38,30 @@ namespace scrweb.DAO
                                         from nivel 
                                         where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 nivel = GetObject(dt.Rows[0]);
             }
+            
             return nivel;
         }
 
-        internal List<Nivel> Get()
+        internal List<Nivel> GetAll()
         {
             List<Nivel> niveis = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,descricao 
-                                        from nivel;";
+            ComandoSQL.CommandText = @"select id,descricao from nivel;";
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 niveis = GetList(dt);
             }
+            
             return niveis;
         }
     }

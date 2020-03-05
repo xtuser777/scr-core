@@ -15,6 +15,7 @@
         var cpf_atual = "";
         var cnpj_atual = "";
         var idendereco = 0;
+        var idcontato = 0;
         var idpessoa = 0;
         var idcliente = 0;
         
@@ -30,7 +31,7 @@
         
             $.ajax({
                 type: 'POST',
-                url: '/Cliente/ObterCidades',
+                url: '/Cidade/ObterPorEstado',
                 data: form,
                 contentType: false,
                 processData: false,
@@ -101,7 +102,7 @@
             $("#tel").mask('(00) 0000-0000', {reverse: false});
             $("#cel").mask('(00) 00000-0000', {reverse: false});
         
-            lista_estados = get('/Cliente/ObterEstados');
+            lista_estados = get('/Estado/Obter');
             limparEstados();
             if (lista_estados !== "") {
                 for (var i = 0; i < lista_estados.length; i++) {
@@ -114,7 +115,8 @@
         
             var response = get("/Cliente/ObterDetalhes");
             if (response != null && response !== "") {
-                idendereco = response.pessoa.endereco.id;
+                idendereco = response.pessoa.contato.endereco.id;
+                idcontato = response.pessoa.contato.id;
                 idpessoa = response.pessoa.id;
                 idcliente = response.id;
         
@@ -134,17 +136,17 @@
                     $("#cnpj").val(response.pessoa.cnpj);
                     cnpj_atual = response.pessoa.cnpj;
                 }
-                $("#rua").val(response.pessoa.endereco.rua);
-                $("#numero").val(response.pessoa.endereco.numero);
-                $("#bairro").val(response.pessoa.endereco.bairro);
-                $("#complemento").val(response.pessoa.endereco.complemento);
-                $("#cep").val(response.pessoa.endereco.cep);
-                cbestado.value = response.pessoa.endereco.cidade.estado.id;
+                $("#rua").val(response.pessoa.contato.endereco.rua);
+                $("#numero").val(response.pessoa.contato.endereco.numero);
+                $("#bairro").val(response.pessoa.contato.endereco.bairro);
+                $("#complemento").val(response.pessoa.contato.endereco.complemento);
+                $("#cep").val(response.pessoa.contato.endereco.cep);
+                cbestado.value = response.pessoa.contato.endereco.cidade.estado.id;
                 carregarCidades();
-                cbcidade.value = response.pessoa.endereco.cidade.id;
-                $("#tel").val(response.pessoa.telefone);
-                $("#cel").val(response.pessoa.celular);
-                $("#email").val(response.pessoa.email);
+                cbcidade.value = response.pessoa.contato.endereco.cidade.id;
+                $("#tel").val(response.pessoa.contato.telefone);
+                $("#cel").val(response.pessoa.contato.celular);
+                $("#email").val(response.pessoa.contato.email);
             }
         
             if (_tipo === 1) {
@@ -362,6 +364,8 @@
             var email = $("#email").val();
         
             var dataNasc = new Date(nasc);
+            
+            erros = 0;
         
             if (_tipo === 1) {
                 if (nome.length === 0) {
@@ -516,6 +520,7 @@
             if (erros === 0) {
                 var form = new FormData();
                 form.append("endereco", idendereco);
+                form.append("contato", idcontato);
                 form.append("pessoa", idpessoa);
                 form.append("cliente", idcliente);
                 if (_tipo === 1) {

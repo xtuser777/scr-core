@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrweb.ViewModels;
+using Newtonsoft.Json.Linq;
 using scrweb.Filters;
-using scrweb.ModelControllers;
+using scrweb.Models;
 
 namespace scrweb.Controllers
 {
     [ValidarUsuario]
     public class ClienteController : Controller
     {
-        private static List<ClienteViewModel> _clientes;
+        private static List<Cliente> _clientes;
 
         public ClienteController()
         {
-            _clientes = new ClienteModelController().GetAll();
+            _clientes = new Cliente().GetAll();
         }
         
         // GET
@@ -45,20 +45,34 @@ namespace scrweb.Controllers
 
         public JsonResult Obter()
         {
-            return Json(_clientes);
+            if (_clientes == null || _clientes.Count == 0) return Json(new List<Cliente>());
+            
+            JArray array = new JArray();
+            for (int i = 0; i < _clientes.Count; i++)
+            {
+                array.Add(_clientes[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
         public JsonResult ObterPorChave(string chave)
         {
             var filtrado = _clientes.FindAll(cli => cli.Tipo == 1
-                ? ((PessoaFisicaViewModel) cli.Pessoa).Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
-                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)
-                : ((PessoaJuridicaViewModel) cli.Pessoa).NomeFantasia.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
-                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)
+                ? (cli.PessoaFisica.Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.PessoaFisica.Contato.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase))
+                : (cli.PessoaJuridica.NomeFantasia.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.PessoaJuridica.Contato.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase))
             );
             
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
@@ -66,22 +80,34 @@ namespace scrweb.Controllers
         {
             var filtrado = _clientes.FindAll(cli => cli.Cadastro.ToString("yyyy-MM-dd") == cad);
             
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
         public JsonResult ObterPorChaveCad(string chave, string cad)
         {
             var filtrado = _clientes.FindAll(cli => cli.Tipo == 1
-                ? (((PessoaFisicaViewModel) cli.Pessoa).Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
-                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)) &&
-                  cli.Cadastro.ToString("yyyy-MM-dd") == cad
-                : (((PessoaJuridicaViewModel) cli.Pessoa).NomeFantasia.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
-                  cli.Pessoa.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)) &&
-                  cli.Cadastro.ToString("yyyy-MM-dd") == cad
+                ? ((cli.PessoaFisica.Nome.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.PessoaFisica.Contato.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)) &&
+                  cli.Cadastro.ToString("yyyy-MM-dd") == cad)
+                : ((cli.PessoaJuridica.NomeFantasia.Contains(chave, StringComparison.CurrentCultureIgnoreCase) ||
+                  cli.PessoaJuridica.Contato.Email.Contains(chave, StringComparison.CurrentCultureIgnoreCase)) &&
+                  cli.Cadastro.ToString("yyyy-MM-dd") == cad)
             );
             
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         public JsonResult ObterDetalhes()
@@ -90,24 +116,13 @@ namespace scrweb.Controllers
 
             var cli = _clientes.Find(c => c.Id == Convert.ToInt32(id));
             
-            return Json(cli);
-        }
-
-        public JsonResult ObterEstados()
-        {
-            return Json(new EstadoModelController().Get());
-        }
-
-        [HttpPost]
-        public JsonResult ObterCidades(IFormCollection form)
-        {
-            return Json(new CidadeModelController().GetByEstado(Convert.ToInt32(form["estado"])));
+            return Json(cli.ToJObject());
         }
 
         [HttpPost]
         public JsonResult Ordenar(string col)
         {
-            var ord = new List<ClienteViewModel>();
+            var ord = new List<Cliente>();
 
             switch (col)
             {
@@ -120,26 +135,26 @@ namespace scrweb.Controllers
                 case "3":
                     ord = _clientes.OrderBy(c =>
                         c.Tipo == 1
-                            ? ((PessoaFisicaViewModel) c.Pessoa).Nome
-                            : ((PessoaJuridicaViewModel) c.Pessoa).NomeFantasia).ToList();
+                            ? c.PessoaFisica.Nome
+                            : c.PessoaJuridica.NomeFantasia).ToList();
                     break;
                 case "4":
                     ord = _clientes.OrderByDescending(c =>
                         c.Tipo == 1
-                            ? ((PessoaFisicaViewModel) c.Pessoa).Nome
-                            : ((PessoaJuridicaViewModel) c.Pessoa).NomeFantasia).ToList();
+                            ? c.PessoaFisica.Nome
+                            : c.PessoaJuridica.NomeFantasia).ToList();
                     break;
                 case "5":
                     ord = _clientes.OrderBy(c =>
                         c.Tipo == 1
-                            ? ((PessoaFisicaViewModel) c.Pessoa).Cpf
-                            : ((PessoaJuridicaViewModel) c.Pessoa).Cnpj).ToList();
+                            ? c.PessoaFisica.Cpf
+                            : c.PessoaJuridica.Cnpj).ToList();
                     break;
                 case "6":
                     ord = _clientes.OrderByDescending(c =>
                         c.Tipo == 1
-                            ? ((PessoaFisicaViewModel) c.Pessoa).Cpf
-                            : ((PessoaJuridicaViewModel) c.Pessoa).Cnpj).ToList();
+                            ? c.PessoaFisica.Cpf
+                            : c.PessoaJuridica.Cnpj).ToList();
                     break;
                 case "7":
                     ord = _clientes.OrderBy(c => c.Cadastro).ToList();
@@ -154,26 +169,32 @@ namespace scrweb.Controllers
                     ord = _clientes.OrderByDescending(c => c.Tipo).ToList();
                     break;
                 case "11":
-                    ord = _clientes.OrderBy(c => c.Pessoa.Email).ToList();
+                    ord = _clientes.OrderBy(c => c.PessoaFisica.Contato.Email).ToList();
                     break;
                 case "12":
-                    ord = _clientes.OrderByDescending(c => c.Pessoa.Email).ToList();
+                    ord = _clientes.OrderByDescending(c => c.PessoaFisica.Contato.Email).ToList();
                     break;
             }
 
-            return Json(ord);
+            JArray array = new JArray();
+            for (int i = 0; i < ord.Count; i++)
+            {
+                array.Add(ord[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
         public JsonResult VerificarCpf(string cpf)
         {
-            return Json(new PessoaFisicaModelController().VerifyCpf(cpf));
+            return Json(new PessoaFisica().VerifyCpf(cpf));
         }
 
         [HttpPost]
         public JsonResult VerificarCnpj(string cnpj)
         {
-            return Json(new PessoaJuridicaModelController().VerifyCnpj(cnpj));
+            return Json(new PessoaJuridica().VerifyCnpj(cnpj));
         }
 
         [HttpPost]
@@ -202,145 +223,124 @@ namespace scrweb.Controllers
 
             DateTime.TryParse(nasc, out var nascimento);
 
-            var res1 = new EnderecoModelController().Gravar(new EnderecoViewModel()
-            {
+            int res1 = new Endereco(){
                 Id = 0,
                 Rua = rua,
                 Numero = numero,
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new CidadeViewModel()
+                Cidade = new Cidade()
                 {
-                    Id = cidi,
-                    Nome = "",
-                    Estado = null
+                    Id = cidi
                 }
-            });
+            }.Gravar();
 
             if (res1 <= 0) return Json("Ocorreu um problema ao gravar o endereço...");
+            
+            int res2 = new Contato()
+            {
+                Id = 0,
+                Telefone = telefone,
+                Celular = celular,
+                Email = email,
+                Endereco = new Endereco()
+                {
+                    Id = res1
+                }
+            }.Gravar();
 
-            var res2 = 0;
+            if (res2 <= 0)
+            {
+                new Endereco().Excluir(res1);
+                return Json("Ocorreu um problema ao gravar o contato...");
+            }
+
+            int res3 = 0;
             if (tipoi == 1)
             {
-                res2 = new PessoaFisicaModelController().Gravar(new PessoaFisicaViewModel()
+                res3 = new PessoaFisica()
                 {
                     Id = 0,
                     Nome = nome,
                     Rg = rg,
                     Cpf = cpf,
                     Nascimento = nascimento,
-                    Telefone = telefone,
-                    Celular = celular,
-                    Email = email,
-                    Tipo = tipoi,
-                    Endereco = new EnderecoViewModel()
+                    Contato = new Contato()
                     {
-                        Id = res1,
-                        Rua = rua,
-                        Numero = numero,
-                        Bairro = bairro,
-                        Complemento = complemento,
-                        Cep = cep,
-                        Cidade = new CidadeViewModel()
-                        {
-                            Id = cidi,
-                            Nome = "",
-                            Estado = null
-                        }
+                        Id = res2
                     }
-                });    
+                }.Gravar();    
             }
             else
             {
-                res2 = new PessoaJuridicaModelController().Gravar(new PessoaJuridicaViewModel()
+                res3 = new PessoaJuridica()
                 {
                     Id = 0,
                     RazaoSocial = razaosocial,
                     NomeFantasia = nomefantasia,
                     Cnpj = cnpj,
-                    Telefone = telefone,
-                    Celular = celular,
-                    Email = email,
-                    Tipo = tipoi,
-                    Endereco = new EnderecoViewModel()
+                    Contato = new Contato()
                     {
-                        Id = res1,
-                        Rua = rua,
-                        Numero = numero,
-                        Bairro = bairro,
-                        Complemento = complemento,
-                        Cep = cep,
-                        Cidade = new CidadeViewModel()
-                        {
-                            Id = cidi,
-                            Nome = "",
-                            Estado = null
-                        }
+                        Id = res2
                     }
-                });
+                }.Gravar();
             }
 
-            if (res2 <= 0)
+            if (res3 <= 0)
             {
-                new EnderecoModelController().Excluir(res1);
+                new Contato().Excluir(res2);
+                new Endereco().Excluir(res1);
                 return Json("Ocorreu um problema ao gravar a pessoa...");
             }
-                
-            var res3 = new ClienteModelController().Gravar(new ClienteViewModel()
+            
+            int res4 = new Cliente()
             {
                 Id = 0,
                 Cadastro = DateTime.Now,
                 Tipo = tipoi,
-                Pessoa = new PessoaFisicaViewModel()
+                PessoaFisica = tipoi == 2 ? null : new PessoaFisica()
                 {
-                    Id = res2,
+                    Id = res3,
                     Nome = nome,
                     Rg = rg,
                     Cpf = cpf,
                     Nascimento = nascimento,
-                    Telefone = telefone,
-                    Celular = celular,
-                    Email = email,
-                    Tipo = tipoi,
-                    Endereco = new EnderecoViewModel()
+                    Contato = new Contato()
                     {
-                        Id = res1,
-                        Rua = rua,
-                        Numero = numero,
-                        Bairro = bairro,
-                        Complemento = complemento,
-                        Cep = cep,
-                        Cidade = new CidadeViewModel()
-                        {
-                            Id = cidi,
-                            Nome = "",
-                            Estado = null
-                        }
+                        Id = res2
+                    }
+                },
+                PessoaJuridica = tipoi == 1 ? null : new PessoaJuridica()
+                {
+                    Id = res3,
+                    RazaoSocial = razaosocial,
+                    NomeFantasia = nomefantasia,
+                    Cnpj = cnpj,
+                    Contato = new Contato()
+                    {
+                        Id = res2
                     }
                 }
-            });
-
-            if (res3 > 0) return Json("");
+            }.Gravar();
             
-            if (tipoi == 1)
+            if (res4 <= 0)
             {
-                new PessoaFisicaModelController().Excluir(res2);
-            }
-            else
-            {
-                new PessoaJuridicaModelController().Excluir(res2);
+                if (tipoi == 1) new PessoaFisica().Excluir(res3);
+                else new PessoaJuridica().Excluir(res3);
+                new Contato().Excluir(res2);
+                new Endereco().Excluir(res1);
+                return Json("Ocorreu um problema ao gravar o cliente...");
             }
 
-            new EnderecoModelController().Excluir(res1);
-                
-            return Json("Ocorreu um problema ao gravar o cliente...");
+            return Json("");
         }
 
         [HttpPost]
         public JsonResult Alterar(IFormCollection form)
         {
             var endereco = form["endereco"];
+            var contato = form["contato"];
             var pessoa = form["pessoa"];
             var cliente = form["cliente"];
             
@@ -365,127 +365,105 @@ namespace scrweb.Controllers
             int.TryParse(tipo, out var tipoi);
             int.TryParse(cidade, out var cidi);
             int.TryParse(endereco, out var idendereco);
+            int.TryParse(contato, out int idcontato);
             int.TryParse(pessoa, out var idpessoa);
             int.TryParse(cliente, out var idcliente);
 
             DateTime.TryParse(nasc, out var nascimento);
 
-            var res1 = new EnderecoModelController().Alterar(new EnderecoViewModel()
-            {
+            int res1 = new Endereco(){
                 Id = idendereco,
                 Rua = rua,
                 Numero = numero,
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new CidadeViewModel()
+                Cidade = new Cidade()
                 {
-                    Id = cidi,
-                    Nome = "",
-                    Estado = null
+                    Id = cidi
                 }
-            });
+            }.Alterar();
 
             if (res1 <= 0) return Json("Ocorreu um problema ao alterar o endereço...");
+            
+            int res2 = new Contato()
+            {
+                Id = idcontato,
+                Telefone = telefone,
+                Celular = celular,
+                Email = email,
+                Endereco = new Endereco()
+                {
+                    Id = idendereco
+                }
+            }.Alterar();
 
-            var res2 = 0;
+            if (res2 <= 0) return Json("Ocorreu um problema ao alterar o contato...");
+
+            int res3 = 0;
             if (tipoi == 1)
             {
-                res2 = new PessoaFisicaModelController().Alterar(new PessoaFisicaViewModel()
+                res3 = new PessoaFisica()
                 {
                     Id = idpessoa,
                     Nome = nome,
                     Rg = rg,
                     Cpf = cpf,
                     Nascimento = nascimento,
-                    Telefone = telefone,
-                    Celular = celular,
-                    Email = email,
-                    Tipo = tipoi,
-                    Endereco = new EnderecoViewModel()
+                    Contato = new Contato()
                     {
-                        Id = idendereco,
-                        Rua = rua,
-                        Numero = numero,
-                        Bairro = bairro,
-                        Complemento = complemento,
-                        Cep = cep,
-                        Cidade = new CidadeViewModel()
-                        {
-                            Id = cidi,
-                            Nome = "",
-                            Estado = null
-                        }
+                        Id = idcontato
                     }
-                });    
+                }.Alterar();    
             }
             else
             {
-                res2 = new PessoaJuridicaModelController().Alterar(new PessoaJuridicaViewModel()
+                res3 = new PessoaJuridica()
                 {
                     Id = idpessoa,
                     RazaoSocial = razaosocial,
                     NomeFantasia = nomefantasia,
                     Cnpj = cnpj,
-                    Telefone = telefone,
-                    Celular = celular,
-                    Email = email,
-                    Tipo = tipoi,
-                    Endereco = new EnderecoViewModel()
+                    Contato = new Contato()
                     {
-                        Id = idendereco,
-                        Rua = rua,
-                        Numero = numero,
-                        Bairro = bairro,
-                        Complemento = complemento,
-                        Cep = cep,
-                        Cidade = new CidadeViewModel()
-                        {
-                            Id = cidi,
-                            Nome = "",
-                            Estado = null
-                        }
+                        Id = idcontato
                     }
-                });
+                }.Alterar();
             }
+
+            if (res3 <= 0) return Json("Ocorreu um problema ao alterar a pessoa...");
             
-            if (res2 <= 0) return Json("Ocorreu um problema ao alterar a pessoa...");
-                
-            var res3 = new ClienteModelController().Alterar(new ClienteViewModel()
+            int res4 = new Cliente()
             {
                 Id = idcliente,
                 Cadastro = DateTime.Now,
                 Tipo = tipoi,
-                Pessoa = new PessoaFisicaViewModel()
+                PessoaFisica = tipoi == 2 ? null : new PessoaFisica()
                 {
                     Id = idpessoa,
                     Nome = nome,
                     Rg = rg,
                     Cpf = cpf,
                     Nascimento = nascimento,
-                    Telefone = telefone,
-                    Celular = celular,
-                    Email = email,
-                    Tipo = tipoi,
-                    Endereco = new EnderecoViewModel()
+                    Contato = new Contato()
                     {
-                        Id = idendereco,
-                        Rua = rua,
-                        Numero = numero,
-                        Bairro = bairro,
-                        Complemento = complemento,
-                        Cep = cep,
-                        Cidade = new CidadeViewModel()
-                        {
-                            Id = cidi,
-                            Nome = "",
-                            Estado = null
-                        }
+                        Id = idcontato
+                    }
+                },
+                PessoaJuridica = tipoi == 1 ? null : new PessoaJuridica()
+                {
+                    Id = idpessoa,
+                    RazaoSocial = razaosocial,
+                    NomeFantasia = nomefantasia,
+                    Cnpj = cnpj,
+                    Contato = new Contato()
+                    {
+                        Id = idcontato
                     }
                 }
-            });
+            }.Alterar();
 
-            return Json(res3 > 0 ? "" : "Ocorreu um problema ao alterar o cliente...");
+            return Json(res4 <= 0 ? "Ocorreu um problema ao alterar o cliente..." : "");
         }
 
         [HttpPost]
@@ -494,12 +472,20 @@ namespace scrweb.Controllers
             var res = 0;
             var cli = _clientes.Find(c => c.Id == id);
             
-            res = new ClienteModelController().Excluir(id);
-            res = cli.Tipo == 1
-                ? new PessoaFisicaModelController().Excluir(cli.Pessoa.Id)
-                : new PessoaJuridicaModelController().Excluir(cli.Pessoa.Id);
-            res = new EnderecoModelController().Excluir(cli.Pessoa.Endereco.Id);
-            
+            res = new Cliente().Excluir(id);
+            if (cli.Tipo == 1)
+            {
+                res = new PessoaFisica().Excluir(cli.PessoaFisica.Id);
+                res = new Endereco().Excluir(cli.PessoaFisica.Contato.Endereco.Id);
+            }
+            else
+            {
+                res = new PessoaJuridica().Excluir(cli.PessoaJuridica.Id);
+                res = res = new Endereco().Excluir(cli.PessoaJuridica.Contato.Endereco.Id);
+            }
+
+            if (res > 0) _clientes.Remove(cli);
+
             return Json(res);
         }
     }

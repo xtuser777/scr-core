@@ -55,7 +55,8 @@ namespace scrweb.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"
                 insert into categoria(descricao) 
-                values(@des) returning id;
+                values(@des) 
+                returning id;
             ";
             ComandoSQL.Parameters.AddWithValue("@des", c.Descricao);
 

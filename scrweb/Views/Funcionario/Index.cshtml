@@ -21,7 +21,7 @@
                         <td>' + FormatarData(this.funcionario.admissao) + '</td>\
                         <td>' + tipo + '</td>\
                         <td>' + ativo + '</td>\
-                        <td>' + this.funcionario.pessoa.email + '</td>';
+                        <td>' + this.funcionario.pessoa.contato.email + '</td>';
                         if (ativo === "Sim") {
                             txt += '<td><a role="button" class="glyphicon glyphicon-off" data-toggle="tooltip" data-placement="top" title="DESATIVAR" href="javascript:desativar('+ this.id +',\''+ this.nivel.descricao +'\')"></a></td>';
                         } else {

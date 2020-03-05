@@ -1,8 +1,4 @@
-
-@{
-    ViewBag.Title = "Gerenciar Clientes";
-    Layout = "_Layout";
-}
+@{ViewBag.Title = "Gerenciar Clientes"; Layout = "_Layout";}
 
 @section Scripts {
     <script type="text/javascript" src="~/lib/bootbox/bootbox.min.js"></script>
@@ -20,7 +16,7 @@
                         <td>' + doc + '</td>\
                         <td>' + FormatarData(this.cadastro) + '</td>\
                         <td>'+ tipo +'</td>\
-                        <td>'+ this.pessoa.email +'</td>\
+                        <td>'+ this.pessoa.contato.email +'</td>\
                         <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
                         <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
                     </tr>';

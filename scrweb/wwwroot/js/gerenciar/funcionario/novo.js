@@ -56,15 +56,10 @@ function limparEstados() {
 }
 
 function carregarCidades() {
-    var form = new FormData();
-    form.append("estado", cbestado.value);
-
     $.ajax({
         type: 'POST',
-        url: '/Funcionario/ObterCidades',
-        data: form,
-        contentType: false,
-        processData: false,
+        url: '/Cidade/ObterPorEstado',
+        data: { estado: cbestado.value },
         async: false,
         success: function (response) {lista_cidades = response;},
         error: function (err) {
@@ -131,7 +126,7 @@ $(document).ready(function () {
     $(txtel).mask('(00) 0000-0000', {reverse: false});
     $(txcel).mask('(00) 00000-0000', {reverse: false});
 
-    lista_estados = get('/Funcionario/ObterEstados');
+    lista_estados = get('/Estado/Obter');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {

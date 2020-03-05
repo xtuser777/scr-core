@@ -220,7 +220,7 @@
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 220px;">Filtragem de Vínculos</div>
+    <div class="fieldset-card-legend">Filtragem de Vínculos</div>
 
     <div class="fieldset-card-container">
         <div class="row">
@@ -238,7 +238,7 @@
 </div>
 
 <div class="fieldset-card" style="margin-bottom: 40px;">
-    <div class="fieldset-card-legend" style="width: 200px;">Vínculos Cadastrados</div>
+    <div class="fieldset-card-legend">Vínculos Cadastrados</div>
 
     <div class="fieldset-card-container">
         <div class="row">
@@ -267,7 +267,7 @@
                 <label for="select_tipo">Tipos para adição:</label>
                 <select id="select_tipo" class="form-control input-sm">
                     <option value="0">SELECIONE</option>
-                    @foreach (var tipo in (List<TipoCaminhaoViewModel>) ViewBag.Tipos)
+                    @foreach (var tipo in (List<TipoCaminhao>) ViewBag.Tipos)
                     {
                         <option value="@tipo.Id">@tipo.Descricao</option>
                     }

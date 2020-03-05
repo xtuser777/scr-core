@@ -1,88 +1,69 @@
-﻿using scrweb.DAO;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System;
+using Newtonsoft.Json.Linq;
+using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class PessoaFisica : Pessoa
+    public class PessoaFisica
     {
+        private int _id;
         private string _nome;
         private string _rg;
         private string _cpf;
         private DateTime _nascimento;
+        private Contato _contato;
 
-        internal string Nome
-        {
-            get => _nome;
-            set => _nome = value;
-        }
-
-        internal string Rg
-        {
-            get => _rg;
-            set => _rg = value;
-        }
-
-        internal string Cpf
-        {
-            get => _cpf;
-            set => _cpf = value;
-        }
-
-        internal DateTime Nascimento
-        {
-            get => _nascimento;
-            set => _nascimento = value;
-        }
-
-        internal PessoaFisica GetById(int id)
-        {
-            if (id > 0)
-            {
-                return new PessoaFisicaDAO().GetById(id);
-            }
-
-            return null;
-        }
-
-        internal bool VerifyCpf(string cpf)
+        public int Id { get => _id; set => _id = value; }
+        public string Nome { get => _nome; set => _nome = value; }
+        public string Rg { get => _rg; set => _rg = value; }
+        public string Cpf { get => _cpf; set => _cpf = value; }
+        public DateTime Nascimento { get => _nascimento; set => _nascimento = value; }
+        public Contato Contato { get => _contato; set => _contato = value; }
+        
+        public bool VerifyCpf(string cpf)
         {
             return !string.IsNullOrEmpty(cpf) && new PessoaFisicaDAO().CountCpf(cpf) > 0;
         }
 
-        internal int Gravar()
+        public PessoaFisica GetById(int id)
         {
-            if (Id == 0 && Tipo == 1 && !string.IsNullOrEmpty(Telefone) && !string.IsNullOrEmpty(Celular) &&
-                !string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(_nome) && !string.IsNullOrEmpty(_rg) &&
-                !string.IsNullOrEmpty(_cpf) && Endereco > 0)
-            {
-                return new PessoaFisicaDAO().Gravar(this);
-            }
-
-            return -10;
+            return id > 0 ? new PessoaFisicaDAO().GetById(id) : null;
         }
 
-        internal int Alterar()
+        public int Gravar()
         {
-            if (Id > 0 && Tipo == 1 && !string.IsNullOrEmpty(Telefone) && !string.IsNullOrEmpty(Celular) &&
-                !string.IsNullOrEmpty(Email) && !string.IsNullOrEmpty(_nome) && !string.IsNullOrEmpty(_rg) &&
-                !string.IsNullOrEmpty(_cpf) && Endereco > 0)
-            {
-                return new PessoaFisicaDAO().Alterar(this);
-            }
-
-            return -10;
+            if (_id != 0 || string.IsNullOrEmpty(_nome) || string.IsNullOrEmpty(_rg) ||
+                string.IsNullOrEmpty(_cpf)
+            ) return -5;
+            
+            return new PessoaFisicaDAO().Gravar(this);
         }
 
-        internal int Excluir(int id)
+        public int Alterar()
         {
-            if (id > 0)
-            {
-                return new PessoaFisicaDAO().Excluir(id);
-            }
+            if (_id <= 0 || string.IsNullOrEmpty(_nome) || string.IsNullOrEmpty(_rg) ||
+                string.IsNullOrEmpty(_cpf)
+            ) return -5;
+            
+            return new PessoaFisicaDAO().Alterar(this);
+        }
 
-            return -1;
+        public int Excluir(int id)
+        {
+            return id > 0 ? new PessoaFisicaDAO().Excluir(id) : -5;
+        }
+
+        public JObject ToJObject()
+        {
+            JObject json = new JObject();
+            json.Add("id", _id);
+            json.Add("nome", _nome);
+            json.Add("rg", _rg);
+            json.Add("cpf", _cpf);
+            json.Add("nascimento", _nascimento);
+            json.Add("contato", _contato.ToJObject());
+
+            return json;
         }
     }
 }

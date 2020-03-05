@@ -1,45 +1,45 @@
-﻿using scrweb.DAO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json.Linq;
+using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Cidade
+    public class Cidade
     {
 		private int _id;
 		private string _nome;
-		private int _estado;
+		private Estado _estado;
 
-		internal int Estado { get { return _estado; } set { _estado = value; } }
+		public Estado Estado { get { return _estado; } set { _estado = value; } }
 
-		internal string Nome { get { return _nome; } set { _nome = value; } }
+		public string Nome { get { return _nome; } set { _nome = value; } }
 
-		internal int Id { get { return _id; } set { _id = value; } }
+		public int Id { get { return _id; } set { _id = value; } }
 
-		internal Cidade GetById(int id)
+		public Cidade GetById(int id)
 		{
 			return id > 0 ? new CidadeDAO().GetById(id) : null;
 		}
 
-		internal List<Cidade> GetByEstado(int estado)
+		public List<Cidade> GetByEstado(int estado)
 		{
 			return estado > 0 ? new CidadeDAO().GetByEstado(estado) : null;
 		}
-		
-		internal List<Cidade> GetByEstAndKey(int estado, string chave)
+
+		public List<Cidade> GetAll()
 		{
-			if (estado > 0 && !string.IsNullOrEmpty(chave))
-			{
-				return new CidadeDAO().GetByEstAndKey(estado, chave);
-			}
-			
-			return null;
+			return new CidadeDAO().GetAll();
 		}
 
-		internal List<Cidade> Get()
+		public JObject ToJObject()
 		{
-			return new CidadeDAO().Get();
+			JObject json = new JObject();
+			json.Add("id", _id);
+			json.Add("nome", _nome);
+			json.Add("estado", _estado.ToJObject());
+
+			return json;
 		}
 	}
 }

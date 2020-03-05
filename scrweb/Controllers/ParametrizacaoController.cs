@@ -1,12 +1,10 @@
 using System;
-using System.Collections;
 using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrweb.ViewModels;
 using scrweb.Filters;
-using scrweb.ModelControllers;
+using scrweb.Models;
 
 namespace scrweb.Controllers
 {
@@ -28,18 +26,8 @@ namespace scrweb.Controllers
 
         public JsonResult Obter()
         {
-            return Json(new ParametrizacaoModelController().Get());
-        }
-        
-        public JsonResult ObterEstados()
-        {
-            return Json(new EstadoModelController().Get());
-        }
-
-        [HttpPost]
-        public JsonResult ObterCidades(IFormCollection form)
-        {
-            return Json(new CidadeModelController().GetByEstado(Convert.ToInt32(form["estado"])));
+            var par = new Parametrizacao().Get();
+            return Json(par?.ToJObject());
         }
 
         private string GravarLogotipo(ref bool err)
@@ -119,8 +107,7 @@ namespace scrweb.Controllers
             
             int.TryParse(cidade, out var cidade1);
 
-            int res1 = new ParametrizacaoModelController().Gravar(new ParametrizacaoViewModel()
-            {
+            int res1 = new Parametrizacao(){
                 Id = 0,
                 RazaoSocial = razaoSocial,
                 NomeFantasia = nomeFantasia,
@@ -130,12 +117,12 @@ namespace scrweb.Controllers
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new CidadeModelController().GetById(cidade1),
+                Cidade = new Cidade().GetById(cidade1),
                 Telefone = telefone,
                 Celular = celular,
                 Email = email,
                 Logotipo = logo
-            });
+            }.Gravar();
 
             return Json(res1 > 0 ? "" : "Ocorreu um problema ao gravar o Parametrização.");
         }
@@ -163,8 +150,7 @@ namespace scrweb.Controllers
             
             int.TryParse(cidade, out var cidade1);
 
-            int res1 = new ParametrizacaoModelController().Alterar(new ParametrizacaoViewModel()
-            {
+            int res1 = new Parametrizacao(){
                 Id = 1,
                 RazaoSocial = razaoSocial,
                 NomeFantasia = nomeFantasia,
@@ -174,12 +160,12 @@ namespace scrweb.Controllers
                 Bairro = bairro,
                 Complemento = complemento,
                 Cep = cep,
-                Cidade = new CidadeModelController().GetById(cidade1),
+                Cidade = new Cidade().GetById(cidade1),
                 Telefone = telefone,
                 Celular = celular,
                 Email = email,
                 Logotipo = logo
-            });
+            }.Alterar();
 
             return Json(res1 > 0 ? "" : "Ocorreu um problema ao alterar a Parametrização.");
         }

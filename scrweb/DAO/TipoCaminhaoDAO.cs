@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using scrweb.Models;
 
 namespace scrweb.DAO
@@ -21,16 +20,28 @@ namespace scrweb.DAO
 
         private List<TipoCaminhao> GetList(DataTable table)
         {
-            return (from DataRow row in table.Rows select GetObject(row)).ToList();
+            List<TipoCaminhao> list = new List<TipoCaminhao>();
+
+            for (int i = 0; i < table.Rows.Count; i++)
+            {
+                DataRow row = table.Rows[i];
+                list.Add(GetObject(row));
+            }
+
+            return list;
         }
 
         internal TipoCaminhao GetById(int id)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,descricao,capacidade,eixos from tipo_caminhao where id = @id;";
+            ComandoSQL.CommandText = @"
+                select id,descricao,capacidade,eixos 
+                from tipo_caminhao 
+                where id = @id;
+            ";
             ComandoSQL.Parameters.AddWithValue("@id", id);
 
-            var table = ExecutaSelect();
+            DataTable table = ExecutaSelect();
 
             return table != null && table.Rows.Count > 0 ? GetObject(table.Rows[0]) : null;
         }
@@ -38,9 +49,12 @@ namespace scrweb.DAO
         internal List<TipoCaminhao> GetAll()
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,descricao,capacidade,eixos from tipo_caminhao;";
+            ComandoSQL.CommandText = @"
+                select id,descricao,capacidade,eixos 
+                from tipo_caminhao;
+            ";
 
-            var table = ExecutaSelect();
+            DataTable table = ExecutaSelect();
             
             return table != null && table.Rows.Count > 0 ? GetList(table) : null;
         }
@@ -50,13 +64,14 @@ namespace scrweb.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"
                 insert into tipo_caminhao(descricao,eixos,capacidade)
-                values(@des,@eix,@cap) returning id;
+                values(@des,@eix,@cap) 
+                returning id;
             ";
             ComandoSQL.Parameters.AddWithValue("@des", tc.Descricao);
             ComandoSQL.Parameters.AddWithValue("@eix", tc.Eixos);
             ComandoSQL.Parameters.AddWithValue("@cap", tc.Capacidade);
 
-            var table = ExecutaSelect();
+            DataTable table = ExecutaSelect();
 
             return table != null && table.Rows.Count > 0 ? Convert.ToInt32(table.Rows[0]["id"]) : -10;
         }

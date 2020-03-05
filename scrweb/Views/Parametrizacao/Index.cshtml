@@ -18,15 +18,10 @@
         }
                 
         function carregarCidades() {
-            var form = new FormData();
-            form.append("estado", cbestado.value);
-        
             $.ajax({
                 type: 'POST',
-                url: '/Parametrizacao/ObterCidades',
-                data: form,
-                contentType: false,
-                processData: false,
+                url: '/Cidade/ObterPorEstado',
+                data: { estado: cbestado.value },
                 async: false,
                 success: function (response) {lista_cidades = response;},
                 error: function (err) {
@@ -86,7 +81,7 @@
             $("#tel").mask('(00) 0000-0000', {reverse: false});
             $("#cel").mask('(00) 00000-0000', {reverse: false});
         
-            lista_estados = get('/Parametrizacao/ObterEstados');
+            lista_estados = get('/Estado/Obter');
             limparEstados();
             if (lista_estados !== "") {
                 for (var i = 0; i < lista_estados.length; i++) {
@@ -224,6 +219,8 @@
             var email = $("#email").val();
             
             var logotipo = document.getElementById("logotipo");
+            
+            erros = 0;
         
             if (razaosocial.length === 0) {
                 erros++;

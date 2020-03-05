@@ -1,42 +1,35 @@
-﻿using scrweb.DAO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json.Linq;
+using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Nivel
+    public class Nivel
     {
         private int _id;
         private string _descricao;
 
-        internal string Descricao
+        public string Descricao { get => _descricao; set => _descricao = value; }
+        public int Id { get => _id; set => _id = value; }
+
+        public Nivel GetById(int id)
         {
-            get => _descricao;
-            set => _descricao = value;
+            return id > 0 ? new NivelDAO().GetById(id) : null;
         }
 
-        internal int Id
+        public List<Nivel> GetAll()
         {
-            get => _id;
-            set => _id = value;
+            return new NivelDAO().GetAll();
         }
 
-        internal Nivel GetById(int id)
+        public JObject ToJObject()
         {
-            Nivel nivel = null;
-            if (id > 0)
-            {
-                nivel = new NivelDAO().GetById(id);
-            }
-            return nivel;
-        }
+            JObject json = new JObject();
+            json.Add("id", _id);
+            json.Add("descricao", _descricao);
 
-        internal List<Nivel> Get()
-        {
-            List<Nivel> niveis = null;
-            niveis = new NivelDAO().Get();
-            return niveis;
+            return json;
         }
     }
 }

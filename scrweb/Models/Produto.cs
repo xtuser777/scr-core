@@ -1,58 +1,68 @@
+using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Produto
+    public class Produto
     {
         private int _id;
         private string _descricao;
         private string _medida;
         private decimal _preco;
         private decimal _precoOut;
-        private int _representacao;
+        private Representacao _representacao;
 
-        internal int Id { get => _id; set => _id = value; }
+        public int Id { get => _id; set => _id = value; }
+        public string Descricao { get => _descricao; set => _descricao = value; }
+        public string Medida { get => _medida; set => _medida = value; }
+        public decimal Preco { get => _preco; set => _preco = value; }
+        public decimal PrecoOut { get => _precoOut; set => _precoOut = value; }
+        public Representacao Representacao { get => _representacao; set => _representacao = value; }
 
-        internal string Descricao { get => _descricao; set => _descricao = value; }
-
-        internal string Medida { get => _medida; set => _medida = value; }
-
-        internal decimal Preco { get => _preco; set => _preco = value; }
-
-        internal decimal PrecoOut { get => _precoOut; set => _precoOut = value; }
-
-        internal int Representacao { get => _representacao; set => _representacao = value; }
-
-        internal Produto GetById(int id)
+        public Produto GetById(int id)
         {
-            return ((id > 0) ? new ProdutoDAO().GetById(id) : null);
+            return id > 0 ? new ProdutoDAO().GetById(id) : null;
         }
 
-        internal List<Produto> GetAll()
+        public List<Produto> GetAll()
         {
             return new ProdutoDAO().GetAll();
         }
 
-        internal int Gravar()
+        public int Gravar()
         {
-            return ((_id == 0 && !string.IsNullOrEmpty(_descricao) && !string.IsNullOrEmpty(_medida) && _preco > 0 && _precoOut > 0 && _representacao > 0)
-                ? new ProdutoDAO().Gravar(this)
-                : -5
-            );
+            if (_id != 0 || string.IsNullOrEmpty(_descricao) || string.IsNullOrEmpty(_medida) || _preco <= 0 ||
+                _precoOut <= 0 || _representacao == null) return -5;
+            
+            return new ProdutoDAO().Gravar(this);
         }
 
-        internal int Alterar()
+        public int Alterar()
         {
-            return ((_id > 0 && !string.IsNullOrEmpty(_descricao) && !string.IsNullOrEmpty(_medida) && _preco > 0 && _precoOut > 0 && _representacao > 0)
-                ? new ProdutoDAO().Alterar(this)
-                : -5
-            );
+            if (_id <= 0 || string.IsNullOrEmpty(_descricao) || string.IsNullOrEmpty(_medida) || _preco <= 0 ||
+                _precoOut <= 0 || _representacao == null) return -5;
+            
+            return new ProdutoDAO().Alterar(this);
         }
 
-        internal int Excluir(int id)
+        public int Excluir(int id)
         {
-            return ((id > 0) ? new ProdutoDAO().Excluir(id) : -5);
+            return id > 0 ? new ProdutoDAO().Excluir(id) : -5;
+        }
+
+        public JObject ToJObject()
+        {
+            JObject json = new JObject();
+            json.Add("id", _id);
+            json.Add("descricao", _descricao);
+            json.Add("medida", _medida);
+            json.Add("preco", _preco);
+            json.Add("precoOut", _precoOut);
+            json.Add("representacao", _representacao.ToJObject());
+
+            return json;
         }
     }
 }

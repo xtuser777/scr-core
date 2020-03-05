@@ -239,7 +239,7 @@
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 220px;">Filtragem de Produtos</div>
+    <div class="fieldset-card-legend">Filtragem de Produtos</div>
 
     <div class="fieldset-card-container">
         <div class="row">
@@ -252,7 +252,7 @@
                 <label for="representacao">Representação:</label>
                 <select id="representacao" class="form-control input-sm">
                     <option value="0">SELECIONE</option>
-                    @foreach (var rep in (List<RepresentacaoViewModel>) ViewBag.Representacoes)
+                    @foreach (var rep in (List<Representacao>) ViewBag.Representacoes)
                     {
                         <option value="@rep.Id">@rep.Pessoa.NomeFantasia (@rep.Unidade)</option>
                     }
@@ -268,7 +268,7 @@
 </div>
 
 <div class="fieldset-card" style="margin-bottom: 40px;">
-    <div class="fieldset-card-legend" style="width: 200px;">Produtos Cadastrados</div>
+    <div class="fieldset-card-legend">Produtos Cadastrados</div>
 
     <div class="fieldset-card-container">
         <div class="row" style="margin-bottom: 10px;">

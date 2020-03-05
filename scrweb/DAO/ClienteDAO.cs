@@ -8,14 +8,15 @@ namespace scrweb.DAO
 {
     internal class ClienteDAO : Banco
     {
-        private Cliente GetObject(DataRow dr)
+        private Cliente GetObject(DataRow row)
         {
             return new Cliente()
             {
-                Id = Convert.ToInt32(dr["id"]),
-                Cadastro = Convert.ToDateTime(dr["cadastro"]),
-                Tipo = Convert.ToInt32(dr["tipo"]),
-                Pessoa = Convert.ToInt32(dr["tipo"]) == 1 ? Convert.ToInt32(dr["pessoa_fisica"]) : Convert.ToInt32(dr["pessoa_juridica"])
+                Id = Convert.ToInt32(row["cli_id"]),
+                Cadastro = Convert.ToDateTime(row["cli_cadastro"]),
+                Tipo = Convert.ToInt32(row["cli_tipo"]),
+                PessoaFisica = Convert.ToInt32(row["cli_tipo"]) == 2 ? null : new PessoaFisica().GetById(Convert.ToInt32(row["cli_pessoa_fisica"])),
+                PessoaJuridica = Convert.ToInt32(row["cli_tipo"]) == 1 ? null : new PessoaJuridica().GetById(Convert.ToInt32(row["cli_pessoa_juridica"]))
             };
         }
 
@@ -27,10 +28,17 @@ namespace scrweb.DAO
         internal Cliente GetById(int id)
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,cadastro,tipo,pessoa_fisica,pessoa_juridica from cliente where id = @id;";
+            ComandoSQL.CommandText = @"
+                select 
+                    cl.id as cli_id, cl.cadastro as cli_cadastro, cl.tipo as cli_tipo, cl.pessoa_fisica as cli_pessoa_fisica, cl.pessoa_juridica as cli_pessoa_juridica
+                from
+                    cliente cl
+                where 
+                    cl.id = @id;
+            ";
             ComandoSQL.Parameters.AddWithValue("@id", id);
             
-            var dt = ExecutaSelect();
+            DataTable dt = ExecutaSelect();
 
             return dt != null && dt.Rows.Count > 0 ? GetObject(dt.Rows[0]) : null;
         }
@@ -38,9 +46,14 @@ namespace scrweb.DAO
         internal List<Cliente> GetAll()
         {
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,cadastro,tipo,pessoa_fisica,pessoa_juridica from cliente;";
+            ComandoSQL.CommandText = @"
+                select 
+                    cl.id as cli_id, cl.cadastro as cli_cadastro, cl.tipo as cli_tipo, cl.pessoa_fisica as cli_pessoa_fisica, cl.pessoa_juridica as cli_pessoa_juridica
+                from 
+                    cliente cl;
+            ";
 
-            var dt = ExecutaSelect();
+            DataTable dt = ExecutaSelect();
             
             return dt != null && dt.Rows.Count > 0 ? GetList(dt) : null;
         }
@@ -48,15 +61,22 @@ namespace scrweb.DAO
         internal int Gravar(Cliente c)
         {
             ComandoSQL.Parameters.Clear();
-            if (c.Tipo == 1) ComandoSQL.CommandText = @"insert into cliente(cadastro,tipo,pessoa_fisica) 
-            values(@cad,@tipo,@pessoa) returning id;";
-            else ComandoSQL.CommandText = @"insert into cliente(cadastro,tipo,pessoa_juridica) 
-            values(@cad,@tipo,@pessoa) returning id;" ;
+            if (c.Tipo == 1) ComandoSQL.CommandText = @"
+                insert into cliente(cadastro,tipo,pessoa_fisica,pessoa_juridica) 
+                values(@cad,@tipo,@pf,0) 
+                returning id;
+            ";
+            else ComandoSQL.CommandText = @"
+                insert into cliente(cadastro,tipo,pessoa_fisica,pessoa_juridica) 
+                values(@cad,@tipo,0,@pj) 
+                returning id;
+            ";
             ComandoSQL.Parameters.AddWithValue("@cad", c.Cadastro);
             ComandoSQL.Parameters.AddWithValue("@tipo", c.Tipo);
-            ComandoSQL.Parameters.AddWithValue("@pessoa", c.Pessoa);
+            if (c.Tipo == 1) ComandoSQL.Parameters.AddWithValue("@pf", c.PessoaFisica.Id);
+            else ComandoSQL.Parameters.AddWithValue("@pj", c.PessoaJuridica.Id);
 
-            var dt = ExecutaSelect();
+            DataTable dt = ExecutaSelect();
 
             return dt != null && dt.Rows.Count > 0 ? Convert.ToInt32(dt.Rows[0]["id"]) : -10;
         }
@@ -64,13 +84,26 @@ namespace scrweb.DAO
         internal int Alterar(Cliente c)
         {
             ComandoSQL.Parameters.Clear();
-            if (c.Tipo == 1) ComandoSQL.CommandText = @"update cliente 
-            set cadastro = @cad, tipo = @tipo, pessoa_fisica = @pessoa where id = @id;";
-            else ComandoSQL.CommandText = @"update cliente 
-            set cadastro = @cad, tipo = @tipo, pessoa_juridica = @pessoa where id = @id;";
+            ComandoSQL.CommandText = @"
+                update cliente 
+                set cadastro = @cad, 
+                    tipo = @tipo, 
+                    pessoa_fisica = @pf,
+                    pessoa_juridica = @pj
+                where id = @id;
+            ";
             ComandoSQL.Parameters.AddWithValue("@cad", c.Cadastro);
             ComandoSQL.Parameters.AddWithValue("@tipo", c.Tipo);
-            ComandoSQL.Parameters.AddWithValue("@pessoa", c.Pessoa);
+            if (c.Tipo == 1)
+            {
+                ComandoSQL.Parameters.AddWithValue("@pf", c.PessoaFisica.Id);
+                ComandoSQL.Parameters.AddWithValue("@pj", 0);
+            }
+            else
+            {
+                ComandoSQL.Parameters.AddWithValue("@pf", 0);
+                ComandoSQL.Parameters.AddWithValue("@pj", c.PessoaJuridica.Id);
+            }
             ComandoSQL.Parameters.AddWithValue("@id", c.Id);
 
             return ExecutaComando();

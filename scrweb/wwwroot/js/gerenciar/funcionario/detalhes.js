@@ -45,6 +45,7 @@ var msConfSenha = document.getElementById("msConfSenha");
 var auth = document.getElementById("auth");
 
 var idendereco = 0;
+var idcontato = 0;
 var idpessoa = 0;
 var idfuncionario = 0;
 var idusuario = 0;
@@ -64,15 +65,10 @@ function limparEstados() {
 }
 
 function carregarCidades() {
-    var form = new FormData();
-    form.append("estado", cbestado.value);
-
     $.ajax({
         type: 'POST',
-        url: '/Funcionario/ObterCidades',
-        data: form,
-        contentType: false,
-        processData: false,
+        url: '/Cidade/ObterPorEstado',
+        data: { estado: cbestado.value },
         async: false,
         success: function (response) {lista_cidades = response;},
         error: function (err) {
@@ -139,7 +135,7 @@ $(document).ready(function () {
     $(txtel).mask('(00) 0000-0000', {reverse: false});
     $(txcel).mask('(00) 00000-0000', {reverse: false});
     
-    lista_estados = get('/Funcionario/ObterEstados');
+    lista_estados = get('/Estado/Obter');
     limparEstados();
     if (lista_estados !== "") {
         for (var i = 0; i < lista_estados.length; i++) {
@@ -162,7 +158,8 @@ $(document).ready(function () {
     
     var response = get("/Funcionario/ObterFuncInfo");
     if (response != null && response !== "") {
-        idendereco = response.funcionario.pessoa.endereco.id;
+        idendereco = response.funcionario.pessoa.contato.endereco.id;
+        idcontato = response.funcionario.pessoa.contato.id;
         idpessoa = response.funcionario.pessoa.id;
         idfuncionario = response.funcionario.id;
         idusuario = response.id;
@@ -175,17 +172,17 @@ $(document).ready(function () {
         txcpf.value = response.funcionario.pessoa.cpf;
         cbtipo.value = response.funcionario.tipo;
         dtadm.value = FormatarDataIso(response.funcionario.admissao);
-        txrua.value = response.funcionario.pessoa.endereco.rua;
-        txnumero.value = response.funcionario.pessoa.endereco.numero;
-        txbairro.value = response.funcionario.pessoa.endereco.bairro;
-        txcomplemento.value = response.funcionario.pessoa.endereco.complemento;
-        txcep.value = response.funcionario.pessoa.endereco.cep;
-        cbestado.value = response.funcionario.pessoa.endereco.cidade.estado.id;
+        txrua.value = response.funcionario.pessoa.contato.endereco.rua;
+        txnumero.value = response.funcionario.pessoa.contato.endereco.numero;
+        txbairro.value = response.funcionario.pessoa.contato.endereco.bairro;
+        txcomplemento.value = response.funcionario.pessoa.contato.endereco.complemento;
+        txcep.value = response.funcionario.pessoa.contato.endereco.cep;
+        cbestado.value = response.funcionario.pessoa.contato.endereco.cidade.estado.id;
         carregarCidades();
-        cbcidade.value = response.funcionario.pessoa.endereco.cidade.id;
-        txtel.value = response.funcionario.pessoa.telefone;
-        txcel.value = response.funcionario.pessoa.celular;
-        txemail.value = response.funcionario.pessoa.email;
+        cbcidade.value = response.funcionario.pessoa.contato.endereco.cidade.id;
+        txtel.value = response.funcionario.pessoa.contato.telefone;
+        txcel.value = response.funcionario.pessoa.contato.celular;
+        txemail.value = response.funcionario.pessoa.contato.email;
         cbnivel.value = response.nivel.id;
         nivel_atual = response.nivel.id;
         txlogin.value = response.login;
@@ -630,6 +627,7 @@ btsalvar.addEventListener("click", function (event) {
     if (erros === 0) {
         var form = new FormData();
         form.append("idendereco", idendereco);
+        form.append("idcontato", idcontato);
         form.append("idpessoa", idpessoa);
         form.append("idfuncionario", idfuncionario);
         form.append("idusuario", idusuario);

@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrweb.ViewModels;
+using Newtonsoft.Json.Linq;
 using scrweb.Filters;
-using scrweb.ModelControllers;
+using scrweb.Models;
 
 namespace scrweb.Controllers
 {
     [ValidarUsuario]
     public class TipoCaminhaoController : Controller
     {
-        private static List<TipoCaminhaoViewModel> _tipos;
-        private static TipoCaminhaoViewModel _tipo;
+        private static List<TipoCaminhao> _tipos;
+        private static TipoCaminhao _tipo;
 
         public TipoCaminhaoController()
         {
-            _tipos = new TipoCaminhaoModelController().GetAll();
+            _tipos = new TipoCaminhao().GetAll();
         }
         
         // GET
@@ -41,26 +41,42 @@ namespace scrweb.Controllers
 
         public JsonResult Obter()
         {
-            return Json(_tipos);
+            if (_tipos == null || _tipos.Count == 0) return Json(new List<TipoCaminhao>());
+            
+            JArray array = new JArray();
+            for (int i = 0; i < _tipos.Count; i++)
+            {
+                array.Add(_tipos[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         public JsonResult ObterDetalhes()
         {
-            return Json(_tipo);
+            return Json(_tipo.ToJObject());
         }
 
         [HttpPost]
         public JsonResult ObterPorFiltro(string filtro)
         {
-            var filtrado = _tipos.FindAll(t => t.Descricao.Contains(filtro, StringComparison.CurrentCultureIgnoreCase));
+            var filtrado = _tipos.FindAll(t => 
+                t.Descricao.Contains(filtro, StringComparison.CurrentCultureIgnoreCase)
+            );
 
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
         public JsonResult Ordenar(string ord)
         {
-            var ordenado = new List<TipoCaminhaoViewModel>();
+            var ordenado = new List<TipoCaminhao>();
 
             switch (ord)
             {
@@ -90,7 +106,13 @@ namespace scrweb.Controllers
                     break;
             }
 
-            return Json(ordenado);
+            JArray array = new JArray();
+            for (int i = 0; i < ordenado.Count; i++)
+            {
+                array.Add(ordenado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
@@ -111,13 +133,13 @@ namespace scrweb.Controllers
             int.TryParse(eixos, out var eixosi);
             decimal.TryParse(capacidade, out var cap);
             
-            var res = new TipoCaminhaoModelController().Gravar(new TipoCaminhaoViewModel()
+            var res = new TipoCaminhao()
             {
                 Id = 0,
                 Descricao = descricao,
                 Eixos = eixosi,
                 Capacidade = cap
-            });
+            }.Gravar();
 
             switch (res)
             {
@@ -142,13 +164,13 @@ namespace scrweb.Controllers
             int.TryParse(eixos, out var eixosi);
             decimal.TryParse(capacidade, out var cap);
             
-            var res = new TipoCaminhaoModelController().Alterar(new TipoCaminhaoViewModel()
+            var res = new TipoCaminhao()
             {
                 Id = tipo_id,
                 Descricao = descricao,
                 Eixos = eixosi,
                 Capacidade = cap
-            });
+            }.Alterar();
 
             return Json(res <= 0 ? "Ocorreu um problema na execução do comando SQL." : "");
         }
@@ -156,7 +178,7 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int id)
         {
-            var res = new TipoCaminhaoModelController().Exlcuir(id);
+            var res = new TipoCaminhao().Excluir(id);
             if (res <= 0) return Json("Problemas foram detectados ao excluir o tipo.");
             _tipos.Remove(_tipos.Find(t => t.Id == id));
             return Json("");

@@ -1,48 +1,57 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Motorista
+    public class Motorista
     {
-        private static int _id;
-        private static DateTime _cadastro;
-        private static int _pessoa;
+        private int _id;
+        private DateTime _cadastro;
+        private PessoaFisica _pessoa;
 
-        internal int Id { get => _id; set => _id = value; }
+        public int Id { get => _id; set => _id = value; }
+        public DateTime Cadastro { get => _cadastro; set => _cadastro = value; }
+        public PessoaFisica Pessoa { get => _pessoa; set => _pessoa = value; }
 
-        internal DateTime Cadastro { get => _cadastro; set => _cadastro = value; }
-
-        internal int Pessoa { get => _pessoa; set => _pessoa = value; }
-
-        internal static Motorista GetById(int id)
+        public Motorista GetById(int id)
         {
             return id > 0 ? new MotoristaDAO().GetById(id) : null;
         }
 
-        internal static List<Motorista> GetAll()
+        public List<Motorista> GetAll()
         {
             return new MotoristaDAO().GetAll();
         }
 
-        internal int Gravar()
+        public int Gravar()
         {
-            return _id == 0 && _pessoa > 0 
-                ? new MotoristaDAO().Gravar(this) 
-                : -5;
+            if (_id != 0 || _pessoa == null) return -5;
+            
+            return new MotoristaDAO().Gravar(this);
         }
 
-        internal int Alterar()
+        public int Alterar()
         {
-            return _id > 0 && _pessoa > 0 
-                ? new MotoristaDAO().Alterar(this) 
-                : -5;
+            if (_id <= 0 || _pessoa == null) return -5;
+            
+            return new MotoristaDAO().Alterar(this);
         }
 
-        internal static int Excluir(int id)
+        public int Excluir(int id)
         {
             return id > 0 ? new MotoristaDAO().Excluir(id) : -5;
+        }
+
+        public JObject ToJObject()
+        {
+            JObject json = new JObject();
+            json.Add("id", _id);
+            json.Add("cadastro", _cadastro);
+            json.Add("pessoa", _pessoa.ToJObject());
+
+            return json;
         }
     }
 }

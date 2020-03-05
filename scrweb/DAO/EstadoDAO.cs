@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace scrweb.DAO
 {
@@ -33,42 +32,33 @@ namespace scrweb.DAO
         {
             Estado e = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select * from estado where id = @id;";
+            ComandoSQL.CommandText = @"select id,nome,sigla from estado where id = @id;";
             ComandoSQL.Parameters.AddWithValue("@id", id);
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 e = GetObject(dt.Rows[0]);
             }
+            
             return e;
         }
 
-        internal List<Estado> Get()
+        internal List<Estado> GetAll()
         {
             List<Estado> estados = null;
             ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select * from estado;";
+            ComandoSQL.CommandText = @"select id,nome,sigla from estado;";
+            
             DataTable dt = ExecutaSelect();
+            
             if (dt != null && dt.Rows.Count > 0)
             {
                 estados = GetList(dt);
             }
+            
             return estados;
-        }
-        
-        internal List<Estado> GetByFilter(string chave)
-        {
-            ComandoSQL.Parameters.Clear();
-            ComandoSQL.CommandText = @"select id,nome,sigla from estado where nome like @chave1 or sigla like @chave2;";
-            ComandoSQL.Parameters.AddWithValue("@chave1", "%"+chave+"%");
-            ComandoSQL.Parameters.AddWithValue("@chave2", "%"+chave+"%");
-            DataTable dt = ExecutaSelect();
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                return GetList(dt);
-            }
-
-            return null;
         }
     }
 }

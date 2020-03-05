@@ -1,29 +1,28 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrweb.ViewModels;
+using Newtonsoft.Json.Linq;
 using scrweb.Filters;
-using scrweb.ModelControllers;
+using scrweb.Models;
 
 namespace scrweb.Controllers
 {
     [ValidarUsuario]
     public class ProdutoTipoCaminhaoController : Controller
     {
-        private static List<ProdutoTipoCaminhaoViewModel> _ptcs;
-        // GET
+        private static List<ProdutoTipoCaminhao> _ptcs;
         
+        // GET
         public IActionResult Index()
         {
-            ViewBag.Tipos = new TipoCaminhaoModelController().GetAll();
+            ViewBag.Tipos = new TipoCaminhao().GetAll();
             
             var produto = Convert.ToInt32(HttpContext.Session.GetString("idprod"));
             
-            _ptcs = new ProdutoTipoCaminhaoModelController().GetPorProduto(produto);
-            
+            _ptcs = new ProdutoTipoCaminhao().GetByProduct(produto);
+
             return View();
         }
         
@@ -37,7 +36,15 @@ namespace scrweb.Controllers
 
         public JsonResult Obter()
         {
-            return Json(_ptcs);
+            if (_ptcs == null || _ptcs.Count == 0) return Json(new List<ProdutoTipoCaminhao>());
+            
+            JArray array = new JArray();
+            for (int i = 0; i < _ptcs.Count; i++)
+            {
+                array.Add(_ptcs[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
@@ -47,13 +54,19 @@ namespace scrweb.Controllers
                 p.Tipo.Descricao.Contains(filtro, StringComparison.CurrentCultureIgnoreCase)
             );
 
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
         public JsonResult Ordenar(string ord)
         {
-            var ordenado = new List<ProdutoTipoCaminhaoViewModel>();
+            var ordenado = new List<ProdutoTipoCaminhao>();
 
             switch (ord)
             {
@@ -83,13 +96,19 @@ namespace scrweb.Controllers
                     break;
             }
 
-            return Json(ordenado);
+            JArray array = new JArray();
+            for (int i = 0; i < ordenado.Count; i++)
+            {
+                array.Add(ordenado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
         public JsonResult VerificarTipo(int tipo) 
         {
-            return Json(_ptcs.Contains(_ptcs.Find(p => p.Tipo.Id == tipo)));
+            return Json(_ptcs != null && _ptcs.Count > 0 && _ptcs.Contains(_ptcs.Find(p => p.Tipo.Id == tipo)));
         }
 
         [HttpPost]
@@ -97,18 +116,18 @@ namespace scrweb.Controllers
         {
             var produto = Convert.ToInt32(HttpContext.Session.GetString("idprod"));
             
-            var res = new ProdutoTipoCaminhaoModelController().Gravar(new ProdutoTipoCaminhaoViewModel()
+            var res = new ProdutoTipoCaminhao()
             {
-                Produto = new ProdutoModelController().GetById(produto),
-                Tipo = new TipoCaminhaoModelController().GetById(tipo)
-            });
+                Produto = new Produto().GetById(produto),
+                Tipo = new TipoCaminhao().GetById(tipo)
+            }.Gravar();
 
             if (res > 0)
             {
-                _ptcs.Add(new ProdutoTipoCaminhaoViewModel()
+                _ptcs.Add(new ProdutoTipoCaminhao()
                 {
-                    Produto = new ProdutoModelController().GetById(produto),
-                    Tipo = new TipoCaminhaoModelController().GetById(tipo)
+                    Produto = new Produto().GetById(produto),
+                    Tipo = new TipoCaminhao().GetById(tipo)
                 });
             }
 
@@ -118,7 +137,7 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int produto, int tipo)
         {
-            var res = new ProdutoTipoCaminhaoModelController().Excluir(produto, tipo);
+            var res = new ProdutoTipoCaminhao().Excluir(produto, tipo);
 
             if (res > 0)
             {

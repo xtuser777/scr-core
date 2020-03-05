@@ -1,54 +1,40 @@
-﻿using scrweb.DAO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json.Linq;
+using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Estado
+    public class Estado
     {
 		private int _id;
 		private string _nome;
 		private string _sigla;
 
-		internal string Sigla
+		public int Id { get => _id; set => _id = value; }
+
+		public string Nome { get => _nome; set => _nome = value; }
+
+		public string Sigla { get => _sigla; set => _sigla = value; }
+
+		public Estado GetById(int id)
 		{
-			get { return _sigla; }
-			set { _sigla = value; }
+			return id > 0 ? new EstadoDAO().GetById(id) : null;
 		}
 
-		internal string Nome
+		public List<Estado> GetAll()
 		{
-			get { return _nome; }
-			set { _nome = value; }
+			return new EstadoDAO().GetAll();
 		}
 
-		internal int Id
+		public JObject ToJObject()
 		{
-			get { return _id; }
-			set { _id = value; }
-		}
+			JObject json = new JObject();
+			json.Add("id", _id);
+			json.Add("nome", _nome);
+			json.Add("sigla", _sigla);
 
-		internal Estado GetById(int id)
-		{
-			Estado estado = null;
-			if (id > 0)
-			{
-				estado = new EstadoDAO().GetById(id);
-			}
-			return estado;
+			return json;
 		}
-
-		internal List<Estado> Get()
-		{
-			List<Estado> estados = null;
-			estados = new EstadoDAO().Get();
-			return estados;
-		}
-		
-		internal List<Estado> GetByFilter(string chave)
-		{
-			return !string.IsNullOrEmpty(chave) ? new EstadoDAO().GetByFilter(chave) : null;
-		}
-	}
+    }
 }

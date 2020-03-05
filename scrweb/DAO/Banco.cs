@@ -37,7 +37,7 @@ namespace scrweb.DAO
         /// </summary>
         protected Banco()
         {
-            _strConexao = @"Host=tuffi.db.elephantsql.com;Username=jmyqggmi;Password=ud6xoDqCBLRyT25ZtjNeu-P6f8BdySMG;Database=jmyqggmi";
+            _strConexao = @"Host=localhost;Username=scr;Password=scr123globo;Database=representacoes";
             _conn = new NpgsqlConnection(_strConexao);
             _comandoSQL = new NpgsqlCommand();
             _comandoSQL.Connection = _conn;

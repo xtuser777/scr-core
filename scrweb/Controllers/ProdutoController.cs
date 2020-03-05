@@ -3,47 +3,55 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrweb.ViewModels;
+using Newtonsoft.Json.Linq;
 using scrweb.Filters;
-using scrweb.ModelControllers;
+using scrweb.Models;
 
 namespace scrweb.Controllers
 {
     [ValidarUsuario]
     public class ProdutoController : Controller
     {
-        private static List<ProdutoViewModel> _produtos;
+        private static List<Produto> _produtos;
 
         public ProdutoController()
         {
-            _produtos = new ProdutoModelController().GetAll();
+            _produtos = new Produto().GetAll();
         }
         
         // GET
         public IActionResult Index()
         {
-            ViewBag.Representacoes = new RepresentacaoModelController().GetAll();
+            ViewBag.Representacoes = new Representacao().GetAll();
             
             return View();
         }
 
         public IActionResult Novo()
         {
-            ViewBag.Representacoes = new RepresentacaoModelController().GetAll();
+            ViewBag.Representacoes = new Representacao().GetAll();
             
             return View();
         }
 
         public IActionResult Detalhes()
         {
-            ViewBag.Representacoes = new RepresentacaoModelController().GetAll();
+            ViewBag.Representacoes = new Representacao().GetAll();
             
             return View();
         }
 
         public JsonResult Obter()
         {
-            return Json(_produtos);
+            if (_produtos == null || _produtos.Count == 0) return Json(new List<Produto>());
+            
+            JArray array = new JArray();
+            for (int i = 0; i < _produtos.Count; i++)
+            {
+                array.Add(_produtos[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
@@ -59,7 +67,7 @@ namespace scrweb.Controllers
             return Json(
                 _produtos.Find(p => 
                     p.Id == Convert.ToInt32(HttpContext.Session.GetString("idprod"))
-                )
+                ).ToJObject()
             );
         }
 
@@ -70,7 +78,13 @@ namespace scrweb.Controllers
                 p.Descricao.Contains(filtro, StringComparison.CurrentCultureIgnoreCase)
             );
 
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
@@ -80,7 +94,13 @@ namespace scrweb.Controllers
                 p.Representacao.Id == Convert.ToInt32(representacao)
             );
 
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
@@ -91,13 +111,19 @@ namespace scrweb.Controllers
                 p.Representacao.Id == Convert.ToInt32(representacao)
             );
 
-            return Json(filtrado);
+            JArray array = new JArray();
+            for (int i = 0; i < filtrado.Count; i++)
+            {
+                array.Add(filtrado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
         public JsonResult Ordenar(string ord)
         {
-            var ordenado = new List<ProdutoViewModel>();
+            var ordenado = new List<Produto>();
 
             switch (ord)
             {
@@ -133,7 +159,13 @@ namespace scrweb.Controllers
                     break;
             }
 
-            return Json(ordenado);
+            JArray array = new JArray();
+            for (int i = 0; i < ordenado.Count; i++)
+            {
+                array.Add(ordenado[i].ToJObject());
+            }
+            
+            return Json(array);
         }
 
         [HttpPost]
@@ -149,15 +181,15 @@ namespace scrweb.Controllers
             decimal.TryParse(preco, out var dpreco);
             decimal.TryParse(preco_out, out var dpreco_out);
 
-            var res = new ProdutoModelController().Gravar(new ProdutoViewModel()
+            var res = new Produto()
             {
                 Id = 0,
                 Descricao = descricao,
                 Medida = medida,
                 Preco = dpreco,
-                PrecoOut = dpreco_out,
-                Representacao = new RepresentacaoModelController().GetById(rep)
-            });
+                PrecoOut = dpreco_out > 0 ? dpreco_out : dpreco,
+                Representacao = new Representacao().GetById(rep)
+            }.Gravar();
 
             switch (res)
             {
@@ -182,15 +214,15 @@ namespace scrweb.Controllers
             decimal.TryParse(preco, out var dpreco);
             decimal.TryParse(preco_out, out var dpreco_out);
 
-            var res = new ProdutoModelController().Alterar(new ProdutoViewModel()
+            var res = new Produto()
             {
                 Id = prod,
                 Descricao = descricao,
                 Medida = medida,
                 Preco = dpreco,
-                PrecoOut = dpreco_out,
-                Representacao = new RepresentacaoModelController().GetById(rep)
-            });
+                PrecoOut = dpreco_out > 0 ? dpreco_out : dpreco,
+                Representacao = new Representacao().GetById(rep)
+            }.Alterar();
 
             return Json(res <= 0 ? "Ocorreram problemas ao executar o comando SQL." : "");
         }
@@ -198,7 +230,7 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Excluir(int id)
         {
-            var res = new ProdutoModelController().Excluir(id);
+            var res = new Produto().Excluir(id);
             if (res <= 0) return Json("Ocorreram problemas ao executar o comando SQL.");
             _produtos.Remove(_produtos.Find(p => p.Id == id));
             return Json("");

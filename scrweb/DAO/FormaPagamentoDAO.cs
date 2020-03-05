@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Data;
 using scrweb.Models;
@@ -20,7 +19,15 @@ namespace scrweb.DAO
 
         private List<FormaPagamento> GetList(DataTable table)
         {
-            return (from DataRow row in table.Rows select GetObject(row)).ToList();
+            List<FormaPagamento> list = new List<FormaPagamento>();
+
+            for (int i = 0; i < table.Rows.Count; i++)
+            {
+                DataRow row = table.Rows[i];
+                list.Add(GetObject(row));
+            }
+
+            return list;
         }
 
         internal FormaPagamento GetById(int id) 
@@ -33,7 +40,7 @@ namespace scrweb.DAO
             ";
             ComandoSQL.Parameters.AddWithValue("@id", id);
 
-            var table = ExecutaSelect();
+            DataTable table = ExecutaSelect();
 
             return table != null && table.Rows.Count > 0 ? GetObject(table.Rows[0]) : null;
         }
@@ -46,7 +53,7 @@ namespace scrweb.DAO
                 from forma_pagamento;
             ";
 
-            var table = ExecutaSelect();
+            DataTable table = ExecutaSelect();
 
             return table != null && table.Rows.Count > 0 ? GetList(table) : null;
         }
@@ -56,12 +63,13 @@ namespace scrweb.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"
                 insert into forma_pagamento(descricao,prazo) 
-                values(@des,@pra) returning id;
+                values(@des,@pra) 
+                returning id;
             ";
             ComandoSQL.Parameters.AddWithValue("@des", fp.Descricao);
             ComandoSQL.Parameters.AddWithValue("@pra", fp.Prazo);
 
-            var table = ExecutaSelect();
+            DataTable table = ExecutaSelect();
 
             return table != null && table.Rows.Count > 0 ? Convert.ToInt32(table.Rows[0]["id"]) : -10;
         }

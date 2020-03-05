@@ -1,50 +1,62 @@
+using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class ProdutoTipoCaminhao
+    public class ProdutoTipoCaminhao
     {
-        private int _produto;
-        private int _tipo;
+        private Produto _produto;
+        private TipoCaminhao _tipo;
 
-        internal int Produto { get => _produto; set => _produto = value; }
+        public Produto Produto { get => _produto; set => _produto = value; }
+        public TipoCaminhao Tipo { get => _tipo; set => _tipo = value; }
 
-        internal int Tipo { get => _tipo; set => _tipo = value; }
-
-        internal ProdutoTipoCaminhao GetById(int produto, int tipo)
+        public ProdutoTipoCaminhao GetById(int produto, int tipo)
         {
             return produto > 0 && tipo > 0 ? new ProdutoTipoCaminhaoDAO().GetById(produto, tipo) : null;
         }
 
-        internal List<ProdutoTipoCaminhao> GetAll()
+        public List<ProdutoTipoCaminhao> GetAll()
         {
             return new ProdutoTipoCaminhaoDAO().GetAll();
         }
 
-        internal List<ProdutoTipoCaminhao> GetPorProduto(int produto)
+        public List<ProdutoTipoCaminhao> GetByProduct(int produto)
         {
             return produto > 0 ? new ProdutoTipoCaminhaoDAO().GetPorProduto(produto) : null;
         }
 
-        internal int Gravar()
+        public int Gravar()
         {
-            return _produto > 0 && _tipo > 0 ? new ProdutoTipoCaminhaoDAO().Gravar(this) : -5;
+            if (_produto == null || _tipo == null) return -5;
+            
+            return new ProdutoTipoCaminhaoDAO().Gravar(this);
         }
 
-        internal int Excluir(int produto, int tipo)
+        public int Excluir(int produto, int tipo)
         {
             return produto > 0 && tipo > 0 ? new ProdutoTipoCaminhaoDAO().Excluir(produto, tipo) : -5;
         }
 
-        internal int ExcluirPorProduto(int produto)
+        public int ExcluirByProduto(int produto)
         {
             return produto > 0 ? new ProdutoTipoCaminhaoDAO().ExcluirPorProduto(produto) : -5;
         }
 
-        internal int ExcluirPorTipo(int tipo)
+        public int ExcluirByTipo(int tipo)
         {
             return tipo > 0 ? new ProdutoTipoCaminhaoDAO().ExcluirPorTipo(tipo) : -5;
+        }
+
+        public JObject ToJObject()
+        {
+            JObject json = new JObject();
+            json.Add("produto", _produto.ToJObject());
+            json.Add("tipo", _tipo.ToJObject());
+
+            return json;
         }
     }
 }

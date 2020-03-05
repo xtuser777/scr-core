@@ -1,11 +1,11 @@
-﻿using scrweb.DAO;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Newtonsoft.Json.Linq;
+using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Endereco
+    public class Endereco
     {
         private int _id;
         private string _rua;
@@ -13,93 +13,61 @@ namespace scrweb.Models
         private string _bairro;
         private string _complemento;
         private string _cep;
-        private int _cidade;
+        private Cidade _cidade;
 
-        internal int Id
+        public int Id { get => _id; set => _id = value; }
+        public string Rua {get => _rua; set => _rua = value; }
+        public string Numero { get => _numero; set => _numero = value; }
+        public string Bairro { get => _bairro; set => _bairro = value; }
+        public string Complemento { get => _complemento; set => _complemento = value; }
+        public string Cep { get => _cep; set => _cep = value; }
+        public Cidade Cidade { get => _cidade; set => _cidade = value; }
+
+        public Endereco GetById(int id)
         {
-            get => _id;
-            set => _id = value;
+            return id > 0 ? new EnderecoDAO().GetById(id) : null;
         }
 
-        internal string Rua
+        public List<Endereco> GetAll()
         {
-            get => _rua;
-            set => _rua = value;
+            return new EnderecoDAO().GetAll();
         }
 
-        internal string Numero
+        public int Gravar()
         {
-            get => _numero;
-            set => _numero = value;
+            if (_id != 0 || string.IsNullOrEmpty(_rua) || string.IsNullOrEmpty(_numero) ||
+                string.IsNullOrEmpty(_bairro) || string.IsNullOrEmpty(_cep) || _cidade == null
+            ) return -5;
+            
+            return new EnderecoDAO().Gravar(this);
         }
 
-        internal string Bairro
+        public int Alterar()
         {
-            get => _bairro;
-            set => _bairro = value;
+            if (_id <= 0 || string.IsNullOrEmpty(_rua) || string.IsNullOrEmpty(_numero) ||
+                string.IsNullOrEmpty(_bairro) || string.IsNullOrEmpty(_cep) || _cidade == null
+            ) return -5;
+            
+            return new EnderecoDAO().Alterar(this);
         }
 
-        internal string Complemento
+        public int Excluir(int id)
         {
-            get => _complemento;
-            set => _complemento = value;
+            return id > 0 ? new EnderecoDAO().Excluir(id) : -5;
         }
 
-        internal string Cep
+        public JObject ToJObject()
         {
-            get => _cep;
-            set => _cep = value;
-        }
+            JObject json = new JObject();
+            json.Add("id", _id);
+            json.Add("rua", _rua);
+            json.Add("numero", _numero);
+            json.Add("bairro", _bairro);
+            json.Add("complemento", _complemento);
+            json.Add("cep", _cep);
+            json.Add("cidade", _cidade.ToJObject());
 
-        internal int Cidade
-        {
-            get => _cidade;
-            set => _cidade = value;
-        }
-
-        internal Endereco GetById(int id)
-        {
-            Endereco e = null;
-            if (id > 0)
-            {
-                e = new EnderecoDAO().GetById(id);
-            }
-            return e;
-        }
-
-        internal List<Endereco> Get()
-        {
-            return new EnderecoDAO().Get();
-        }
-
-        internal int Gravar()
-        {
-            int res = -10;
-            if (_id == 0 && !string.IsNullOrEmpty(_rua) && !string.IsNullOrEmpty(_numero) && !string.IsNullOrEmpty(_bairro) && !string.IsNullOrEmpty(_cep) && _cidade > 0)
-            {
-                res = new EnderecoDAO().Gravar(this);
-            }
-            return res;
-        }
-
-        internal int Alterar()
-        {
-            int res = -10;
-            if (_id > 0 && !string.IsNullOrEmpty(_rua) && !string.IsNullOrEmpty(_numero) && !string.IsNullOrEmpty(_bairro) && !string.IsNullOrEmpty(_cep) && _cidade > 0)
-            {
-                res = new EnderecoDAO().Alterar(this);
-            }
-            return res;
-        }
-
-        internal int Excluir(int id)
-        {
-            int res = -1;
-            if (id > 0)
-            {
-                res = new EnderecoDAO().Excluir(id);
-            }
-            return res;
+            return json;
         }
     }
 }

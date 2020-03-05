@@ -1,67 +1,60 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Representacao
+    public class Representacao
     {
         private int _id;
         private DateTime _cadastro;
         private string _unidade;
-        private int _pessoa;
+        private PessoaJuridica _pessoa;
 
-        internal int Id
-        {
-            get => _id;
-            set => _id = value;
-        }
+        public int Id { get => _id; set => _id = value; }
+        public DateTime Cadastro { get => _cadastro; set => _cadastro = value; }
+        public string Unidade { get => _unidade; set => _unidade = value; }
+        public PessoaJuridica Pessoa { get => _pessoa; set => _pessoa = value; }
 
-        internal DateTime Cadastro
-        {
-            get => _cadastro;
-            set => _cadastro = value;
-        }
-
-        internal string Unidade
-        {
-            get => _unidade;
-            set => _unidade = value;
-        }
-
-        internal int Pessoa
-        {
-            get => _pessoa;
-            set => _pessoa = value;
-        }
-
-        internal Representacao GetById(int id)
+        public Representacao GetById(int id)
         {
             return id > 0 ? new RepresentacaoDAO().GetById(id) : null;
         }
 
-        internal List<Representacao> GetAll()
+        public List<Representacao> GetAll()
         {
             return new RepresentacaoDAO().GetAll();
         }
 
-        internal int Gravar()
+        public int Gravar()
         {
-            return _id == 0 && !string.IsNullOrEmpty(_unidade) && _pessoa > 0
-                ? new RepresentacaoDAO().Gravar(this)
-                : -5;
+            if (_id != 0 || string.IsNullOrEmpty(_unidade) || _pessoa == null) return -5;
+            
+            return new RepresentacaoDAO().Gravar(this);
         }
 
-        internal int Alterar()
+        public int Alterar()
         {
-            return _id > 0 && !string.IsNullOrEmpty(_unidade) && _pessoa > 0
-                ? new RepresentacaoDAO().Alterar(this)
-                : -5;
+            if (_id <= 0 || string.IsNullOrEmpty(_unidade) || _pessoa == null) return -5;
+            
+            return new RepresentacaoDAO().Alterar(this);
         }
 
-        internal int Excluir(int id)
+        public int Excluir(int id)
         {
             return id > 0 ? new RepresentacaoDAO().Excluir(id) : -5;
+        }
+
+        public JObject ToJObject()
+        {
+            JObject json = new JObject();
+            json.Add("id", _id);
+            json.Add("cadastro", _cadastro);
+            json.Add("unidade", _unidade);
+            json.Add("pessoa", _pessoa.ToJObject());
+
+            return json;
         }
     }
 }

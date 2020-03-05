@@ -1,73 +1,69 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using scrweb.DAO;
 
 namespace scrweb.Models
 {
-    internal class Cliente
+    public class Cliente
     {
         private int _id;
         private DateTime _cadastro;
         private int _tipo;
-        private int _pessoa;
+        private PessoaFisica _pessoaFisica;
+        private PessoaJuridica _pessoaJuridica;
 
-        internal int Id
-        {
-            get => _id;
-            set => _id = value;
-        }
+        public int Id { get => _id; set => _id = value; }
+        public DateTime Cadastro { get => _cadastro; set => _cadastro = value; }
+        public int Tipo { get => _tipo; set => _tipo = value; }
+        public PessoaFisica PessoaFisica { get => _pessoaFisica; set => _pessoaFisica = value; }
+        public PessoaJuridica PessoaJuridica { get => _pessoaJuridica; set => _pessoaJuridica = value; }
 
-        internal DateTime Cadastro
-        {
-            get => _cadastro;
-            set => _cadastro = value;
-        }
-
-        internal int Tipo
-        {
-            get => _tipo;
-            set => _tipo = value;
-        }
-
-        internal int Pessoa
-        {
-            get => _pessoa;
-            set => _pessoa = value;
-        }
-
-        internal Cliente GetById(int id)
+        public Cliente GetById(int id)
         {
             return id > 0 ? new ClienteDAO().GetById(id) : null;
         }
 
-        internal List<Cliente> GetAll()
+        public List<Cliente> GetAll()
         {
             return new ClienteDAO().GetAll();
         }
 
-        internal int Gravar()
+        public int Gravar()
         {
-            if (_id == 0 && _tipo > 0 && _pessoa > 0)
-            {
-                return new ClienteDAO().Gravar(this);
-            }
-
-            return -5;
+            if (_id != 0 || _tipo <= 0 || (_pessoaFisica == null && _pessoaJuridica == null)) return -5;
+            
+            return new ClienteDAO().Gravar(this);
         }
 
-        internal int Alterar()
+        public int Alterar()
         {
-            if (_id > 0 && _tipo > 0 && _pessoa > 0)
-            {
-                return new ClienteDAO().Alterar(this);
-            }
-
-            return -5;
+            if (_id <= 0 || _tipo <= 0 || (_pessoaFisica == null && _pessoaJuridica == null)) return -5;
+            
+            return new ClienteDAO().Alterar(this);
         }
 
-        internal int Excluir(int id)
+        public int Excluir(int id)
         {
             return id > 0 ? new ClienteDAO().Excluir(id) : -5;
+        }
+
+        public JObject ToJObject()
+        {
+            JObject json = new JObject();
+            json.Add("id", _id);
+            json.Add("cadastro", _cadastro);
+            json.Add("tipo", _tipo);
+            if (_tipo == 1)
+            {
+                json.Add("pessoa", _pessoaFisica.ToJObject());
+            }
+            else
+            {
+                json.Add("pessoa", _pessoaJuridica.ToJObject());
+            }
+
+            return json;
         }
     }
 }

@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using scrweb.ModelControllers;
-using scrweb.ViewModels;
+using scrweb.Models;
 
 namespace scrweb.Controllers
 {
@@ -20,15 +16,17 @@ namespace scrweb.Controllers
         [HttpPost]
         public JsonResult Autenticar(string login, string senha)
         {
-            UsuarioViewModel usu = null;
-            usu = new UsuarioModelController().Autenticar(login, senha);
+            Usuario usu = new Usuario().Autenticar(login, senha);
             if (usu != null)
             {
                 HttpContext.Session.SetString("id", usu.Id.ToString());
                 HttpContext.Session.SetString("login", usu.Login);
                 HttpContext.Session.SetString("nome", usu.Funcionario.Pessoa.Nome);
                 HttpContext.Session.SetString("nivel", usu.Nivel.Id.ToString());
+
+                return Json(usu.ToJObject());
             }
+            
             return Json(usu);
         }
         

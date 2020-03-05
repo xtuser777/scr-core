@@ -1,38 +1,37 @@
-@{ViewBag.Title = "Gerenciar Representações"; Layout = "_Layout";}
+@{ViewBag.Title = "Gerenciar Motoristas"; Layout = "_Layout";}
 
-@section Scripts {
-    <script type="text/javascript" src="~/lib/bootbox/bootbox.min.js"></script>
+@section Scripts
+{
+    <script type="text/javascript" src="lib/bootbox/bootbox.min.js"></script>
     <script type="text/javascript">
-        function ordenarRepresentacoes() {
+        function preencherTabela(dados) {
+            var txt = "";
+            $.each(dados, function () {
+                txt +=
+                    '<tr>\
+                        <td class="hidden">' + this.id + '</td>\
+                        <td>' + this.pessoa.nome + '</td>\
+                        <td>' + this.pessoa.cpf + '</td>\
+                        <td>' + FormatarData(this.cadastro) + '</td>\
+                        <td>'+ this.pessoa.contato.email +'</td>\
+                        <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
+                        <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
+                    </tr>';
+            });
+            $("#tbody_motoristas").html(txt);
+        }
+        
+        function ordenar() {
             var ord = $("#cbord").val();
             
             $.ajax({
                 type: 'POST',
-                url: '/Representacao/Ordenar',
+                url: '/Motorista/Ordenar',
                 async: false,
                 data: { col : ord },
                 success: function (response) { preencherTabela(response); },
                 error: function () { alert("Ocorreu um problema ao comunicar-se com o servidor..."); }
             });
-        }
-        
-        function preencherTabela(dados) {
-            var txt = "";
-            $.each(dados, function () {
-                txt += 
-                    '<tr>\
-                        <td class="hidden">' + this.id + '</td>\
-                        <td>' + this.pessoa.nomeFantasia + '</td>\
-                        <td>' + this.pessoa.cnpj + '</td>\
-                        <td>' + FormatarData(this.cadastro) + '</td>\
-                        <td>' + this.unidade + '</td>\
-                        <td>'+ this.pessoa.contato.email +'</td>\
-                        <td><a role="button" class="glyphicon glyphicon-plus" data-toggle="tooltip" data-placement="top" title="ADICIONAR UNIDADE" href="javascript:adicionarUnidade('+ this.id +')"></a></td>\
-                        <td><a role="button" class="glyphicon glyphicon-edit" data-toggle="tooltip" data-placement="top" title="ALTERAR" href="javascript:alterar(' + this.id + ')"></a></td>\
-                        <td><a role="button" class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="EXCLUIR" href="javascript:excluir(' + this.id + ')"></a></td>\
-                    </tr>';
-            });
-            $("#tbody_representacoes").html(txt);
         }
         
         function get(url_i) {
@@ -49,26 +48,26 @@
             return res;
         }
         
-        function obterRepresentacoes() {
-            var data = get("/Representacao/Obter");
+        function obter() {
+            var data = get("/Motorista/Obter");
             preencherTabela(data);
         }
         
-        $(document).ready(function(event) {
-            obterRepresentacoes();
+        $(document).ready(function (event) {
+            obter();
         });
         
-        function filtrarRepresentacoes() {
+        function filtrar() {
             var filtro = $("#filtro").val();
             var cadastro = $("#filtro_cad").val();
         
             if (filtro === "" && cadastro === "") {
-                obterRepresentacoes();
+                obter();
             } else {
                 if (filtro !== "" && cadastro !== "") {
                     $.ajax({
                         type: 'POST',
-                        url: '/Representacao/ObterPorChaveCad',
+                        url: '/Motorista/ObterPorChaveCad',
                         data: { chave: filtro, cad: cadastro },
                         success: function (response) {
                             if (response != null && response !== ""){
@@ -83,7 +82,7 @@
                     if (filtro !== "") {
                         $.ajax({
                             type: 'POST',
-                            url: '/Representacao/ObterPorChave',
+                            url: '/Motorista/ObterPorChave',
                             data: { chave: filtro },
                             success: function (response) {
                                 if (response != null && response !== ""){
@@ -98,7 +97,7 @@
                         if (cadastro !== ""){
                             $.ajax({
                                 type: 'POST',
-                                url: '/Representacao/ObterPorCadastro',
+                                url: '/Motorista/ObterPorCadastro',
                                 data: { cad: cadastro },
                                 success: function (response) {
                                     if (response != null && response !== ""){
@@ -115,29 +114,10 @@
             }
         }
         
-        function adicionarUnidade(id) {
-            $.ajax({
-                type: 'POST',
-                url: '/Representacao/Enviar',
-                data: {id: id},
-                async: false,
-                success: function (response) {
-                    if (response.length > 0) {
-                        alert(response);
-                    } else {
-                        window.location.href = "../../gerenciar/representacao/addunidade";
-                    }
-                },
-                erros: function (XMLHttpRequest, txtStatus, errorThrown) {
-                    alert("Status: " + txtStatus);
-                    alert("Error: " + errorThrown);
-                }
-            });
-        }
-        
         function excluir(id) {
+                
             bootbox.confirm({
-                message: "Confirma a exclusão desta representação?",
+                message: "Confirma a exclusão deste motorista?",
                 buttons: {
                     confirm: {
                         label: 'Sim',
@@ -152,17 +132,13 @@
                     if (result) {
                         $.ajax({
                             type: 'POST',
-                            url: '/Representacao/Excluir',
+                            url: '/Motorista/Excluir',
                             data: {id: id},
                             success: function (result) {
-                                if (result.length > 0) {
-                                    mostraDialogo(
-                                        "<strong>"+result+"</strong>",
-                                        "danger",
-                                        2000
-                                    );
+                                if (result > 0) {
+                                    obter();
                                 } else {
-                                    obterRepresentacoes();
+                                    alert("Ocorreu um problema ao excluir este motorista...");
                                 }
                             },
                             error: function (XMLHttpRequest, txtStatus, errorThrown) {
@@ -178,19 +154,21 @@
         function alterar(id) {
             $.ajax({
                 type: 'POST',
-                url: '/Representacao/Enviar',
-                data: {id: id},
-                async: false,
-                success: function (response) {
-                    if (response.length > 0) {
-                        mostraDialogo(
-                            "Ocorreu um problema ao enviar as informações da representação...",
-                            "danger",
-                            2000
-                        );
-                    } else {
-                        window.location.href = "../../gerenciar/representacao/detalhes";
+                url: '/Motorista/Enviar',
+                data: { id: id },
+                success: function (result) {
+                    if (result.length > 0) alert(result);
+                    else {
+                        window.location.href = "../../gerenciar/motorista/detalhes";
                     }
+                },
+                error: function (XMLHttpRequest, txtStatus, errorThrown) {
+                    mostraDialogo(
+                        "<strong>Ocorreu um erro ao se comunicar com o servidor...</strong>" +
+                        "<br/>"+errorThrown,
+                        "danger",
+                        2000
+                    );
                 }
             });
         }
@@ -201,14 +179,14 @@
 <div class="card-title">
     <div class="card-title-container" style="text-align: center;">
         <h4>
-            <b>SCR - Gerenciar Representações</b>
+            <b>SCR - Gerenciar Motoristas</b>
         </h4>
     </div>
 </div>
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend">Filtragem de Representações</div>
+    <div class="fieldset-card-legend">Filtragem de Motoristas</div>
 
     <div class="fieldset-card-container">
         <div class="row">
@@ -224,57 +202,53 @@
 
             <div class="col-sm-2">
                 <label for="filtrar">&nbsp;</label>
-                <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrarRepresentacoes();">FILTRAR</button>
+                <button id="filtrar" class="btn btn-primary btn-sm" style="width: 100%;" onclick="filtrar();">FILTRAR</button>
             </div>
         </div>
     </div>
 </div>
 
 <div class="fieldset-card" style="margin-bottom: 40px;">
-    <div class="fieldset-card-legend">Representações Cadastradas</div>
+    <div class="fieldset-card-legend">Motoristas Cadastrados</div>
 
     <div class="fieldset-card-container">
         <div class="row" style="margin-bottom: 10px;">
             <div class="col-sm-10">
                 <label for="cbord">Ordenar por:</label>
-                <select id="cbord" class="form-control input-sm" onchange="ordenarRepresentacoes();">
+                <select id="cbord" class="form-control input-sm" onchange="ordenar();">
                     <option value="1">REGISTRO (CRESCENTE)</option>
                     <option value="2">REGISTRO (DECRESCENTE)</option>
-                    <option value="3">NOME FANTASIA (CRESCENTE)</option>
-                    <option value="4">NOME FANTASIA (DECRESCENTE)</option>
-                    <option value="5">CNPJ (CRESCENTE)</option>
-                    <option value="6">CNPJ (DECRESCENTE)</option>
+                    <option value="3">NOME (CRESCENTE)</option>
+                    <option value="4">NOME (DECRESCENTE)</option>
+                    <option value="5">CPF (CRESCENTE)</option>
+                    <option value="6">CPF (DECRESCENTE)</option>
                     <option value="7">CADASTRO (CRESCENTE)</option>
                     <option value="8">CADASTRO (DECRESCENTE)</option>
-                    <option value="9">UNIDADE (CRESCENTE)</option>
-                    <option value="10">UNIDADE (DECRESCENTE)</option>
-                    <option value="11">EMAIL (CRESCENTE)</option>
-                    <option value="12">EMAIL (DECRESCENTE)</option>
+                    <option value="9">EMAIL (CRESCENTE)</option>
+                    <option value="10">EMAIL (DECRESCENTE)</option>
                 </select>
             </div>
             
             <div class="col-sm-2">
                 <label for="novo">&nbsp;</label>
-                <a role="button" id="novo" class="btn btn-success" style="width: 100%;" href="/gerenciar/representacao/novo">NOVO</a>
+                <a role="button" id="novo" class="btn btn-success btn-sm" style="width: 100%;" href="/gerenciar/motorista/novo">NOVO</a>
             </div>
         </div>
         
-        <table id="table_representacoes" class="table table-responsive" style="width: 100%;">
+        <table id="table_motoristas" class="table table-responsive" style="width: 100%;">
             <thead>
             <tr>
                 <th class="hidden">ID</th>
-                <th style="width: 30%;">NOME FANTASIA</th>
-                <th style="width: 16%;">CNPJ</th>
+                <th style="width: 40%;">NOME</th>
+                <th style="width: 16%;">CPF</th>
                 <th style="width: 10%;">CADASTRO</th>
-                <th style="width: 20%;">UNIDADE</th>
                 <th>EMAIL</th>
-                <th style="width: 2%;"></th>
-                <th style="width: 2%;"></th>
-                <th style="width: 2%;"></th>
+                <th style="width: 2%;">&nbsp;</th>
+                <th style="width: 2%;">&nbsp;</th>
             </tr>
             </thead>
         
-            <tbody id="tbody_representacoes">
+            <tbody id="tbody_motoristas">
             </tbody>
         </table>
     </div>

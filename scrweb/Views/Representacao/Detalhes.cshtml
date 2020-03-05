@@ -14,6 +14,7 @@
         var erros = 0;
         var cnpj_atual = "";
         var idendereco = 0;
+        var idcontato = 0;
         var idpessoa = 0;
         var idrepresentacao = 0;
         
@@ -29,7 +30,7 @@
         
             $.ajax({
                 type: 'POST',
-                url: '/Cliente/ObterCidades',
+                url: '/Cidade/ObterPorEstado',
                 data: form,
                 contentType: false,
                 processData: false,
@@ -99,7 +100,7 @@
             $("#tel").mask('(00) 0000-0000', {reverse: false});
             $("#cel").mask('(00) 00000-0000', {reverse: false});
         
-            lista_estados = get('/Representacao/ObterEstados');
+            lista_estados = get('/Estado/Obter');
             limparEstados();
             if (lista_estados !== "") {
                 for (var i = 0; i < lista_estados.length; i++) {
@@ -112,25 +113,25 @@
         
             var response = get("/Representacao/ObterDetalhes");
             if (response != null && response !== "") {
-                idendereco = response.pessoa.endereco.id;
-                idpessoa = response.pessoa.id;
+                idendereco = response.pessoa.contato.endereco.id;
+                idpessoa = response.pessoa.contato.id;
                 idrepresentacao = response.id;
                 
                 $("#razao_social").val(response.pessoa.razaoSocial);
                 $("#nome_fantasia").val(response.pessoa.nomeFantasia);
                 $("#cnpj").val(response.pessoa.cnpj);
                 cnpj_atual = response.pessoa.cnpj;
-                $("#rua").val(response.pessoa.endereco.rua);
-                $("#numero").val(response.pessoa.endereco.numero);
-                $("#bairro").val(response.pessoa.endereco.bairro);
-                $("#complemento").val(response.pessoa.endereco.complemento);
-                $("#cep").val(response.pessoa.endereco.cep);
-                cbestado.value = response.pessoa.endereco.cidade.estado.id;
+                $("#rua").val(response.pessoa.contato.endereco.rua);
+                $("#numero").val(response.pessoa.contato.endereco.numero);
+                $("#bairro").val(response.pessoa.contato.endereco.bairro);
+                $("#complemento").val(response.pessoa.contato.endereco.complemento);
+                $("#cep").val(response.pessoa.contato.endereco.cep);
+                cbestado.value = response.pessoa.contato.endereco.cidade.estado.id;
                 carregarCidades();
-                cbcidade.value = response.pessoa.endereco.cidade.id;
-                $("#tel").val(response.pessoa.telefone);
-                $("#cel").val(response.pessoa.celular);
-                $("#email").val(response.pessoa.email);
+                cbcidade.value = response.pessoa.contato.endereco.cidade.id;
+                $("#tel").val(response.pessoa.contato.telefone);
+                $("#cel").val(response.pessoa.contato.celular);
+                $("#email").val(response.pessoa.contato.email);
             }
         });
         
@@ -261,6 +262,8 @@
             var telefone = $("#tel").val();
             var celular = $("#cel").val();
             var email = $("#email").val();
+            
+            erros = 0;
         
             if (razaosocial.length === 0) {
                 erros++;
@@ -373,6 +376,7 @@
             if (erros === 0) {
                 var form = new FormData();
                 form.append("endereco", idendereco);
+                form.append("contato", idcontato);
                 form.append("pessoa", idpessoa);
                 form.append("representacao", idrepresentacao);
                 form.append("razaosocial", razaosocial);
@@ -435,11 +439,11 @@
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 200px;">Dados da Representação</div>
+    <div class="fieldset-card-legend">Dados da Representação</div>
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-12">
-                <label for="razao_social">Razão Social (Obrigatório):</label>
+                <label for="razao_social">Razão Social <span style="color: red;">*</span>:</label>
                 <input type="text" id="razao_social" class="form-control input-sm" style="width: 100%;" />
                 <div id="msrs"></div>
             </div>
@@ -447,106 +451,106 @@
 
         <div class="row">
             <div class="col-sm-9">
-                <label for="nome_fantasia">Nome Fantasia (Obrigatório):</label>
+                <label for="nome_fantasia">Nome Fantasia <span style="color: red;">*</span>:</label>
                 <input type="text" id="nome_fantasia" class="form-control input-sm" style="width: 100%;" />
                 <div id="msnf"></div>
             </div>
 
             <div class="col-sm-3">
-                <label for="cnpj">CNPJ (Obrigatório):</label>
+                <label for="cnpj">CNPJ <span style="color: red;">*</span>:</label>
                 <input type="text" id="cnpj" class="form-control input-sm" style="width: 100%;" />
                 <div id="mscnpj"></div>
             </div>
         </div>
+        
+        <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
     </div>
 </div>
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend" style="width: 220px;">Dados de contato da representação</div>
+    <div class="fieldset-card-legend">Dados de contato da representação</div>
     <div class="fieldset-card-container">
-        <form class="form-inline">
-            <div class="row">
-                <div class="col-sm-9">
-                    <label for="rua">Rua (Obrigatório):</label>
-                    <input type="text" id="rua" class="form-control input-sm" style="width: 100%;" />
-                    <div id="msrua"></div>
-                </div>
-
-                <div class="col-sm-3">
-                    <label for="numero">Número (Obrigatório):</label>
-                    <input type="text" id="numero" class="form-control input-sm" style="width: 100%;" />
-                    <div id="msnumero"></div>
-                </div>
+        <div class="row">
+            <div class="col-sm-9">
+                <label for="rua">Rua <span style="color: red;">*</span>:</label>
+                <input type="text" id="rua" class="form-control input-sm" style="width: 100%;" />
+                <div id="msrua"></div>
             </div>
 
-            <div style="height: 7px;"></div>
+            <div class="col-sm-3">
+                <label for="numero">Número <span style="color: red;">*</span>:</label>
+                <input type="text" id="numero" class="form-control input-sm" style="width: 100%;" />
+                <div id="msnumero"></div>
+            </div>
+        </div>
 
-            <div class="row">
-                <div class="col-sm-6">
-                    <label for="bairro">Bairro (Obrigatório):</label>
-                    <input type="text" id="bairro" class="form-control input-sm" style="width: 100%;" />
-                    <div id="msbairro"></div>
-                </div>
-
-                <div class="col-sm-6">
-                    <label for="complemento">Complemento:</label>
-                    <input type="text" id="complemento" class="form-control input-sm" style="width: 100%;" />
-                </div>
+        <div class="row">
+            <div class="col-sm-6">
+                <label for="bairro">Bairro <span style="color: red;">*</span>:</label>
+                <input type="text" id="bairro" class="form-control input-sm" style="width: 100%;" />
+                <div id="msbairro"></div>
             </div>
 
-            <div class="row">
-                <div class="col-sm-4">
-                    <label for="cbestado">Estado (Obrigatório):</label>
-                    <select id="cbestado" class="form-control input-sm" style="width: 100%;" onchange="onCbEstadoChange();">
-                        <option value="0">SELECIONAR</option>
-                    </select>
-                    <div id="msestado"></div>
-                </div>
+            <div class="col-sm-6">
+                <label for="complemento">Complemento:</label>
+                <input type="text" id="complemento" class="form-control input-sm" style="width: 100%;" />
+            </div>
+        </div>
 
-                <div class="col-sm-5">
-                    <label for="cbcidade">Cidade (Obrigatório):</label>
-                    <select id="cbcidade" class="form-control input-sm" style="width: 100%;">
-                        <option value="0">SELECIONAR</option>
-                    </select>
-                    <div id="mscidade"></div>
-                </div>
-
-                <div class="col-sm-3">
-                    <label for="cep">CEP (Obrigatório):</label>
-                    <input type="text" id="cep" class="form-control input-sm" style="width: 100%;" />
-                    <div id="mscep"></div>
-                </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <label for="cbestado">Estado <span style="color: red;">*</span>:</label>
+                <select id="cbestado" class="form-control input-sm" style="width: 100%;" onchange="onCbEstadoChange();">
+                    <option value="0">SELECIONAR</option>
+                </select>
+                <div id="msestado"></div>
             </div>
 
-            <div class="row">
-                <div class="col-sm-3">
-                    <label for="tel">Telefone (Obrigatório):</label>
-                    <div class="input-group" style="width: 100%;">
-                        <div class="input-group-addon"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span></div>
-                        <input type="text" id="tel" class="form-control input-sm" />
-                    </div>
-                    <div id="mstel"></div>
-                </div>
-
-                <div class="col-sm-3">
-                    <label for="cel">Celular (Obrigatório):</label>
-                    <div class="input-group" style="width: 100%;">
-                        <div class="input-group-addon"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></div>
-                        <input type="text" id="cel" class="form-control input-sm" />
-                    </div>
-                    <div id="mscel"></div>
-                </div>
-
-                <div class="col-sm-6">
-                    <label for="email">E-Mail (Obrigatório):</label>
-                    <div class="input-group" style="width: 100%;">
-                        <div class="input-group-addon">@@</div>
-                        <input type="text" id="email" class="form-control input-sm" />
-                    </div>
-                    <div id="msemail"></div>
-                </div>
+            <div class="col-sm-5">
+                <label for="cbcidade">Cidade (Obrigatório):</label>
+                <select id="cbcidade" class="form-control input-sm" style="width: 100%;">
+                    <option value="0">SELECIONAR</option>
+                </select>
+                <div id="mscidade"></div>
             </div>
-        </form>
+
+            <div class="col-sm-3">
+                <label for="cep">CEP <span style="color: red;">*</span>:</label>
+                <input type="text" id="cep" class="form-control input-sm" style="width: 100%;" />
+                <div id="mscep"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-3">
+                <label for="tel">Telefone <span style="color: red;">*</span>:</label>
+                <div class="input-group" style="width: 100%;">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-phone-alt" aria-hidden="true"></span></div>
+                    <input type="text" id="tel" class="form-control input-sm" />
+                </div>
+                <div id="mstel"></div>
+            </div>
+
+            <div class="col-sm-3">
+                <label for="cel">Celular <span style="color: red;">*</span>:</label>
+                <div class="input-group" style="width: 100%;">
+                    <div class="input-group-addon"><span class="glyphicon glyphicon-phone" aria-hidden="true"></span></div>
+                    <input type="text" id="cel" class="form-control input-sm" />
+                </div>
+                <div id="mscel"></div>
+            </div>
+
+            <div class="col-sm-6">
+                <label for="email">E-Mail <span style="color: red;">*</span>:</label>
+                <div class="input-group" style="width: 100%;">
+                    <div class="input-group-addon">@@</div>
+                    <input type="text" id="email" class="form-control input-sm" />
+                </div>
+                <div id="msemail"></div>
+            </div>
+        </div>
+        
+        <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
     </div>
 </div>
 
