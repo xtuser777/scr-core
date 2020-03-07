@@ -27,6 +27,11 @@ namespace scrweb.Controllers
         {
             return View();
         }
+
+        public IActionResult Detalhes()
+        {
+            return View();
+        }
         
         [HttpPost]
         public JsonResult Enviar(string id)
@@ -265,6 +270,101 @@ namespace scrweb.Controllers
             }
 
             return Json("");
+        }
+        
+        [HttpPost]
+        public JsonResult Alterar(IFormCollection form)
+        {
+            var endereco = form["endereco"];
+            var contato = form["contato"];
+            var pessoa = form["pessoa"];
+            var motorista = form["motorista"];
+            
+            var nome = form["nome"];
+            var rg = form["rg"];
+            var cpf = form["cpf"];
+            var nasc = form["nasc"];
+            var rua = form["rua"];
+            var numero = form["numero"];
+            var bairro = form["bairro"];
+            var complemento = form["complemento"];
+            var cep = form["cep"];
+            var cidade = form["cidade"];
+            var telefone = form["telefone"];
+            var celular = form["celular"];
+            var email = form["email"];
+
+            int.TryParse(cidade, out var cidi);
+            int.TryParse(endereco, out var idendereco);
+            int.TryParse(contato, out int idcontato);
+            int.TryParse(pessoa, out var idpessoa);
+            int.TryParse(motorista, out var idmotorista);
+
+            DateTime.TryParse(nasc, out var nascimento);
+
+            int res1 = new Endereco(){
+                Id = idendereco,
+                Rua = rua,
+                Numero = numero,
+                Bairro = bairro,
+                Complemento = complemento,
+                Cep = cep,
+                Cidade = new Cidade()
+                {
+                    Id = cidi
+                }
+            }.Alterar();
+
+            if (res1 <= 0) return Json("Ocorreu um problema ao alterar o endereço...");
+            
+            int res2 = new Contato()
+            {
+                Id = idcontato,
+                Telefone = telefone,
+                Celular = celular,
+                Email = email,
+                Endereco = new Endereco()
+                {
+                    Id = idendereco
+                }
+            }.Alterar();
+
+            if (res2 <= 0) return Json("Ocorreu um problema ao alterar o contato...");
+
+            int res3 = new PessoaFisica()
+            {
+                Id = idpessoa,
+                Nome = nome,
+                Rg = rg,
+                Cpf = cpf,
+                Nascimento = nascimento,
+                Contato = new Contato()
+                {
+                    Id = idcontato
+                }
+            }.Alterar();
+
+            if (res3 <= 0) return Json("Ocorreu um problema ao alterar a pessoa...");
+
+            int res4 = new Motorista()
+            {
+                Id = idmotorista,
+                Cadastro = DateTime.Now,
+                Pessoa = new PessoaFisica()
+                {
+                    Id = idpessoa,
+                    Nome = nome,
+                    Rg = rg,
+                    Cpf = cpf,
+                    Nascimento = nascimento,
+                    Contato = new Contato()
+                    {
+                        Id = idcontato
+                    }
+                }
+            }.Alterar();
+
+            return Json(res4 <= 0 ? "Ocorreu um problema ao alterar o motorista..." : "");
         }
         
         [HttpPost]

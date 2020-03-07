@@ -1,4 +1,4 @@
-@{ ViewBag.Title = "Detalhes do Cliente"; Layout = "_Layout"; }
+@{ViewBag.Title = "Detalhes do Motorista"; Layout = "_Layout";}
 
 @section Scripts
 { 
@@ -6,10 +6,7 @@
     <script type="text/javascript">
         var cbestado = document.getElementById("cbestado");
         var cbcidade = document.getElementById("cbcidade");
-        var fisica = document.getElementById("fisica");
-        var juridica = document.getElementById("juridica");
         
-        let _tipo = 0;
         var lista_estados = [];
         var lista_cidades = [];
         var erros = 0;
@@ -18,7 +15,7 @@
         var idendereco = 0;
         var idcontato = 0;
         var idpessoa = 0;
-        var idcliente = 0;
+        var idmotorista = 0;
         
         function limparEstados() {
             for (var i = cbestado.childElementCount - 1; i > 0; i--) {
@@ -98,7 +95,6 @@
         
         $(document).ready(function () {
             $("#cpf").mask('000.000.000-00', {reverse: false});
-            $("#cnpj").mask('00.000.000/0000-00', {reverse: false});
             $("#cep").mask('00.000-000', {reverse: false});
             $("#tel").mask('(00) 0000-0000', {reverse: false});
             $("#cel").mask('(00) 00000-0000', {reverse: false});
@@ -114,29 +110,18 @@
                 }
             }
         
-            var response = get("/Cliente/ObterDetalhes");
+            var response = get("/Motorista/ObterDetalhes");
             if (response != null && response !== "") {
                 idendereco = response.pessoa.contato.endereco.id;
                 idcontato = response.pessoa.contato.id;
                 idpessoa = response.pessoa.id;
-                idcliente = response.id;
-        
-                _tipo = response.tipo;
-                $("#tipo").val(_tipo === 1 ? "PESSOA FÍSICA" : "PESSOA JURÍDICA");
-                $("#tipo").readOnly = true;
+                idmotorista = response.id;
                 
-                if (_tipo === 1) {
-                    $("#nome").val(response.pessoa.nome);
-                    $("#nasc").val(FormatarDataIso(response.pessoa.nascimento));
-                    $("#rg").val(response.pessoa.rg);
-                    $("#cpf").val(response.pessoa.cpf);
-                    cpf_atual = response.pessoa.cpf;
-                } else {
-                    $("#razao_social").val(response.pessoa.razaoSocial);
-                    $("#nome_fantasia").val(response.pessoa.nomeFantasia);
-                    $("#cnpj").val(response.pessoa.cnpj);
-                    cnpj_atual = response.pessoa.cnpj;
-                }
+                $("#nome").val(response.pessoa.nome);
+                $("#nasc").val(FormatarDataIso(response.pessoa.nascimento));
+                $("#rg").val(response.pessoa.rg);
+                $("#cpf").val(response.pessoa.cpf);
+                cpf_atual = response.pessoa.cpf;
                 $("#rua").val(response.pessoa.contato.endereco.rua);
                 $("#numero").val(response.pessoa.contato.endereco.numero);
                 $("#bairro").val(response.pessoa.contato.endereco.bairro);
@@ -149,18 +134,6 @@
                 $("#cel").val(response.pessoa.contato.celular);
                 $("#email").val(response.pessoa.contato.email);
             }
-        
-            if (_tipo === 1) {
-                if (!juridica.classList.contains("hidden"))
-                    juridica.classList.add("hidden");
-                if (fisica.classList.contains("hidden"))
-                    fisica.classList.remove("hidden");
-            } else {
-                if (juridica.classList.contains("hidden"))
-                    juridica.classList.remove("hidden");
-                if (!fisica.classList.contains("hidden"))
-                    fisica.classList.add("hidden");
-            }
         });
         
         function limparCampos() {
@@ -168,9 +141,6 @@
             $("#nasc").val("");
             $("#rg").val("");
             $("#cpf").val("");
-            $("#razao_social").val("");
-            $("#nome_fantasia").val("");
-            $("#cnpj").val("");
             $("#rua").val("");
             $("#numero").val("");
             $("#bairro").val("");
@@ -186,7 +156,7 @@
         function verificarCpf(cpf) {
             $.ajax({
                 type: 'POST',
-                url: '/Cliente/VerificarCpf',
+                url: '/Motorista/VerificarCpf',
                 data: { cpf: cpf },
                 async: false,
                 success: function (response) {
@@ -195,31 +165,6 @@
                         $("#mscpf").html('<span class="label label-danger">O CPF informado já existe no cadastro...</span>');
                     } else {
                         $("#mscpf").html('');
-                    }
-                },
-                error: function () {
-                    mostraDialogo(
-                        "<strong>Ocorreu um problema ao se comunicar com o servidor...</strong>" +
-                        "<br/>Um problema no servidor impediu sua comunicação...",
-                        "danger",
-                        2000
-                    );
-                }
-            });
-        }
-        
-        function verificarCnpj(cnpj) {
-            $.ajax({
-                type: 'POST',
-                url: '/Cliente/VerificarCnpj',
-                data: { cnpj: cnpj },
-                async: false,
-                success: function (response) {
-                    if (response === true && cnpj !== cnpj_atual) {
-                        erros++;
-                        $("#mscnpj").html('<span class="label label-danger">O CNPJ informado já existe no cadastro...</span>')
-                    } else {
-                        $("#mscnpj").html('');
                     }
                 },
                 error: function () {
@@ -269,59 +214,6 @@
             return true;
         }
         
-        function validarCNPJ(cnpj) {
-        
-            cnpj = cnpj.replace(/[^\d]+/g,'');
-        
-            if(cnpj === '') return false;
-        
-            if (cnpj.length !== 14)
-                return false;
-        
-            // Elimina CNPJs invalidos conhecidos
-            if (cnpj === "00000000000000" ||
-                cnpj === "11111111111111" ||
-                cnpj === "22222222222222" ||
-                cnpj === "33333333333333" ||
-                cnpj === "44444444444444" ||
-                cnpj === "55555555555555" ||
-                cnpj === "66666666666666" ||
-                cnpj === "77777777777777" ||
-                cnpj === "88888888888888" ||
-                cnpj === "99999999999999")
-                return false;
-        
-            // Valida DVs
-            tamanho = cnpj.length - 2;
-            numeros = cnpj.substring(0,tamanho);
-            digitos = cnpj.substring(tamanho);
-            soma = 0;
-            pos = tamanho - 7;
-            for (i = tamanho; i >= 1; i--) {
-                soma += numeros.charAt(tamanho - i) * pos--;
-                if (pos < 2)
-                    pos = 9;
-            }
-            resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-            if (resultado.toString().charAt(0) !== digitos.charAt(0))
-                return false;
-        
-            tamanho = tamanho + 1;
-            numeros = cnpj.substring(0,tamanho);
-            soma = 0;
-            pos = tamanho - 7;
-            for (i = tamanho; i >= 1; i--) {
-                soma += numeros.charAt(tamanho - i) * pos--;
-                if (pos < 2)
-                    pos = 9;
-            }
-            resultado = soma % 11 < 2 ? 0 : 11 - soma % 11;
-            if (resultado.toString().charAt(0) !== digitos.charAt(1))
-                return false;
-        
-            return true;
-        }
-        
         function validacaoEmail(email) {
             usuario = email.substring(0, email.indexOf("@@"));
             dominio = email.substring(email.indexOf("@@")+ 1, email.length);
@@ -343,17 +235,10 @@
         }
         
         function gravar() {
-            if (_tipo === 1) {
-                var nome = $("#nome").val();
-                var nasc = $("#nasc").val();
-                var rg = $("#rg").val();
-                var cpf = $("#cpf").val();
-            } else {
-                var razaosocial = $("#razao_social").val();
-                var nomefantasia = $("#nome_fantasia").val();
-                var cnpj = $("#cnpj").val();
-            }
-            var tipo = _tipo.toString();
+            var nome = $("#nome").val();
+            var nasc = $("#nasc").val();
+            var rg = $("#rg").val();
+            var cpf = $("#cpf").val();
             var rua = $("#rua").val();
             var numero = $("#numero").val();
             var bairro = $("#bairro").val();
@@ -368,75 +253,44 @@
             
             erros = 0;
         
-            if (_tipo === 1) {
-                if (nome.length === 0) {
-                    erros++;
-                    $("#msnome").html('<span class="label label-danger">O Nome precisa ser preenchido!</span>');
-                } else
-                if (nome.length < 3) {
-                    erros++;
-                    $("#msnome").html('<span class="label label-danger">O Nome informado é inválido...</span>');
-                } else {
-                    $("#msnome").html('');
-                }
-        
-                if (nasc.length === 0) {
-                    erros++;
-                    $("#msnasc").html('<span class="label label-danger">A data de admissão precisa ser preenchida!</span>');
-                } else
-                if (dataNasc >= Date.now()) {
-                    erros++;
-                    $("#msnasc").html('<span class="label label-danger">A data de admissão informada é inválida...</span>');
-                } else {
-                    $("#msnasc").html('');
-                }
-        
-                if (rg.length === 0) {
-                    erros++;
-                    $("#msrg").html('<span class="label label-danger">O RG precisa ser preenchido!</span>');
-                } else {
-                    $("#msrg").html('');
-                }
-        
-                if (cpf.length === 0) {
-                    erros++;
-                    $("#mscpf").html('<span class="label label-danger">O CPF precisa ser preenchido!</span>');
-                } else
-                if (!validarCpf(cpf)) {
-                    erros++;
-                    $("#mscpf").html('<span class="label label-danger">O CPF informado é inválido...</span>');
-                } else {
-                    verificarCpf(cpf);
-                }
+            if (nome.length === 0) {
+                erros++;
+                $("#msnome").html('<span class="label label-danger">O Nome precisa ser preenchido!</span>');
+            } else
+            if (nome.length < 3) {
+                erros++;
+                $("#msnome").html('<span class="label label-danger">O Nome informado é inválido...</span>');
             } else {
-                if (razaosocial.length === 0) {
-                    erros++;
-                    $("#msrs").html('<span class="label label-danger">A Razão Social precisa ser preenchida!</span>');
-                } else
-                if (razaosocial.length < 3) {
-                    erros++;
-                    $("#msrs").html('<span class="label label-danger">A Razão Social informada é inválida...</span>');
-                } else {
-                    $("#msrs").html('');
-                }
-        
-                if (nomefantasia.length === 0) {
-                    erros++;
-                    $("#msnf").html('<span class="label label-danger">O Nome Fantasia precisa ser preenchido!</span>');
-                } else {
-                    $("#msnf").html('');
-                }
-        
-                if (cnpj.length === 0) {
-                    erros++;
-                    $("#mscnpj").html('<span class="label label-danger">O CNPJ precisa ser preenchido!</span>');
-                } else
-                if (!validarCNPJ(cnpj)) {
-                    erros++;
-                    $("#mscnpj").html('<span class="label label-danger">O CNPJ informado é inválido...</span>');
-                } else {
-                    verificarCnpj(cnpj);
-                }
+                $("#msnome").html('');
+            }
+    
+            if (nasc.length === 0) {
+                erros++;
+                $("#msnasc").html('<span class="label label-danger">A data de nascimento precisa ser preenchida!</span>');
+            } else
+            if (dataNasc >= Date.now()) {
+                erros++;
+                $("#msnasc").html('<span class="label label-danger">A data de nascimento informada é inválida...</span>');
+            } else {
+                $("#msnasc").html('');
+            }
+    
+            if (rg.length === 0) {
+                erros++;
+                $("#msrg").html('<span class="label label-danger">O RG precisa ser preenchido!</span>');
+            } else {
+                $("#msrg").html('');
+            }
+    
+            if (cpf.length === 0) {
+                erros++;
+                $("#mscpf").html('<span class="label label-danger">O CPF precisa ser preenchido!</span>');
+            } else
+            if (!validarCpf(cpf)) {
+                erros++;
+                $("#mscpf").html('<span class="label label-danger">O CPF informado é inválido...</span>');
+            } else {
+                verificarCpf(cpf);
             }
         
             if (rua.length === 0) {
@@ -523,18 +377,12 @@
                 form.append("endereco", idendereco);
                 form.append("contato", idcontato);
                 form.append("pessoa", idpessoa);
-                form.append("cliente", idcliente);
-                if (_tipo === 1) {
-                    form.append("nome", nome);
-                    form.append("nasc", nasc);
-                    form.append("rg", rg);
-                    form.append("cpf", cpf);
-                } else {
-                    form.append("razaosocial", razaosocial);
-                    form.append("nomefantasia", nomefantasia);
-                    form.append("cnpj", cnpj);
-                }
-                form.append("tipo", tipo);
+                form.append("motorista", idmotorista);
+                
+                form.append("nome", nome);
+                form.append("nasc", nasc);
+                form.append("rg", rg);
+                form.append("cpf", cpf);
                 form.append("rua", rua);
                 form.append("numero", numero);
                 form.append("bairro", bairro);
@@ -547,7 +395,7 @@
         
                 $.ajax({
                     type: 'POST',
-                    url: '/Cliente/Alterar',
+                    url: '/Motorista/Alterar',
                     data: form,
                     contentType: false,
                     processData: false,
@@ -560,14 +408,10 @@
                                 2000
                             );
                         } else {
-                            if (_tipo === 1) {
-                                cpf_atual = cpf;
-                            } else {
-                                cnpj_atual = cnpj;
-                            }
+                            cpf_atual = cpf;
                             mostraDialogo(
                                 "<strong>Alteração realizada com sucesso!</strong>" +
-                                "<br />A alteração feita nos campos do cliente foram salvos com sucesso!",
+                                "<br />A alteração feita nos campos do motorista foram salvos com sucesso!",
                                 "success",
                                 2000
                             );
@@ -590,25 +434,13 @@
 <!-- Card titulo pagina -->
 <div class="card-title">
     <div class="card-title-container" style="text-align: center;">
-        <h4><b>SCR - Detalhes do Cliente</b></h4>
+        <h4><b>SCR - Detalhes do Motorista</b></h4>
     </div>
 </div>
 <!-- Fim card titulo pagina -->
 
 <div class="fieldset-card">
-    <div class="fieldset-card-legend">Tipo Cliente</div>
-    <div class="fieldset-card-container">
-        <div class="row">
-            <div class="col-sm-12">
-                <label for="tipo">Tipo do Cliente: </label>
-                <input type="text" id="tipo" class="form-control input-sm" style="width: 100%;" />
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="fisica" class="fieldset-card">
-    <div class="fieldset-card-legend">Dados do Cliente</div>
+    <div class="fieldset-card-legend">Dados do Motorista</div>
     <div class="fieldset-card-container">
         <div class="row">
             <div class="col-sm-12">
@@ -635,35 +467,6 @@
                 <label for="nasc">Nascimento <span style="color: red;">*</span>:</label>
                 <input type="date" id="nasc" class="form-control input-sm" style="width: 100%;" />
                 <div id="msnasc"></div>
-            </div>
-        </div>
-        
-        <div class="fieldset-card-legend-obg">* Campos de preenchimento obrigatório.</div>
-    </div>
-</div>
-
-<div id="juridica" class="fieldset-card">
-    <div class="fieldset-card-legend">Dados do Cliente</div>
-    <div class="fieldset-card-container">
-        <div class="row">
-            <div class="col-sm-12">
-                <label for="razao_social">Razão Social <span style="color: red;">*</span>:</label>
-                <input type="text" id="razao_social" class="form-control input-sm" style="width: 100%;" />
-                <div id="msrs"></div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-9">
-                <label for="nome_fantasia">Nome Fantasia <span style="color: red;">*</span>:</label>
-                <input type="text" id="nome_fantasia" class="form-control input-sm" style="width: 100%;" />
-                <div id="msnf"></div>
-            </div>
-
-            <div class="col-sm-3">
-                <label for="cnpj">CNPJ <span style="color: red;">*</span>:</label>
-                <input type="text" id="cnpj" class="form-control input-sm" style="width: 100%;" />
-                <div id="mscnpj"></div>
             </div>
         </div>
         
@@ -761,7 +564,7 @@
 
 <div class="row">
     <div class="col-sm-2">
-        <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/gerenciar/cliente/index">VOLTAR</a>
+        <a role="button" id="voltar" class="btn btn-default" style="width: 100%;" href="/gerenciar/motorista/index">VOLTAR</a>
     </div>
 
     <div class="col-sm-8"></div>
