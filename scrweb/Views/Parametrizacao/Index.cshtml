@@ -299,30 +299,28 @@
         
             if (telefone.length === 0) {
                 erros++;
-                $("#tel").html('<span class="label label-danger">O Telefone precisa ser preenchido!</span>');
+                $("#mstel").html('<span class="label label-danger">O Telefone precisa ser preenchido!</span>');
             } else
             if (telefone.length < 14) {
                 erros++;
-                $("#tel").html('<span class="label label-danger">O Telefone informado possui tamanho inválido...</span>');
+                $("#mstel").html('<span class="label label-danger">O Telefone informado possui tamanho inválido...</span>');
             } else {
-                $("#tel").html('');
+                $("#mstel").html('');
             }
         
             if (celular.length === 0) {
                 erros++;
-                $("#cel").html('<span class="label label-danger">O Celular precisa ser preenchido!</span>');
+                $("#mscel").html('<span class="label label-danger">O Celular precisa ser preenchido!</span>');
             } else
             if (celular.length < 15) {
                 erros++;
-                $("#cel").html('<span class="label label-danger">O Celular informado possui tamanho inválido...</span>');
+                $("#mscel").html('<span class="label label-danger">O Celular informado possui tamanho inválido...</span>');
             } else {
-                $("#cel").html('');
+                $("#mscel").html('');
             }
         
             if (email.length === 0) {
                 erros++;
-                msEmail.innerHTML = "";
-                msEmail.classList.remove("hidden");
                 $("#msemail").html('<span class="label label-danger">O Email precisa ser preenchido!</span>');
             } else
             if (validacaoEmail(email) === false) {

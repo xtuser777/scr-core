@@ -130,7 +130,7 @@ function excluir(id) {
                     data: { id: id },
                     success: function (result) {
                         if (result === "") {
-                            obterTipos();
+                            obter();
                         }
                         else {
                             mostraDialogo(

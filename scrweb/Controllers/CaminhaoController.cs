@@ -11,7 +11,12 @@ namespace scrweb.Controllers
     public class CaminhaoController : Controller
     {
         private static List<Caminhao> _caminhoes;
-        
+
+        public CaminhaoController()
+        {
+            _caminhoes = new Caminhao().GetAll();
+        }
+
         // GET
         public IActionResult Index()
         {
@@ -19,6 +24,11 @@ namespace scrweb.Controllers
         }
 
         public IActionResult Novo()
+        {
+            return View();
+        }
+
+        public IActionResult Detalhes()
         {
             return View();
         }
@@ -45,6 +55,7 @@ namespace scrweb.Controllers
             );
         }
 
+        [HttpPost]
         public JsonResult Enviar(string id)
         {
             if (string.IsNullOrEmpty(id)) return Json("Parâmetro iválido...");
@@ -54,6 +65,7 @@ namespace scrweb.Controllers
             return Json("");
         }
 
+        [HttpPost]
         public JsonResult ObterPorFiltro(string filtro)
         {
             List<Caminhao> filtrado = _caminhoes.FindAll(c =>
@@ -70,6 +82,7 @@ namespace scrweb.Controllers
             return Json(array);
         }
 
+        [HttpPost]
         public JsonResult Ordenar(string coluna)
         {
             List<Caminhao> ordenado = new List<Caminhao>();
@@ -115,6 +128,81 @@ namespace scrweb.Controllers
             }
 
             return Json(array);
+        }
+
+        [HttpPost]
+        public JsonResult Gravar(IFormCollection form)
+        {
+            string placa = form["placa"];
+            string marca = form["marca"];
+            string modelo = form["modelo"];
+            string ano = form["ano"];
+            string tipo = form["tipo"];
+            string proprietario = form["proprietario"];
+
+            int.TryParse(tipo, out int idtipo);
+            int.TryParse(proprietario, out int idprop);
+
+            int res = new Caminhao()
+            {
+                Id = 0,
+                Placa = placa,
+                Marca = marca,
+                Modelo = modelo,
+                Ano = ano,
+                Tipo = new TipoCaminhao() { Id = idtipo },
+                Proprietario = new Motorista() { Id = idprop }
+            }.Gravar();
+
+            switch (res)
+            {
+                case -10: return Json("Problema na execução do SQL.");
+                case -5: return Json("Um ou mais campos inválidos.");
+                default: return Json("");
+            }
+        }
+
+        [HttpPost]
+        public JsonResult Alterar(IFormCollection form)
+        {
+            string caminhao = form["caminhao"];
+            string placa = form["placa"];
+            string marca = form["marca"];
+            string modelo = form["modelo"];
+            string ano = form["ano"];
+            string tipo = form["tipo"];
+            string proprietario = form["proprietario"];
+
+            int.TryParse(caminhao, out int idcaminhao);
+            int.TryParse(tipo, out int idtipo);
+            int.TryParse(proprietario, out int idprop);
+
+            int res = new Caminhao()
+            {
+                Id = idcaminhao,
+                Placa = placa,
+                Marca = marca,
+                Modelo = modelo,
+                Ano = ano,
+                Tipo = new TipoCaminhao() { Id = idtipo },
+                Proprietario = new Motorista() { Id = idprop }
+            }.Alterar();
+
+            return Json(res > 0 ? "" : "Problemas na alteração do caminhão.");
+        }
+
+        [HttpPost]
+        public JsonResult Excluir(int id)
+        {
+            Caminhao c = _caminhoes.Find(c => c.Id == id);
+
+            int res = new Caminhao().Excluir(id);
+
+            if (res <= 0) return Json("Problemas ao excluir o caminhão.");
+
+            _caminhoes.Remove(c);
+
+            return Json("");
         }
     }
 }

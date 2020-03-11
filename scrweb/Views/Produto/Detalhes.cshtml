@@ -3,6 +3,7 @@
 
 @section Scripts
 {
+    <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
     <script type="text/javascript">
         var _produto = 0;
 
@@ -21,6 +22,9 @@
         }
 
         $(document).ready(function (event) {
+            $('#preco').mask('00.000.000,00', { reverse: true });
+            $('#preco_out').mask('00.000.000,00', { reverse: true });
+
             var dados = get("/Produto/ObterDetalhes");
             if (dados !== "") {
                 _produto = dados.id;

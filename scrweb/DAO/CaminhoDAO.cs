@@ -84,7 +84,7 @@ namespace scrweb.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"
                 select e.id as est_id, e.nome as est_nome, e.sigla as est_sigla,
-                       c.id as cli_id, c.nome as cid_nome, c.estado as cid_estado,
+                       c.id as cid_id, c.nome as cid_nome, c.estado as cid_estado,
                        en.id as end_id, en.rua as end_rua, en.numero as end_numero, en.bairro as end_bairro, en.complemento as end_complemento, en.cep as end_cep, en.cidade as end_cidade,
                        ct.id as ctt_id, ct.telefone as ctt_telefone, ct.celular as ctt_celular, ct.email as ctt_email, ct.endereco as ctt_endereco,
                        p.id as pes_id, p.nome as pes_nome, p.rg as pes_rg, p.cpf as pes_cpf, p.nascimento as pes_nascimento, p.contato as pes_contato,
@@ -113,7 +113,7 @@ namespace scrweb.DAO
             ComandoSQL.Parameters.Clear();
             ComandoSQL.CommandText = @"
                 select e.id as est_id, e.nome as est_nome, e.sigla as est_sigla,
-                       c.id as cli_id, c.nome as cid_nome, c.estado as cid_estado,
+                       c.id as cid_id, c.nome as cid_nome, c.estado as cid_estado,
                        en.id as end_id, en.rua as end_rua, en.numero as end_numero, en.bairro as end_bairro, en.complemento as end_complemento, en.cep as end_cep, en.cidade as end_cidade,
                        ct.id as ctt_id, ct.telefone as ctt_telefone, ct.celular as ctt_celular, ct.email as ctt_email, ct.endereco as ctt_endereco,
                        p.id as pes_id, p.nome as pes_nome, p.rg as pes_rg, p.cpf as pes_cpf, p.nascimento as pes_nascimento, p.contato as pes_contato,
@@ -147,8 +147,8 @@ namespace scrweb.DAO
             ComandoSQL.Parameters.AddWithValue("@mar", c.Marca);
             ComandoSQL.Parameters.AddWithValue("@mod", c.Modelo);
             ComandoSQL.Parameters.AddWithValue("@ano", c.Ano);
-            ComandoSQL.Parameters.AddWithValue("@tip", c.Tipo);
-            ComandoSQL.Parameters.AddWithValue("@pro", c.Proprietario);
+            ComandoSQL.Parameters.AddWithValue("@tip", c.Tipo.Id);
+            ComandoSQL.Parameters.AddWithValue("@pro", c.Proprietario.Id);
 
             DataTable table = ExecutaSelect();
 
@@ -172,8 +172,8 @@ namespace scrweb.DAO
             ComandoSQL.Parameters.AddWithValue("@mar", c.Marca);
             ComandoSQL.Parameters.AddWithValue("@mod", c.Modelo);
             ComandoSQL.Parameters.AddWithValue("@ano", c.Ano);
-            ComandoSQL.Parameters.AddWithValue("@tip", c.Tipo);
-            ComandoSQL.Parameters.AddWithValue("@pro", c.Proprietario);
+            ComandoSQL.Parameters.AddWithValue("@tip", c.Tipo.Id);
+            ComandoSQL.Parameters.AddWithValue("@pro", c.Proprietario.Id);
             ComandoSQL.Parameters.AddWithValue("@id", c.Id);
 
             return ExecutaComando();

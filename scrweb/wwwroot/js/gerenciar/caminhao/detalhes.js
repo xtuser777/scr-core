@@ -1,6 +1,8 @@
 var tipo = document.getElementById('tipo');
 var proprietario = document.getElementById('proprietario');
 
+var idcaminhao;
+
 function get(url_i) {
     let res;
     $.ajax({
@@ -36,6 +38,17 @@ $(document).ready(function (event) {
             option.text = props[i].pessoa.nome;
             proprietario.appendChild(option);
         }
+    }
+
+    var caminhao = get('/Caminhao/ObterDetalhes');
+    if (caminhao !== null && caminhao !== "") {
+        idcaminhao = caminhao.id;
+        $('#placa').val(caminhao.placa);
+        $('#marca').val(caminhao.marca);
+        $('#modelo').val(caminhao.modelo);
+        $('#ano').val(caminhao.ano);
+        $('#tipo').val(caminhao.tipo.id);
+        $('#proprietario').val(caminhao.proprietario.id);
     }
 });
 
@@ -93,6 +106,7 @@ function gravar() {
 
     if (erros === 0) {
         var form = new FormData();
+        form.append("caminhao", idcaminhao);
         form.append("placa", placa);
         form.append("marca", marca);
         form.append("modelo", modelo);
@@ -102,7 +116,7 @@ function gravar() {
 
         $.ajax({
             type: "POST",
-            url: "/Caminhao/Gravar",
+            url: "/Caminhao/Alterar",
             data: form,
             contentType: false,
             processData: false,
@@ -110,7 +124,7 @@ function gravar() {
             success: function(response) {
                 if (response === "") {
                     mostraDialogo(
-                        "<strong>Caminhão gravado com sucesso!</strong>" +
+                        "<strong>Caminhão alterado com sucesso!</strong>" +
                         "<br />Os dados do novo caminhão foram salvos com sucesso no banco de dados.",
                         "success",
                         2000
@@ -118,7 +132,7 @@ function gravar() {
                     limpar();
                 } else {
                     mostraDialogo(
-                        "<strong>Problemas ao salvar o novo caminhão...</strong>" +
+                        "<strong>Problemas ao alterar o caminhão...</strong>" +
                         "<br/>response",
                         "danger",
                         2000

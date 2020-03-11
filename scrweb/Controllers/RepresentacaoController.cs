@@ -66,7 +66,7 @@ namespace scrweb.Controllers
             {
                 array.Add(filtrado[i].ToJObject());
             }
-            
+
             return Json(array);
         }
 
@@ -336,7 +336,7 @@ namespace scrweb.Controllers
                 Complemento = complemento,
                 Cep = cep,
                 Cidade = city
-            }.Gravar();
+            }.Alterar();
 
             if (res1 < 0) return Json("Ocorreu um problema na alteração do endereço...");
 
@@ -350,7 +350,7 @@ namespace scrweb.Controllers
                 {
                     Id = res1
                 }
-            }.Gravar();
+            }.Alterar();
             
             if (res2 < 0) return Json("Ocorreu um problema na alteração do contato...");
             
@@ -364,7 +364,7 @@ namespace scrweb.Controllers
                 {
                     Id = res2
                 }
-            }.Gravar();
+            }.Alterar();
 
             if (res3 < 0) return Json("Ocorreu um problema na alteração da pessoa...");
             
@@ -384,7 +384,7 @@ namespace scrweb.Controllers
                         Id = res2
                     }
                 }
-            }.Gravar();
+            }.Alterar();
         
             return Json(res4 < 0 ? "Ocorreu um problema na alteração da representação..." : "");
         }

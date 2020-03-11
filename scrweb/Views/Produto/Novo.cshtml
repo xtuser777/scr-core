@@ -3,7 +3,13 @@
 
 @section Scripts
 {
+    <script type="text/javascript" src="~/lib/jquery-mask-plugin/dist/jquery.mask.js"></script>
     <script type="text/javascript">
+        $(document).ready(function (event) {
+            $('#preco').mask('00.000.000,00', { reverse: true });
+            $('#preco_out').mask('00.000.000,00', { reverse: true });
+        });
+
         function gravar() {
             var desc = $("#desc").val();
             var medida = $("#medida").val();
